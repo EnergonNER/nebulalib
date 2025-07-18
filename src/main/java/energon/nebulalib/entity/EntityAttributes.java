@@ -12,13 +12,15 @@ public class EntityAttributes {
     public double attack_damage;
     public double armor;
     public double armor_toughness;
-    public EntityAttributes(double h, double m, double f, double a, double ar, double ar_t) {
+    public double knockback;
+    public EntityAttributes(double h, double m, double f, double a, double ar, double ar_t, double kb) {
         this.health = h;
         this.movement_speed = m;
         this.follow_range = f;
         this.attack_damage = a;
         this.armor = ar;
         this.armor_toughness = ar_t;
+        this.knockback = kb;
     }
 
     public void increaseHealth(float multi) {
@@ -57,6 +59,12 @@ public class EntityAttributes {
         }
     }
 
+    public void increaseKnockback(float multi) {
+        if (multi != 1F) {
+            this.knockback *= multi;
+        }
+    }
+
     public void configCompatibility(Config config, String category) {
         this.health = config.getDouble("health", category, this.health, 0, 999999, "Health.");
         this.movement_speed = config.getDouble("movement_speed", category, this.movement_speed, 0, 999999, "Movement Speed.");
@@ -64,6 +72,7 @@ public class EntityAttributes {
         this.attack_damage = config.getDouble("attack_damage", category, this.attack_damage, 0, 999999, "Attack Damage.");
         this.armor = config.getDouble("armor", category, this.armor, 0, 999999, "Armor.");
         this.armor_toughness = config.getDouble("armor_toughness", category, this.armor_toughness, 0, 999999, "Armor Toughness.");
+        this.knockback = config.getDouble("knockback", category, this.knockback, 0, 999999, "Knockback.");
     }
 
     public <T extends LivingEntity> AttributeSupplier.Builder createAttributes() {
@@ -73,6 +82,7 @@ public class EntityAttributes {
                 .add(Attributes.FOLLOW_RANGE, this.follow_range)
                 .add(Attributes.ATTACK_DAMAGE, this.attack_damage)
                 .add(Attributes.ARMOR, this.armor)
-                .add(Attributes.ARMOR_TOUGHNESS, this.armor_toughness);
+                .add(Attributes.ARMOR_TOUGHNESS, this.armor_toughness)
+                .add(Attributes.KNOCKBACK_RESISTANCE, this.knockback);
     }
 }
