@@ -105,7 +105,7 @@ public class EntityRule {
         return !this.testCls(target) || !this.testName(target);
     }
 
-    /**Return true if friend, false - not present or target list*/
+    /**(NEXT VERSION > INT) Return true if friend, false - not present or target list*/
     public boolean testCls(LivingEntity target) {
         if (this.firstFriends) {
             for (Class<?> friend : this.friendsClass) {
@@ -134,7 +134,7 @@ public class EntityRule {
     }
 
 
-    /**Return true if friend, false - not present or target list*/
+    /**(NEXT VERSION > INT)Return true if friend, false - not present or target list*/
     public boolean testName(LivingEntity target) {
         ResourceLocation registryName = ForgeRegistries.ENTITY_TYPES.getKey(target.getType());
         if (registryName == null) {

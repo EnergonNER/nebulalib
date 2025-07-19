@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 @Mod(NebulaLibMain.MODID)
 public final class NebulaLibMain {
     public static final String MODID = "nebulalib";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     public NebulaLibMain(FMLJavaModLoadingContext context) {
         var modBusGroup = context.getModBusGroup();
         FMLCommonSetupEvent.getBus(modBusGroup).addListener(this::commonSetup);
