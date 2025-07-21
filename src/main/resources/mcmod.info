@@ -1,0 +1,15 @@
+[
+{
+  "modid": "nebulalib",
+  "name": "Nebula: Lib",
+  "description": "",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://discord.gg/peU9jS8rhA",
+  "updateUrl": "",
+  "authorList": ["Energon"],
+  "credits": "LIB",
+  "logoFile": "assets/nebulalib/logo.png",
+  "screenshots": []
+}
+]
