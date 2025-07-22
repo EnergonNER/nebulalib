@@ -1,8 +1,10 @@
 package energon.nebulalib.event;
 
 import com.dhanantry.scapeandrunparasites.entity.monster.inborn.EntityLodo;
+import com.dhanantry.scapeandrunparasites.entity.monster.primitive.EntityShyco;
 import energon.nebulalib.event.events.EventBase;
 import energon.nebulalib.event.events.Event_SawBuglin;
+import energon.nebulalib.event.test.Test_DeathFromEntity;
 import energon.nebulalib.event.test.Test_LooksAtEntity;
 import energon.nebulalib.event.test.ITestBase;
 import net.minecraft.entity.Entity;
@@ -30,10 +32,16 @@ public class EventHandler {
     public static int ticks = -200;
     public static boolean importData = true;
     public static EventSaveData DATA;
+
     private final static List<EventBase> PLAYERS_EVENT = new ArrayList<>();
     public static List<EventBase> PLAYERS_EVENT_ADD = new ArrayList<>();
+
+    private final static List<EventBase> WORLDS_EVENT = new ArrayList<>();
+    public static List<EventBase> WORLDS_EVENT_ADD = new ArrayList<>();
+
     public static void init() {
         EVENTS.add(new EVENT(1, SIDE.PLAYER_TICK, Event_SawBuglin::new, new Test_LooksAtEntity(EntityLodo.class)));
+        EVENTS.add(new EVENT(2, SIDE.PLAYER_INTERACT, Event_SawBuglin::new, new Test_DeathFromEntity(EntityShyco.class)));
     }
 
     @SubscribeEvent
@@ -47,9 +55,9 @@ public class EventHandler {
                 EventSaveData.EVENT_PLAYER_DATA playerData;
                 for (EntityPlayer player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
                     playerData = DATA.getPlayerData(player.getName());
-                    if (playerData.correctEventEnded && playerData.correctEvent == 0) {
+                    if (playerData.canStartSearch()) {
                         for (EVENT test : EVENTS) {
-                            if (test.side.isPlayerEvent() && test.canStartEvent(player, playerData)) {
+                            if (test.side.isPlayerUpdateEvent() && test.canStartEvent(player, playerData)) {
                                 test.startEvent(player);
                                 break;
                             }
@@ -57,11 +65,15 @@ public class EventHandler {
                     }
                 }
                 if (ticks % 50 == 5) {
+                    EventSaveData.EVENT_WORLD_DATA worldData;
                     for (int worldID : DimensionManager.getStaticDimensionIDs()) {
-                        for (EVENT test : EVENTS) {
-                            if (test.side.inWorldEvent() && test.canStartEvent(worldID)) {
-                                test.startEvent(DimensionManager.getWorld(worldID));
-                                break;
+                        worldData = DATA.getWorldData(worldID);
+                        if (worldData.canStartSearch()) {
+                            for (EVENT test : EVENTS) {
+                                if (test.side.inWorldUpdateEvent() && worldData.worldCanStartEvent(test.eventID) && test.canStartEvent(worldID, worldData)) {
+                                    test.startEvent(DimensionManager.getWorld(worldID));
+                                    break;
+                                }
                             }
                         }
                     }
@@ -72,32 +84,63 @@ public class EventHandler {
                 PLAYERS_EVENT.addAll(PLAYERS_EVENT_ADD);
                 PLAYERS_EVENT_ADD.clear();
             }
+            WORLDS_EVENT.removeIf(EventBase::serverHandler);
+            if (!WORLDS_EVENT_ADD.isEmpty()) {
+                WORLDS_EVENT.addAll(WORLDS_EVENT_ADD);
+                WORLDS_EVENT_ADD.clear();
+            }
         }
     }
 
     @SubscribeEvent
     public static void onAttackEntity(AttackEntityEvent event) {
         Entity attacker = event.getEntity();
-        List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
-        for (EventBase eventBase : local) {
-            if (eventBase.player == attacker && !eventBase.canAttack(event.getTarget())) {
-                event.setCanceled(true);
+        if (!attacker.world.isRemote) {
+            Entity target = event.getTarget();
+            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+            for (EventBase eventBase : local) {
+                if (eventBase.player == attacker && !eventBase.canAttack(target)) {
+                    event.setCanceled(true);
+                }
+            }
+            for (EVENT test : EVENTS) {
+                if (test.side.isInteractEvent() && test.canStartEvent(attacker, target)) {
+                    if (test.side.isForAll()) {
+                        test.startEventZone(attacker);
+                    } else if (attacker instanceof EntityPlayer) {
+                        EntityPlayer player = (EntityPlayer) attacker;
+                        if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
+                            test.startEvent(player);
+                        }
+                    } else if (target instanceof EntityPlayer) {
+                        EntityPlayer player = (EntityPlayer) target;
+                        if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
+                            test.startEvent(player);
+                        }
+                    }
+                    break;
+                }
             }
         }
     }
 
     @SubscribeEvent
     public static void onDeathEvent(LivingDeathEvent event) {
-        EntityLivingBase living = event.getEntityLiving();
-        if (!living.world.isRemote) {
+        EntityLivingBase deadEntity = event.getEntityLiving();
+        if (!deadEntity.world.isRemote) {
             for (EVENT test : EVENTS) {
-                if (test.side.isEntityDeathEvent() && test.canStartEvent(living, event.getSource())) {
+                if (test.side.isInteractEvent() && test.canStartEvent(deadEntity, event.getSource())) {
                     if (test.side.isForAll()) {
-                        test.startEventZone(living.world, living);
+                        test.startEventZone(deadEntity);
                     } else if (event.getSource().getTrueSource() instanceof EntityPlayer) {
                         EntityPlayer player = (EntityPlayer) event.getSource().getTrueSource();
                         if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
-                            test.startEvent((EntityPlayer) event.getSource().getTrueSource());
+                            test.startEvent(player);
+                        }
+                    } else if (deadEntity instanceof EntityPlayer) {
+                        EntityPlayer player = (EntityPlayer) deadEntity;
+                        if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
+                            test.startEvent(player);
                         }
                     }
                     break;
@@ -122,6 +165,14 @@ public class EventHandler {
             return supplier.apply(player);
         }
 
+        /**START*/
+        public void startEvent(EntityPlayer player) {
+            EventBase eventBase = this.getEvent(player);
+            EventHandler.DATA.addPlayerEvent(player.getName(), this.eventID);
+            Network.sendPlayerEvent(player, this.eventID);
+            PLAYERS_EVENT_ADD.add(eventBase);
+        }
+
         //RULES
         /**PLAYER_TICK*/
         public boolean canStartEvent(EntityPlayer player, EventSaveData.EVENT_PLAYER_DATA data) {
@@ -136,10 +187,20 @@ public class EventHandler {
             return true;
         }
 
-        /**WORLD_TICK*/
-        public boolean canStartEvent(int worldID) {
+        /***/
+        public boolean canStartEvent(Entity attacker, Entity target) {
             for (ITestBase t : this.tests) {
-                if (!t.canStartEvent(worldID)) {
+                if (!t.canStartEvent(attacker, target)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**WORLD_TICK*/
+        public boolean canStartEvent(int worldID, EventSaveData.EVENT_WORLD_DATA data) {
+            for (ITestBase t : this.tests) {
+                if (!t.canStartEvent(worldID, data)) {
                     return false;
                 }
             }
@@ -156,17 +217,9 @@ public class EventHandler {
             return true;
         }
 
-        //START
-        /**PLAYER_TICK*/
-        public void startEvent(EntityPlayer player) {
-            DATA.addPlayerEvent(player.getName(), this.eventID);
-            Network.sendPlayerEvent(player, this.eventID);
-            PLAYERS_EVENT_ADD.add(this.getEvent(player));
-        }
-
         /**ENTITY_KILLED*/
-        public void startEventZone(World world, EntityLivingBase entity) {
-            this.startEventZone(world, new AxisAlignedBB(entity.posX - 24, entity.posY - 12, entity.posZ - 24, entity.posX + 24, entity.posY + 12, entity.posZ + 24));
+        public void startEventZone(Entity entity) {
+            this.startEventZone(entity.world, new AxisAlignedBB(entity.posX - 24, entity.posY - 12, entity.posZ - 24, entity.posX + 24, entity.posY + 12, entity.posZ + 24));
         }
 
         /**ENTITY_KILLED*/
@@ -183,11 +236,15 @@ public class EventHandler {
             if (world == null) {
                 return;
             }
-            for (EntityPlayer player : world.playerEntities) {
+            DATA.addWorldEvent(world.provider.getDimension(), this.eventID);
+            EventBase base = this.getEvent(null);
+            base.world = world;
+            WORLDS_EVENT_ADD.add(base);
+            /*for (EntityPlayer player : world.playerEntities) {
                 if (DATA.getPlayerData(player.getName()).playerCanStartEvent(this.eventID)) {
                     this.startEvent(player);
                 }
-            }
+            }*/
         }
     }
 
@@ -196,24 +253,28 @@ public class EventHandler {
         PLAYER_TICK,
         /**onWorldUpdate*/
         WORLD_TICK,
-        /**onEntityDeath for all players in the zone*/
+        /**onEntityDeath, onEntityHurt for all players in the zone*/
         VOID_INTERACT,
-        /**onPlayerKill, onPlayerBreak for player*/
+        /**onPlayerKill, onPlayerHurt, onHurtPlayer, onPlayerDead for player*/
         PLAYER_INTERACT;
-        public boolean isPlayerEvent() {
+        public boolean isPlayerUpdateEvent() {
             return this == PLAYER_TICK;
         }
 
-        public boolean isEntityDeathEvent() {
+        public boolean inWorldUpdateEvent() {
+            return this == WORLD_TICK;
+        }
+
+        public boolean isInteractEvent() {
             return this == VOID_INTERACT || this == PLAYER_INTERACT;
+        }
+
+        public boolean isOnlyPlayerInteract() {
+            return this == PLAYER_INTERACT;
         }
 
         public boolean isForAll() {
             return this == VOID_INTERACT;
-        }
-
-        public boolean inWorldEvent() {
-            return this == WORLD_TICK;
         }
     }
 }

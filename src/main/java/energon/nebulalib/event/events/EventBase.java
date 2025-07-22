@@ -3,6 +3,7 @@ package energon.nebulalib.event.events;
 import energon.nebulalib.event.EventHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -11,6 +12,7 @@ import javax.annotation.Nullable;
 
 public abstract class EventBase {
     public final EntityPlayer player;
+    public World world;
     public float eventProgress = 0F;
     public final float eventProgressStep;
 
@@ -22,6 +24,7 @@ public abstract class EventBase {
     public boolean serverHandler() {
         if (this.eventProgress >= 1F) {
             this.saveData();
+            this.serverTick();
             this.serverEventEnd();
             return true;
         } else {
@@ -36,6 +39,7 @@ public abstract class EventBase {
 
     public boolean clientHandler(EntityPlayer player) {
         if (this.eventProgress >= 1F) {
+            this.clientTick(player);
             this.clientEventEnd(player);
             return true;
         } else {
@@ -49,8 +53,10 @@ public abstract class EventBase {
     }
 
     private void saveData() {
-        if (this.player != null && FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(this.player.getName()) != null) {
-            EventHandler.DATA.setEventEnded(this.player.getName());
+        if (this.world != null) {
+            EventHandler.DATA.setWorldEventEnded(this.world.provider.getDimension());
+        } else if (this.player != null && FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(this.player.getName()) != null) {
+            EventHandler.DATA.setPlayerEventEnded(this.player.getName());
         }
     }
 
