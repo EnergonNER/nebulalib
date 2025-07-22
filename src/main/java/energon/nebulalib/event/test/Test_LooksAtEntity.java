@@ -22,7 +22,7 @@ public class Test_LooksAtEntity implements ITestBase {
     }
 
     @Override
-    public boolean canStartEvent(EntityPlayer player, EventSaveData.EVENT_DATA data) {
+    public boolean canStartEvent(EntityPlayer player, EventSaveData.EVENT_PLAYER_DATA data) {
         for (Entity target : player.world.getEntitiesWithinAABB(this.target, new AxisAlignedBB(player.posX - radius, player.posY - height, player.posZ - radius, player.posX + radius, player.posY + height, player.posZ + radius))) {
             if (this.playerSeesTarget(player, target)) {
                 return true;

@@ -6,10 +6,17 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 
 public interface ITestBase {
-    default boolean canStartEvent(EntityPlayer player, EventSaveData.EVENT_DATA data) {
+    /**PLAYER_TICK*/
+    default boolean canStartEvent(EntityPlayer player, EventSaveData.EVENT_PLAYER_DATA data) {
         return false;
     }
 
+    /**WORLD_TICK*/
+    default boolean canStartEvent(int dimID) {
+        return false;
+    }
+
+    /**ENTITY_KILLED*/
     default boolean canStartEvent(EntityLivingBase entity, DamageSource source) {
         return false;
     }

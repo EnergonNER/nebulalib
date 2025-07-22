@@ -12,7 +12,7 @@ import java.util.List;
 
 public class EventSaveData extends WorldSavedData {
     public static final String DATA_NAME = "custom_events";
-    public List<EVENT_DATA> playersEventData = new ArrayList<>();
+    public List<EVENT_PLAYER_DATA> playersEventData = new ArrayList<>();
     public EventSaveData() {
         this(DATA_NAME);
     }
@@ -31,20 +31,20 @@ public class EventSaveData extends WorldSavedData {
         return instance;
     }
 
-    public EVENT_DATA getPlayerData(String playerName) {
-        for (EVENT_DATA data : playersEventData) {
+    public EVENT_PLAYER_DATA getPlayerData(String playerName) {
+        for (EVENT_PLAYER_DATA data : playersEventData) {
             if (data.player.equals(playerName)) {
                 return data;
             }
         }
-        EVENT_DATA newData = new EVENT_DATA(playerName, 0, true);
+        EVENT_PLAYER_DATA newData = new EVENT_PLAYER_DATA(playerName, 0, true);
         playersEventData.add(newData);
         this.setDirty(true);
         return newData;
     }
 
     public void addPlayerEvent(String playerName, int id) {
-        for (EVENT_DATA data : playersEventData) {
+        for (EVENT_PLAYER_DATA data : playersEventData) {
             if (data.player.equals(playerName)) {
                 data.correctEventEnded = false;
                 data.correctEvent = id;
@@ -55,7 +55,7 @@ public class EventSaveData extends WorldSavedData {
     }
 
     public void setEventEnded(String playerName) {
-        for (EVENT_DATA data : playersEventData) {
+        for (EVENT_PLAYER_DATA data : playersEventData) {
             if (data.player.equals(playerName)) {
                 data.correctEventEnded = true;
                 data.eventsEnded = ArrayUtils.add(data.eventsEnded, data.correctEvent);
@@ -72,7 +72,7 @@ public class EventSaveData extends WorldSavedData {
             NBTTagList data = nbtTagCompound.getTagList("player_event_data", 10);
             for (int i = 0; i < data.tagCount(); i++) {
                 NBTTagCompound tag = data.getCompoundTagAt(i);
-                playersEventData.add(new EVENT_DATA(tag.getString("player"), tag.getString("correct_event").split(":"), tag.getIntArray("ended_events")));
+                playersEventData.add(new EVENT_PLAYER_DATA(tag.getString("player"), tag.getString("correct_event").split(":"), tag.getIntArray("ended_events")));
             }
         }
     }
@@ -80,7 +80,7 @@ public class EventSaveData extends WorldSavedData {
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbtTagCompound) {
         NBTTagList data = new NBTTagList();
-        for (EVENT_DATA parts : this.playersEventData) {
+        for (EVENT_PLAYER_DATA parts : this.playersEventData) {
             NBTTagCompound tag = new NBTTagCompound();
             tag.setString("player", parts.player);
             tag.setString("correct_event", parts.getCorrectEventState());
@@ -91,19 +91,19 @@ public class EventSaveData extends WorldSavedData {
         return nbtTagCompound;
     }
 
-    public static class EVENT_DATA {
+    public static class EVENT_PLAYER_DATA {
         public String player;
         public int correctEvent;
         public boolean correctEventEnded;
         public int[] eventsEnded;
-        public EVENT_DATA(String p, int correct, boolean correct_end, int... ended) {
+        public EVENT_PLAYER_DATA(String p, int correct, boolean correct_end, int... ended) {
             this.player = p;
             this.correctEvent = correct;
             this.correctEventEnded = correct_end;
             this.eventsEnded = ended;
         }
 
-        public EVENT_DATA(String p, String[] both, int... ended) {
+        public EVENT_PLAYER_DATA(String p, String[] both, int... ended) {
             this(p, Integer.parseInt(both[0]), Boolean.parseBoolean(both[1]), ended);
         }
 
@@ -118,6 +118,15 @@ public class EventSaveData extends WorldSavedData {
                 }
             }
             return false;
+        }
+
+        public boolean playerCanStartEvent(int id) {
+            for (int test : this.eventsEnded) {
+                if (test == id) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
