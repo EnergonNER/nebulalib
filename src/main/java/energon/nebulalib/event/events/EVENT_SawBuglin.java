@@ -3,6 +3,8 @@ package energon.nebulalib.event.events;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -30,6 +32,21 @@ public class EVENT_SawBuglin extends EventBase {
 
     @Override
     public boolean disableAttack(Entity target) {
+        return true;
+    }
+
+    @Override
+    public boolean disableChangeDimension(EntityTravelToDimensionEvent event) {
+        return true;
+    }
+
+    @Override
+    public boolean disableBreakBlock(BlockEvent.BreakEvent event) {
+        return true;
+    }
+
+    @Override
+    public boolean disablePlaceBlock(BlockEvent.EntityPlaceEvent event) {
         return true;
     }
 }

@@ -1,6 +1,7 @@
 package energon.nebulalib.event;
 
 import com.dhanantry.scapeandrunparasites.entity.monster.inborn.EntityLodo;
+import com.dhanantry.scapeandrunparasites.init.SRPBlocks;
 import com.dhanantry.scapeandrunparasites.init.SRPPotions;
 import energon.nebulalib.event.events.*;
 import energon.nebulalib.event.test.*;
@@ -14,6 +15,7 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -40,6 +42,7 @@ public class EventHandler {
         EVENTS.add(new EVENT(1, SIDE.PLAYER_TICK, EVENT_SawBuglin::new, new TEST_PlayerLooksAtEntity(EntityLodo.class)));
         EVENTS.add(new EVENT(3, SIDE.PLAYER_TICK, EVENT_First_Contact::new, new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E), new TEST_EvoPhase(0, 3)));
         //EVENTS.add(new EVENT(2, SIDE.PLAYER_INTERACT, EVENT_SawBuglin::new, new TEST_EntityKillPlayer(EntityShyco.class)));
+        EVENTS.add(new EVENT(4, SIDE.PLAYER_INTERACT, EVENT_SawBuglin::new, new TEST_PlayerBreakBlock(SRPBlocks.BiomeHeart)));
     }
 
     public static void serverStarted() {
@@ -156,22 +159,24 @@ public class EventHandler {
                     event.setCanceled(true);
                 }
             }
-            for (EVENT test : EVENTS) {
-                if (test.side.isInteractEvent() && test.canStartEvent(attacker, target)) {
-                    if (test.side.isForAll()) {
-                        test.startEventZone(attacker);
-                    } else if (attacker instanceof EntityPlayer) {
-                        EntityPlayer player = (EntityPlayer) attacker;
-                        if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
-                            test.startEvent(player);
+            if (!event.isCanceled()) {
+                for (EVENT test : EVENTS) {
+                    if (test.side.isInteractEvent() && test.canStartEvent(attacker, target)) {
+                        if (test.side.isForAll()) {
+                            test.startEventZone(attacker);
+                        } else if (attacker instanceof EntityPlayer) {
+                            EntityPlayer player = (EntityPlayer) attacker;
+                            if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
+                                test.startEvent(player);
+                            }
+                        } else if (target instanceof EntityPlayer) {
+                            EntityPlayer player = (EntityPlayer) target;
+                            if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
+                                test.startEvent(player);
+                            }
                         }
-                    } else if (target instanceof EntityPlayer) {
-                        EntityPlayer player = (EntityPlayer) target;
-                        if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
-                            test.startEvent(player);
-                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
@@ -226,6 +231,51 @@ public class EventHandler {
         }
     }
 
+    @SubscribeEvent
+    public static void onPlayerBreakBlock(BlockEvent.BreakEvent event) {
+        if (!event.getWorld().isRemote) {
+            //MAYBE CHANGE
+            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+            for (EventBase eventBase : local) {
+                if (eventBase.player == event.getPlayer() && eventBase.disableBreakBlock(event)) {
+                    event.setCanceled(true);
+                }
+            }
+            if (!event.isCanceled()) {
+                EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.getPlayer().getName());
+                if (playerData.canStartSearch()) {
+                    for (EVENT test : EVENTS) {
+                        if (test.side.isOnlyPlayerInteract() && test.canStartEvent(event, playerData)) {
+                            test.startEvent(event.getPlayer());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerPlaceBlock(BlockEvent.EntityPlaceEvent event) {
+        if (!event.getWorld().isRemote && event.getEntity() instanceof EntityPlayer) {
+            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+            for (EventBase eventBase : local) {
+                if (eventBase.player == event.getEntity() && eventBase.disablePlaceBlock(event)) {
+                    event.setCanceled(true);
+                }
+            }
+            if (!event.isCanceled()) {
+                EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.getEntity().getName());
+                if (playerData.canStartSearch()) {
+                    for (EVENT test : EVENTS) {
+                        if (test.side.isOnlyPlayerInteract() && test.canStartEvent(event, playerData)) {
+                            test.startEvent((EntityPlayer) event.getEntity());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public static class EVENT {
         public final int eventID;
         public final SIDE side;
@@ -266,6 +316,32 @@ public class EventHandler {
 
         /**Player_Change_Dimension*/
         public boolean canStartEvent(PlayerEvent.PlayerChangedDimensionEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
+            if (data.playerCompletedEvent(this.eventID)) {
+                return false;
+            }
+            for (ITestBase t : this.tests) {
+                if (!t.canStartEvent(event, data)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**Player_Break_Block*/
+        public boolean canStartEvent(BlockEvent.BreakEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
+            if (data.playerCompletedEvent(this.eventID)) {
+                return false;
+            }
+            for (ITestBase t : this.tests) {
+                if (!t.canStartEvent(event, data)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**Player_Place_Block*/
+        public boolean canStartEvent(BlockEvent.EntityPlaceEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
             if (data.playerCompletedEvent(this.eventID)) {
                 return false;
             }

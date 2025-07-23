@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 public class TEST_EvoPhase implements ITestBase {
@@ -49,6 +50,18 @@ public class TEST_EvoPhase implements ITestBase {
     @Override
     public boolean canStartEvent(PlayerEvent.PlayerChangedDimensionEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
         byte phase = SRPSaveData.get(event.player.world).getEvolutionPhase(event.fromDim);
+        return this.min <= phase && this.max >= phase;
+    }
+
+    @Override
+    public boolean canStartEvent(BlockEvent.EntityPlaceEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
+        byte phase = SRPSaveData.get(event.getWorld()).getEvolutionPhase(event.getWorld().provider.getDimension());
+        return this.min <= phase && this.max >= phase;
+    }
+
+    @Override
+    public boolean canStartEvent(BlockEvent.BreakEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
+        byte phase = SRPSaveData.get(event.getWorld()).getEvolutionPhase(event.getWorld().provider.getDimension());
         return this.min <= phase && this.max >= phase;
     }
 }

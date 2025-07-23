@@ -26,12 +26,13 @@ public class TEST_PlayerHasPotionEffect implements ITestBase {
 
     @Override
     public boolean canStartEvent(EntityLivingBase deadEntity, DamageSource source) {
-        return deadEntity.getActivePotionEffect(this.effect) != null;
+        return (deadEntity instanceof EntityPlayer && deadEntity.getActivePotionEffect(this.effect) != null)
+                || (source.getTrueSource() instanceof EntityPlayer && ((EntityPlayer) source.getTrueSource()).getActivePotionEffect(this.effect) != null);
     }
 
     @Override
     public boolean canStartEvent(Entity attacker, Entity target) {
-        return attacker instanceof EntityPlayer && ((EntityPlayer) attacker).getActivePotionEffect(this.effect) != null
-                || target instanceof EntityPlayer && ((EntityPlayer) target).getActivePotionEffect(this.effect) != null;
+        return (attacker instanceof EntityPlayer && ((EntityPlayer) attacker).getActivePotionEffect(this.effect) != null)
+                || (target instanceof EntityPlayer && ((EntityPlayer) target).getActivePotionEffect(this.effect) != null);
     }
 }
