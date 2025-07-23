@@ -6,8 +6,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class Event_SawBuglin extends EventBase {
-    public Event_SawBuglin(EntityPlayer player) {
+public class EVENT_SawBuglin extends EventBase {
+    public EVENT_SawBuglin(EntityPlayer player) {
         super(player, 1F / (20 * 10));
     }
 
@@ -29,7 +29,7 @@ public class Event_SawBuglin extends EventBase {
     }
 
     @Override
-    public boolean canAttack(Entity target) {
-        return false;
+    public boolean disableAttack(Entity target) {
+        return true;
     }
 }

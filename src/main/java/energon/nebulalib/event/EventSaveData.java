@@ -81,9 +81,7 @@ public class EventSaveData extends WorldSavedData {
     public void setPlayerEventEnded(String playerName) {
         for (EVENT_PLAYER_DATA data : this.playersEventData) {
             if (data.player.equals(playerName)) {
-                data.correctEventEnded = true;
-                data.eventsEnded = ArrayUtils.add(data.eventsEnded, data.correctEvent);
-                data.correctEvent = 0;
+                data.setEventEnded();
                 this.setDirty(true);
                 return;
             }
@@ -93,9 +91,7 @@ public class EventSaveData extends WorldSavedData {
     public void setWorldEventEnded(int worldID) {
         for (EVENT_WORLD_DATA data : this.worldsEventData) {
             if (data.worldID == worldID) {
-                data.correctEventEnded = true;
-                data.eventsEnded = ArrayUtils.add(data.eventsEnded, data.correctEvent);
-                data.correctEvent = 0;
+                data.setEventEnded();
                 this.setDirty(true);
                 return;
             }
@@ -160,6 +156,14 @@ public class EventSaveData extends WorldSavedData {
             this(p, Integer.parseInt(both[0]), Boolean.parseBoolean(both[1]), ended);
         }
 
+        public void setEventEnded() {
+            this.correctEventEnded = true;
+            if (this.correctEvent != 0) {
+                this.eventsEnded = ArrayUtils.add(this.eventsEnded, this.correctEvent);
+                this.correctEvent = 0;
+            }
+        }
+
         public String getCorrectEventState() {
             return this.correctEvent + ":" + this.correctEventEnded;
         }
@@ -201,6 +205,14 @@ public class EventSaveData extends WorldSavedData {
 
         public EVENT_PLAYER_DATA(String p, String[] both, int... ended) {
             this(p, Integer.parseInt(both[0]), Boolean.parseBoolean(both[1]), ended);
+        }
+
+        public void setEventEnded() {
+            this.correctEventEnded = true;
+            if (this.correctEvent != 0) {
+                this.eventsEnded = ArrayUtils.add(this.eventsEnded, this.correctEvent);
+                this.correctEvent = 0;
+            }
         }
 
         public String getCorrectEventState() {

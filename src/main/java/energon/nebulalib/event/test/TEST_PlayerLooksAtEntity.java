@@ -7,17 +7,17 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 
-public class Test_LooksAtEntity implements ITestBase {
+public class TEST_PlayerLooksAtEntity implements ITestBase {
     public final Class<? extends Entity> target;
-    public int radius;
-    public int height;
-    public Test_LooksAtEntity(Class<? extends Entity> t, int r, int h) {
+    public final int radius;
+    public final int height;
+    public TEST_PlayerLooksAtEntity(Class<? extends Entity> t, int r, int h) {
         this.target = t;
         this.radius = r;
         this.height = h;
     }
 
-    public Test_LooksAtEntity(Class<? extends Entity> t) {
+    public TEST_PlayerLooksAtEntity(Class<? extends Entity> t) {
         this(t, 12,6);
     }
 

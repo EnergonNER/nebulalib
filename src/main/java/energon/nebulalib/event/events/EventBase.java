@@ -4,6 +4,7 @@ import energon.nebulalib.event.EventHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -71,7 +72,11 @@ public abstract class EventBase {
     @SideOnly(Side.CLIENT)
     public void clientEventEnd(EntityPlayer player) {}
 
-    public boolean canAttack(Entity target) {
-        return true;
+    public boolean disableAttack(Entity target) {
+        return false;
+    }
+
+    public boolean disableChangeDimension(EntityTravelToDimensionEvent event) {
+        return false;
     }
 }

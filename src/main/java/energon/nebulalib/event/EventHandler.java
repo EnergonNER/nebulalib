@@ -1,12 +1,9 @@
 package energon.nebulalib.event;
 
 import com.dhanantry.scapeandrunparasites.entity.monster.inborn.EntityLodo;
-import com.dhanantry.scapeandrunparasites.entity.monster.primitive.EntityShyco;
-import energon.nebulalib.event.events.EventBase;
-import energon.nebulalib.event.events.Event_SawBuglin;
-import energon.nebulalib.event.test.Test_DeathFromEntity;
-import energon.nebulalib.event.test.Test_LooksAtEntity;
-import energon.nebulalib.event.test.ITestBase;
+import com.dhanantry.scapeandrunparasites.init.SRPPotions;
+import energon.nebulalib.event.events.*;
+import energon.nebulalib.event.test.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,11 +11,12 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import javax.annotation.Nullable;
@@ -26,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-@Mod.EventBusSubscriber
 public class EventHandler {
     public static List<EVENT> EVENTS = new ArrayList<>();
     public static int ticks = -200;
@@ -40,17 +37,73 @@ public class EventHandler {
     public static List<EventBase> WORLDS_EVENT_ADD = new ArrayList<>();
 
     public static void init() {
-        EVENTS.add(new EVENT(1, SIDE.PLAYER_TICK, Event_SawBuglin::new, new Test_LooksAtEntity(EntityLodo.class)));
-        EVENTS.add(new EVENT(2, SIDE.PLAYER_INTERACT, Event_SawBuglin::new, new Test_DeathFromEntity(EntityShyco.class)));
+        EVENTS.add(new EVENT(1, SIDE.PLAYER_TICK, EVENT_SawBuglin::new, new TEST_PlayerLooksAtEntity(EntityLodo.class)));
+        EVENTS.add(new EVENT(3, SIDE.PLAYER_TICK, EVENT_First_Contact::new, new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E), new TEST_EvoPhase(0, 3)));
+        //EVENTS.add(new EVENT(2, SIDE.PLAYER_INTERACT, EVENT_SawBuglin::new, new TEST_EntityKillPlayer(EntityShyco.class)));
+    }
+
+    public static void serverStarted() {
+        ticks = -200;
+        importData = true;
+    }
+
+    public static void serverStopping() {
+        ticks = -200;
+        DATA = null;
+        PLAYERS_EVENT.clear();
+        PLAYERS_EVENT_ADD.clear();
+        WORLDS_EVENT.clear();
+        WORLDS_EVENT_ADD.clear();
+    }
+
+    public static void initDATA(World world) {
+        importData = false;
+        DATA = EventSaveData.get(world);
+        EventSaveData.EVENT_WORLD_DATA worldData;
+        for (int worldID : DimensionManager.getStaticDimensionIDs()) {
+            worldData = DATA.getWorldData(worldID);
+            if (worldData.correctEvent != 0 || !worldData.correctEventEnded) {
+                for (EVENT test : EVENTS) {
+                    if (test.eventID == worldData.correctEvent) {
+                        test.startEvent(DimensionManager.getWorld(worldID));
+                        return;
+                    }
+                    worldData.setEventEnded();
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (importData || DATA == null) {
+            initDATA(event.player.world);
+        }
+        EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.player.getName());
+        if (playerData.correctEvent != 0 || !playerData.correctEventEnded) {
+            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+            for (EventBase eventBase : local) {
+                if (eventBase.player == event.player) {
+                    return;
+                }
+            }
+            for (EVENT test : EVENTS) {
+                if (test.eventID == playerData.correctEvent) {
+                    test.startEvent(event.player);
+                    return;
+                }
+            }
+            playerData.setEventEnded();
+            DATA.setDirty(true);
+        }
     }
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.side.isServer() && event.phase == TickEvent.Phase.END) {
             if (++ticks % 10 == 5) {
-                if (importData) {
-                    importData = false;
-                    DATA = EventSaveData.get(FMLCommonHandler.instance().getMinecraftServerInstance().worlds[0]);
+                if (importData || DATA == null) {
+                    initDATA(FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0));
                 }
                 EventSaveData.EVENT_PLAYER_DATA playerData;
                 for (EntityPlayer player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
@@ -99,7 +152,7 @@ public class EventHandler {
             Entity target = event.getTarget();
             List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
             for (EventBase eventBase : local) {
-                if (eventBase.player == attacker && !eventBase.canAttack(target)) {
+                if (eventBase.player == attacker && eventBase.disableAttack(target)) {
                     event.setCanceled(true);
                 }
             }
@@ -149,6 +202,30 @@ public class EventHandler {
         }
     }
 
+    @SubscribeEvent
+    public static void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.player.getName());
+        if (playerData.canStartSearch()) {
+            for (EVENT test : EVENTS) {
+                if (test.side.isOnlyPlayerInteract() && test.canStartEvent(event, playerData)) {
+                    test.startEvent(event.player);
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onTravelToDimension(EntityTravelToDimensionEvent event) {
+        if (event.getEntity() instanceof EntityPlayer) {
+            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+            for (EventBase eventBase : local) {
+                if (eventBase.player == event.getEntity() && eventBase.disableChangeDimension(event)) {
+                    event.setCanceled(true);
+                }
+            }
+        }
+    }
+
     public static class EVENT {
         public final int eventID;
         public final SIDE side;
@@ -187,7 +264,20 @@ public class EventHandler {
             return true;
         }
 
-        /***/
+        /**Player_Change_Dimension*/
+        public boolean canStartEvent(PlayerEvent.PlayerChangedDimensionEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
+            if (data.playerCompletedEvent(this.eventID)) {
+                return false;
+            }
+            for (ITestBase t : this.tests) {
+                if (!t.canStartEvent(event, data)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**Hurt_Event*/
         public boolean canStartEvent(Entity attacker, Entity target) {
             for (ITestBase t : this.tests) {
                 if (!t.canStartEvent(attacker, target)) {
@@ -219,7 +309,9 @@ public class EventHandler {
 
         /**ENTITY_KILLED*/
         public void startEventZone(Entity entity) {
-            this.startEventZone(entity.world, new AxisAlignedBB(entity.posX - 24, entity.posY - 12, entity.posZ - 24, entity.posX + 24, entity.posY + 12, entity.posZ + 24));
+            int radius = 24;
+            int height = 12;
+            this.startEventZone(entity.world, new AxisAlignedBB(entity.posX - radius, entity.posY - height, entity.posZ - radius, entity.posX + radius, entity.posY + height, entity.posZ + radius));
         }
 
         /**ENTITY_KILLED*/

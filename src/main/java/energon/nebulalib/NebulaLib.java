@@ -1,6 +1,7 @@
 package energon.nebulalib;
 
 import energon.nebulalib.proxy.CommonProxy;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -20,7 +21,7 @@ public class NebulaLib {
     public static final String SERVER = "energon.nebulalib.proxy.CommonProxy";
     @Mod.Instance
     public static NebulaLib instance;
-    private static Logger logger;
+    public static Logger logger;
     public static Configuration config;
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -44,6 +45,18 @@ public class NebulaLib {
     public void serverInit(FMLServerStartingEvent event) {
         proxy.serverStart(event);
 
+    }
+
+    @EventHandler
+    public void serverStarted(FMLServerStartedEvent event) {
+        MinecraftForge.EVENT_BUS.register(energon.nebulalib.event.EventHandler.class);
+        energon.nebulalib.event.EventHandler.serverStarted();
+    }
+
+    @EventHandler
+    public void serverStopping(FMLServerStoppingEvent event) {
+        energon.nebulalib.event.EventHandler.serverStopping();
+        MinecraftForge.EVENT_BUS.unregister(energon.nebulalib.event.EventHandler.class);
     }
 
     @EventHandler
