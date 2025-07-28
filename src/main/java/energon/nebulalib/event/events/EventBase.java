@@ -15,41 +15,41 @@ import javax.annotation.Nullable;
 public abstract class EventBase {
     public final EntityPlayer player;
     public World world;
-    public float eventProgress = 0F;
-    public final float eventProgressStep;
+    public int eventProgress = 0;
+    public int eventTime;
 
-    public EventBase(@Nullable EntityPlayer p, float step) {
+    public EventBase(@Nullable EntityPlayer p, int time) {
         this.player = p;
-        this.eventProgressStep = step;
+        this.eventTime = time;
     }
 
     public boolean serverHandler() {
-        if (this.eventProgress >= 1F) {
+        if (this.eventProgress >= this.eventTime) {
             this.saveData();
             this.serverTick();
             this.serverEventEnd();
             return true;
         } else {
-            if (this.eventProgress == 0F) {
+            if (this.eventProgress == 0) {
                 this.serverEventStart();
             }
             this.serverTick();
-            this.eventProgress += this.eventProgressStep;
+            this.eventProgress++;
             return false;
         }
     }
 
     public boolean clientHandler(EntityPlayer player) {
-        if (this.eventProgress >= 1F) {
+        if (this.eventProgress >= this.eventTime) {
             this.clientTick(player);
             this.clientEventEnd(player);
             return true;
         } else {
-            if (this.eventProgress == 0F) {
+            if (this.eventProgress == 0) {
                 this.clientEventStart(player);
             }
             this.clientTick(player);
-            this.eventProgress += this.eventProgressStep;
+            this.eventProgress++;
             return false;
         }
     }

@@ -1,5 +1,6 @@
 package energon.nebulalib.event;
 
+import energon.nebulalib.NebulaLib;
 import energon.nebulalib.event.events.EventBase;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -9,7 +10,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-@Mod.EventBusSubscriber(value = Side.CLIENT)
+@Mod.EventBusSubscriber(modid = NebulaLib.MODID, value = Side.CLIENT)
 public class EventHandlerClient {
     public static EventBase CORRECT_EVENT = null;
     @SideOnly(Side.CLIENT)

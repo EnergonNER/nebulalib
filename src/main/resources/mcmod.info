@@ -10,6 +10,9 @@
   "authorList": ["Energon"],
   "credits": "LIB",
   "logoFile": "assets/nebulalib/logo.png",
-  "screenshots": []
+  "screenshots": [],
+  "dependencies": [],
+  "requiredMods": ["srparasites"],
+  "useDependencyInformation": "true"
 }
 ]

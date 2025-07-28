@@ -9,12 +9,11 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = NebulaLib.MODID, name = NebulaLib.NAME, version = NebulaLib.VERSION, dependencies = NebulaLib.DEPENDENCIES)
+@Mod(modid = NebulaLib.MODID, name = NebulaLib.NAME, version = NebulaLib.VERSION)
 public class NebulaLib {
     public static final String MODID = "nebulalib";
     public static final String NAME = "Nebula: Lib";
     public static final String VERSION = "1.0";
-    public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2847,);required-after:srparasites@[1.9.21,)";
     @SidedProxy(clientSide = NebulaLib.CLIENT, serverSide = NebulaLib.SERVER)
     public static CommonProxy proxy;
     public static final String CLIENT = "energon.nebulalib.proxy.ClientProxy";

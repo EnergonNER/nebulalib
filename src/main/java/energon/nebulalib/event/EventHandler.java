@@ -1,7 +1,6 @@
 package energon.nebulalib.event;
 
-import com.dhanantry.scapeandrunparasites.entity.monster.inborn.EntityLodo;
-import com.dhanantry.scapeandrunparasites.init.SRPBlocks;
+import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityPStationaryArchitect;
 import com.dhanantry.scapeandrunparasites.init.SRPPotions;
 import energon.nebulalib.event.events.*;
 import energon.nebulalib.event.test.*;
@@ -39,10 +38,13 @@ public class EventHandler {
     public static List<EventBase> WORLDS_EVENT_ADD = new ArrayList<>();
 
     public static void init() {
-        EVENTS.add(new EVENT(1, SIDE.PLAYER_TICK, EVENT_SawBuglin::new, new TEST_PlayerLooksAtEntity(EntityLodo.class)));
-        EVENTS.add(new EVENT(3, SIDE.PLAYER_TICK, EVENT_First_Contact::new, new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E), new TEST_EvoPhase(0, 3)));
+        EVENTS.add(new EVENT(1, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_FirstContact::new, new TEST_EvoPhase(0, 0), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(2, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Again::new, new TEST_EvoPhase(1, 1), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(3, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Another::new, new TEST_EvoPhase(2, 2), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(4, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_SawBeckon::new, new TEST_PlayerLooksAtEntity(EntityPStationaryArchitect.class)));
+
         //EVENTS.add(new EVENT(2, SIDE.PLAYER_INTERACT, EVENT_SawBuglin::new, new TEST_EntityKillPlayer(EntityShyco.class)));
-        EVENTS.add(new EVENT(4, SIDE.PLAYER_INTERACT, EVENT_SawBuglin::new, new TEST_PlayerBreakBlock(SRPBlocks.BiomeHeart)));
+        //EVENTS.add(new EVENT(4, SIDE.PLAYER_INTERACT, EVENT_SawBuglin::new, new TEST_PlayerBreakBlock(SRPBlocks.BiomeHeart)));
     }
 
     public static void serverStarted() {
@@ -279,11 +281,13 @@ public class EventHandler {
     public static class EVENT {
         public final int eventID;
         public final SIDE side;
+        public final RARITY rarity;
         public final Function<EntityPlayer,EventBase> supplier;
         public final ITestBase[] tests;
-        public EVENT(int id, SIDE side, Function<EntityPlayer,EventBase> s, ITestBase... t) {
+        public EVENT(int id, SIDE side, RARITY r, Function<EntityPlayer,EventBase> s, ITestBase... t) {
             this.eventID = id;
             this.side = side;
+            this.rarity = r;
             this.supplier = s;
             this.tests = t;
         }
@@ -295,6 +299,7 @@ public class EventHandler {
         /**START*/
         public void startEvent(EntityPlayer player) {
             EventBase eventBase = this.getEvent(player);
+            //EventBase.?(player, this.eventID);
             EventHandler.DATA.addPlayerEvent(player.getName(), this.eventID);
             Network.sendPlayerEvent(player, this.eventID);
             PLAYERS_EVENT_ADD.add(eventBase);
@@ -444,5 +449,12 @@ public class EventHandler {
         public boolean isForAll() {
             return this == VOID_INTERACT;
         }
+    }
+
+    public enum RARITY {
+        COMMON,
+        RARE,
+        EPIC,
+        LEGENDARY;
     }
 }

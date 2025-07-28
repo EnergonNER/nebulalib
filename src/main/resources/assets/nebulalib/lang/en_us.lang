@@ -8,3 +8,24 @@
 
 #Tooltip
 #End
+
+#Event
+catalyst.event.coth_phase0.title1=What... is this?
+catalyst.event.coth_phase0.title2=Such cold... and then...
+
+catalyst.event.coth_phase1.title1=A sound... from above.
+catalyst.event.coth_phase1.title2=A feeling!
+catalyst.event.coth_phase1.title3=And... a light...
+
+catalyst.event.coth_phase2.title1=Only... one.
+catalyst.event.coth_phase2.title2=But yet, another...?
+catalyst.event.coth_phase2.title3=A presence!
+catalyst.event.coth_phase2.title4=Away from... The Self.
+
+catalyst.event.sawbeckon.title1=Oh, to stretch!
+catalyst.event.sawbeckon.title2=Away from...
+catalyst.event.sawbeckon.title3=squeezing
+catalyst.event.sawbeckon.title4=pressing
+catalyst.event.sawbeckon.title5=cold...
+catalyst.event.sawbeckon.title6=from The Self.
+#End
