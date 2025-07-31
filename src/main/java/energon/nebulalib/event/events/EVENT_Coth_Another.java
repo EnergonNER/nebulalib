@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 public class EVENT_Coth_Another extends EVENT_Coth_FirstContact {
     public EVENT_Coth_Another(@Nullable EntityPlayer p) {
         super(p);
-        this.eventTime = 380;
+        this.eventTime = 440;
     }
 
     @Override
@@ -24,7 +24,7 @@ public class EVENT_Coth_Another extends EVENT_Coth_FirstContact {
             Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.coth_phase2.title3"), "", 20, 60, 20);
             this.phase++;
         } else if (this.phase == (byte) 3 && this.eventProgress > 370) {
-            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.coth_phase2.title3"), "", 20, 60, 40);
+            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.coth_phase2.title4"), "", 20, 60, 40);
             this.phase++;
         }
     }

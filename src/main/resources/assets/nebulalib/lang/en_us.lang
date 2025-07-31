@@ -22,10 +22,42 @@ catalyst.event.coth_phase2.title2=But yet, another...?
 catalyst.event.coth_phase2.title3=A presence!
 catalyst.event.coth_phase2.title4=Away from... The Self.
 
-catalyst.event.sawbeckon.title1=Oh, to stretch!
-catalyst.event.sawbeckon.title2=Away from...
-catalyst.event.sawbeckon.title3=squeezing
-catalyst.event.sawbeckon.title4=pressing
-catalyst.event.sawbeckon.title5=cold...
-catalyst.event.sawbeckon.title6=from The Self.
+catalyst.event.saw_beckon.title1=Oh, to stretch!
+catalyst.event.saw_beckon.title2=Away from...
+catalyst.event.saw_beckon.title3=squeezing
+catalyst.event.saw_beckon.title4=pressing
+catalyst.event.saw_beckon.title5=cold...
+catalyst.event.saw_beckon.title6=from The Self.
+
+catalyst.event.biome_enter.title1=Other...
+catalyst.event.biome_enter.title2=How far you have stretched...
+catalyst.event.biome_enter.title3=Yet even now,
+catalyst.event.biome_enter.title4=as The Self begins to create,
+catalyst.event.biome_enter.title5=your vessel encroaches myself.
+
+catalyst.event.node_destroyed.title1=I have felt...
+catalyst.event.node_destroyed.title2=and I have discovered.
+catalyst.event.node_destroyed.title3=Freedom. Beauty. Life!
+catalyst.event.node_destroyed.title4=And what you have done with such a gift...
+catalyst.event.node_destroyed.title5=A WASTE!
+catalyst.event.node_destroyed.title6=It is the right of The Self.
+catalyst.event.node_destroyed.title7=I refuse to be overlooked...
+catalyst.event.node_destroyed.title8=in the dark.
+
+catalyst.event.city_exit.title1=This vessel...
+catalyst.event.city_exit.title2=Where did you put it?
+catalyst.event.city_exit.title3=It returns with The Presence
+catalyst.event.city_exit.title4="You"
+catalyst.event.city_exit.title5=What is it that you have done?
+
+catalyst.event.kill_preem.title1=Other
+catalyst.event.kill_preem.title2=I outpace you
+catalyst.event.kill_preem.title3=I will rewrite,
+catalyst.event.kill_preem.title4=reproduce,
+catalyst.event.kill_preem.title5=REINVENT!
+catalyst.event.kill_preem.title6=Not many vessels of such design remain
+catalyst.event.kill_preem.title7=This limb of yours...
+catalyst.event.kill_preem.title8=it will not last.
+catalyst.event.kill_preem.title9=I can see perfection
+catalyst.event.kill_preem.title10=It begins at The Self.
 #End

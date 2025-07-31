@@ -16,7 +16,7 @@ public class EventHandlerClient {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = true)
     public static void playerTick(TickEvent.PlayerTickEvent event) {
-        if (CORRECT_EVENT != null) {
+        if (CORRECT_EVENT != null && event.phase == TickEvent.Phase.END && event.player.world.isRemote) {
             if (CORRECT_EVENT.clientHandler(event.player)) {
                 CORRECT_EVENT = null;
             }

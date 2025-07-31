@@ -1,9 +1,7 @@
 package energon.nebulalib.event.events;
 
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
-import com.dhanantry.scapeandrunparasites.init.SRPSounds;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,6 +11,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -24,7 +23,7 @@ import java.util.Collection;
 public class EVENT_Coth_FirstContact extends EventBase {
     private Collection<PotionEffect> effects;
     public EVENT_Coth_FirstContact(@Nullable EntityPlayer p) {
-        super(p, 160);
+        super(p, 220);
     }
 
     @Override
@@ -32,12 +31,12 @@ public class EVENT_Coth_FirstContact extends EventBase {
         if (this.player != null) {
             this.effects = new ArrayList<>(this.player.getActivePotionEffects());
             this.player.clearActivePotions();
-            this.player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 160, 3));
-            this.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, 160, 1));
-            this.player.addPotionEffect(new PotionEffect(MobEffects.MINING_FATIGUE, 160, 3));
+            this.player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, this.eventTime - 40, 3));
+            this.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, this.eventTime - 40, 1));
+            this.player.addPotionEffect(new PotionEffect(MobEffects.MINING_FATIGUE, this.eventTime - 40, 3));
             for (ItemStack stack : this.player.inventory.mainInventory) {
                 if (!stack.isEmpty()) {
-                    this.player.getCooldownTracker().setCooldown(stack.getItem(), 160);
+                    this.player.getCooldownTracker().setCooldown(stack.getItem(), this.eventTime - 10);
                 }
             }
         }
@@ -55,10 +54,10 @@ public class EVENT_Coth_FirstContact extends EventBase {
                 target.setRevengeTarget(null);
                 target.getNavigator().clearPath();
                 if (target instanceof EntityParasiteBase) {
-                    ((EntityParasiteBase) target).setWait(80);
+                    ((EntityParasiteBase) target).setWait(60);
                 }
-                target.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 80, 255));
-                target.addPotionEffect(new PotionEffect(MobEffects.WEAKNESS, 80, 255));
+                target.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 60, 255));
+                target.addPotionEffect(new PotionEffect(MobEffects.WEAKNESS, 60, 255));
             }
         }
     }
@@ -76,10 +75,10 @@ public class EVENT_Coth_FirstContact extends EventBase {
     @Override
     @SideOnly(Side.CLIENT)
     public void clientEventStart(EntityPlayer player) {
-        Minecraft minecraft = Minecraft.getMinecraft();
+        /*Minecraft minecraft = Minecraft.getMinecraft();
         minecraft.addScheduledTask(() -> {
             minecraft.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SRPSounds.FLESH_HURT, 1F));
-        });
+        });*/
     }
 
     public byte phase = (byte) 0;
@@ -113,6 +112,11 @@ public class EVENT_Coth_FirstContact extends EventBase {
 
     @Override
     public boolean disablePlaceBlock(BlockEvent.EntityPlaceEvent event) {
+        return true;
+    }
+
+    @Override
+    public boolean disableInteractBlock(PlayerInteractEvent.RightClickBlock event) {
         return true;
     }
 }

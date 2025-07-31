@@ -1,6 +1,9 @@
 package energon.nebulalib.event;
 
+import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityPPreeminent;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityPStationaryArchitect;
+import com.dhanantry.scapeandrunparasites.init.SRPBiomes;
+import com.dhanantry.scapeandrunparasites.init.SRPBlocks;
 import com.dhanantry.scapeandrunparasites.init.SRPPotions;
 import energon.nebulalib.event.events.*;
 import energon.nebulalib.event.test.*;
@@ -14,6 +17,7 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -38,13 +42,14 @@ public class EventHandler {
     public static List<EventBase> WORLDS_EVENT_ADD = new ArrayList<>();
 
     public static void init() {
-        EVENTS.add(new EVENT(1, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_FirstContact::new, new TEST_EvoPhase(0, 0), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(2, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Again::new, new TEST_EvoPhase(1, 1), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(3, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Another::new, new TEST_EvoPhase(2, 2), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(4, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_SawBeckon::new, new TEST_PlayerLooksAtEntity(EntityPStationaryArchitect.class)));
-
-        //EVENTS.add(new EVENT(2, SIDE.PLAYER_INTERACT, EVENT_SawBuglin::new, new TEST_EntityKillPlayer(EntityShyco.class)));
-        //EVENTS.add(new EVENT(4, SIDE.PLAYER_INTERACT, EVENT_SawBuglin::new, new TEST_PlayerBreakBlock(SRPBlocks.BiomeHeart)));
+        EVENTS.add(new EVENT(1, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_FirstContact::new, new TEST_Delay(4), new TEST_EvoPhase(0, 0), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(2, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Again::new, new TEST_Delay(4), new TEST_EvoPhase(1, 1), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(3, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Another::new, new TEST_Delay(4), new TEST_EvoPhase(2, 2), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(4, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Saw_Beckon::new, new TEST_PlayerLooksAtEntity(EntityPStationaryArchitect.class, 0.035)));
+        EVENTS.add(new EVENT(5, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Biome_Enter::new, new TEST_Delay(4), new TEST_PlayerInBiome(SRPBiomes.biomeInfested)));
+        EVENTS.add(new EVENT(6, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Node_Destroyed::new, new TEST_PlayerBreakBlock(SRPBlocks.BiomeHeart)));
+        EVENTS.add(new EVENT(7, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_City_Exit::new, new TEST_PlayerChangeDimension(0, 111)));
+        EVENTS.add(new EVENT(8, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Kill_Preem::new, new TEST_PlayerKillEntity(EntityPPreeminent.class)));
     }
 
     public static void serverStarted() {
@@ -113,12 +118,10 @@ public class EventHandler {
                 EventSaveData.EVENT_PLAYER_DATA playerData;
                 for (EntityPlayer player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
                     playerData = DATA.getPlayerData(player.getName());
-                    if (playerData.canStartSearch()) {
-                        for (EVENT test : EVENTS) {
-                            if (test.side.isPlayerUpdateEvent() && test.canStartEvent(player, playerData)) {
-                                test.startEvent(player);
-                                break;
-                            }
+                    for (EVENT test : EVENTS) {
+                        if (test.side.isPlayerUpdateEvent() && playerData.canStartSearch(test.rarity) && test.canStartEvent(player, playerData)) {
+                            test.startEvent(player);
+                            break;
                         }
                     }
                 }
@@ -126,12 +129,10 @@ public class EventHandler {
                     EventSaveData.EVENT_WORLD_DATA worldData;
                     for (int worldID : DimensionManager.getStaticDimensionIDs()) {
                         worldData = DATA.getWorldData(worldID);
-                        if (worldData.canStartSearch()) {
-                            for (EVENT test : EVENTS) {
-                                if (test.side.inWorldUpdateEvent() && worldData.worldCanStartEvent(test.eventID) && test.canStartEvent(worldID, worldData)) {
-                                    test.startEvent(DimensionManager.getWorld(worldID));
-                                    break;
-                                }
+                        for (EVENT test : EVENTS) {
+                            if (test.side.inWorldUpdateEvent() && worldData.canStartSearch(test.rarity) && worldData.worldCanStartEvent(test.eventID) && test.canStartEvent(worldID, worldData)) {
+                                test.startEvent(DimensionManager.getWorld(worldID));
+                                break;
                             }
                         }
                     }
@@ -168,12 +169,12 @@ public class EventHandler {
                             test.startEventZone(attacker);
                         } else if (attacker instanceof EntityPlayer) {
                             EntityPlayer player = (EntityPlayer) attacker;
-                            if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
+                            if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID, test.rarity)) {
                                 test.startEvent(player);
                             }
                         } else if (target instanceof EntityPlayer) {
                             EntityPlayer player = (EntityPlayer) target;
-                            if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
+                            if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID, test.rarity)) {
                                 test.startEvent(player);
                             }
                         }
@@ -194,12 +195,12 @@ public class EventHandler {
                         test.startEventZone(deadEntity);
                     } else if (event.getSource().getTrueSource() instanceof EntityPlayer) {
                         EntityPlayer player = (EntityPlayer) event.getSource().getTrueSource();
-                        if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
+                        if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID, test.rarity)) {
                             test.startEvent(player);
                         }
                     } else if (deadEntity instanceof EntityPlayer) {
                         EntityPlayer player = (EntityPlayer) deadEntity;
-                        if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID)) {
+                        if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID, test.rarity)) {
                             test.startEvent(player);
                         }
                     }
@@ -212,11 +213,9 @@ public class EventHandler {
     @SubscribeEvent
     public static void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.player.getName());
-        if (playerData.canStartSearch()) {
-            for (EVENT test : EVENTS) {
-                if (test.side.isOnlyPlayerInteract() && test.canStartEvent(event, playerData)) {
-                    test.startEvent(event.player);
-                }
+        for (EVENT test : EVENTS) {
+            if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
+                test.startEvent(event.player);
             }
         }
     }
@@ -245,11 +244,10 @@ public class EventHandler {
             }
             if (!event.isCanceled()) {
                 EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.getPlayer().getName());
-                if (playerData.canStartSearch()) {
-                    for (EVENT test : EVENTS) {
-                        if (test.side.isOnlyPlayerInteract() && test.canStartEvent(event, playerData)) {
-                            test.startEvent(event.getPlayer());
-                        }
+                for (EVENT test : EVENTS) {
+                    if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
+                        test.startEvent(event.getPlayer());
+                        break;
                     }
                 }
             }
@@ -267,12 +265,22 @@ public class EventHandler {
             }
             if (!event.isCanceled()) {
                 EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.getEntity().getName());
-                if (playerData.canStartSearch()) {
-                    for (EVENT test : EVENTS) {
-                        if (test.side.isOnlyPlayerInteract() && test.canStartEvent(event, playerData)) {
-                            test.startEvent((EntityPlayer) event.getEntity());
-                        }
+                for (EVENT test : EVENTS) {
+                    if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
+                        test.startEvent((EntityPlayer) event.getEntity());
                     }
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRightClick(PlayerInteractEvent.RightClickBlock event) {
+        if (!event.getWorld().isRemote) {
+            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+            for (EventBase eventBase : local) {
+                if (eventBase.player == event.getEntityPlayer() && eventBase.disableInteractBlock(event)) {
+                    event.setCanceled(true);
                 }
             }
         }
@@ -300,7 +308,7 @@ public class EventHandler {
         public void startEvent(EntityPlayer player) {
             EventBase eventBase = this.getEvent(player);
             //EventBase.?(player, this.eventID);
-            EventHandler.DATA.addPlayerEvent(player.getName(), this.eventID);
+            EventHandler.DATA.addPlayerEvent(player.getName(), this.eventID, this.rarity);
             Network.sendPlayerEvent(player, this.eventID);
             PLAYERS_EVENT_ADD.add(eventBase);
         }
@@ -398,7 +406,7 @@ public class EventHandler {
         /**ENTITY_KILLED*/
         public void startEventZone(World world, AxisAlignedBB box) {
             for (EntityPlayer player : world.getEntitiesWithinAABB(EntityPlayer.class, box)) {
-                if (DATA.getPlayerData(player.getName()).playerCanStartEvent(this.eventID)) {
+                if (DATA.getPlayerData(player.getName()).playerCanStartEvent(this.eventID, this.rarity)) {
                     this.startEvent(player);
                 }
             }
@@ -409,7 +417,7 @@ public class EventHandler {
             if (world == null) {
                 return;
             }
-            DATA.addWorldEvent(world.provider.getDimension(), this.eventID);
+            DATA.addWorldEvent(world.provider.getDimension(), this.eventID, this.rarity);
             EventBase base = this.getEvent(null);
             base.world = world;
             WORLDS_EVENT_ADD.add(base);
@@ -451,10 +459,29 @@ public class EventHandler {
         }
     }
 
+    public static RARITY getRarityByName(String name) {
+        for (RARITY rar : RARITY.values()) {
+            if (rar.name.equals(name)) {
+                return rar;
+            }
+        }
+        return RARITY.COMMON;
+    }
+
     public enum RARITY {
-        COMMON,
-        RARE,
-        EPIC,
-        LEGENDARY;
+        COMMON("common", 0),
+        RARE("rare", 1),
+        EPIC("epic", 2),
+        LEGENDARY("legendary", 3);
+        public final String name;
+        public final byte lvl;
+        RARITY(String name, int lvl) {
+            this.name = name;
+            this.lvl = (byte) lvl;
+        }
+
+        public boolean canChangeEvent(RARITY next) {
+            return this.lvl < next.lvl;
+        }
     }
 }

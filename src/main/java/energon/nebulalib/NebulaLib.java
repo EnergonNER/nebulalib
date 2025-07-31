@@ -22,6 +22,7 @@ public class NebulaLib {
     public static NebulaLib instance;
     public static Logger logger;
     public static Configuration config;
+    public static boolean EVENTS_ON = true;
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         logger = event.getModLog();
@@ -48,14 +49,18 @@ public class NebulaLib {
 
     @EventHandler
     public void serverStarted(FMLServerStartedEvent event) {
-        MinecraftForge.EVENT_BUS.register(energon.nebulalib.event.EventHandler.class);
-        energon.nebulalib.event.EventHandler.serverStarted();
+        if (EVENTS_ON) {
+            MinecraftForge.EVENT_BUS.register(energon.nebulalib.event.EventHandler.class);
+            energon.nebulalib.event.EventHandler.serverStarted();
+        }
     }
 
     @EventHandler
     public void serverStopping(FMLServerStoppingEvent event) {
-        energon.nebulalib.event.EventHandler.serverStopping();
-        MinecraftForge.EVENT_BUS.unregister(energon.nebulalib.event.EventHandler.class);
+        if (EVENTS_ON) {
+            energon.nebulalib.event.EventHandler.serverStopping();
+            MinecraftForge.EVENT_BUS.unregister(energon.nebulalib.event.EventHandler.class);
+        }
     }
 
     @EventHandler

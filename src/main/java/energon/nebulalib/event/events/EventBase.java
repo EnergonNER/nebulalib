@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -86,6 +87,10 @@ public abstract class EventBase {
     }
 
     public boolean disablePlaceBlock(BlockEvent.EntityPlaceEvent event) {
+        return false;
+    }
+
+    public boolean disableInteractBlock(PlayerInteractEvent.RightClickBlock event) {
         return false;
     }
 }

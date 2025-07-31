@@ -9,16 +9,22 @@ import net.minecraft.util.math.Vec3d;
 
 public class TEST_PlayerLooksAtEntity implements ITestBase {
     public final Class<? extends Entity> target;
+    public final double accuracy;
     public final int radius;
     public final int height;
-    public TEST_PlayerLooksAtEntity(Class<? extends Entity> t, int r, int h) {
+    public TEST_PlayerLooksAtEntity(Class<? extends Entity> t, double a, int r, int h) {
         this.target = t;
+        this.accuracy = a;
         this.radius = r;
         this.height = h;
     }
 
-    public TEST_PlayerLooksAtEntity(Class<? extends Entity> t) {
-        this(t, 12,6);
+    public TEST_PlayerLooksAtEntity(Class<? extends Entity> target, double accuracy) {
+        this(target, accuracy, 12, 6);
+    }
+
+    public TEST_PlayerLooksAtEntity(Class<? extends Entity> target) {
+        this(target, 0.025, 12, 6);
     }
 
     @Override
@@ -37,6 +43,6 @@ public class TEST_PlayerLooksAtEntity implements ITestBase {
         double d0 = vec3d1.lengthVector();
         vec3d1 = vec3d1.normalize();
         double d1 = vec3d.dotProduct(vec3d1);
-        return (d1 > (double) 1.0F - 0.025 / d0 && player.canEntityBeSeen(target));
+        return (d1 > (double) 1.0F - this.accuracy / d0 && player.canEntityBeSeen(target));
     }
 }

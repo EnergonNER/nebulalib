@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EventSaveData extends WorldSavedData {
-    public static final String DATA_NAME = "custom_events";
+    public static final String DATA_NAME = "nebula_custom_events";
     public List<EVENT_PLAYER_DATA> playersEventData = new ArrayList<>();
     public List<EVENT_WORLD_DATA> worldsEventData = new ArrayList<>();
     public EventSaveData() {
@@ -38,7 +38,7 @@ public class EventSaveData extends WorldSavedData {
                 return data;
             }
         }
-        EVENT_PLAYER_DATA newData = new EVENT_PLAYER_DATA(playerName, 0, true);
+        EVENT_PLAYER_DATA newData = new EVENT_PLAYER_DATA(playerName, 0, true, EventHandler.RARITY.COMMON);
         playersEventData.add(newData);
         this.setDirty(true);
         return newData;
@@ -50,28 +50,30 @@ public class EventSaveData extends WorldSavedData {
                 return data;
             }
         }
-        EVENT_WORLD_DATA newData = new EVENT_WORLD_DATA(worldID, 0, true);
+        EVENT_WORLD_DATA newData = new EVENT_WORLD_DATA(worldID, 0, true, EventHandler.RARITY.COMMON);
         this.worldsEventData.add(newData);
         this.setDirty(true);
         return newData;
     }
 
-    public void addPlayerEvent(String playerName, int id) {
+    public void addPlayerEvent(String playerName, int id, EventHandler.RARITY rarity) {
         for (EVENT_PLAYER_DATA data : this.playersEventData) {
             if (data.player.equals(playerName)) {
                 data.correctEventEnded = false;
                 data.correctEvent = id;
+                data.correctEventRarity = rarity;
                 this.setDirty(true);
                 return;
             }
         }
     }
 
-    public void addWorldEvent(int worldID, int id) {
+    public void addWorldEvent(int worldID, int id, EventHandler.RARITY rarity) {
         for (EVENT_WORLD_DATA data : this.worldsEventData) {
             if (data.worldID == worldID) {
                 data.correctEventEnded = false;
                 data.correctEvent = id;
+                data.correctEventRarity = rarity;
                 this.setDirty(true);
                 return;
             }
@@ -144,16 +146,18 @@ public class EventSaveData extends WorldSavedData {
         public int worldID;
         public int correctEvent;
         public boolean correctEventEnded;
+        public EventHandler.RARITY correctEventRarity;
         public int[] eventsEnded;
-        public EVENT_WORLD_DATA(int p, int correct, boolean correct_end, int... ended) {
+        public EVENT_WORLD_DATA(int p, int correct, boolean correct_end, EventHandler.RARITY rarity, int... ended) {
             this.worldID = p;
             this.correctEvent = correct;
             this.correctEventEnded = correct_end;
+            this.correctEventRarity = rarity;
             this.eventsEnded = ended;
         }
 
         public EVENT_WORLD_DATA(int p, String[] both, int... ended) {
-            this(p, Integer.parseInt(both[0]), Boolean.parseBoolean(both[1]), ended);
+            this(p, Integer.parseInt(both[0]), Boolean.parseBoolean(both[1]), EventHandler.getRarityByName(both[2]), ended);
         }
 
         public void setEventEnded() {
@@ -162,10 +166,11 @@ public class EventSaveData extends WorldSavedData {
                 this.eventsEnded = ArrayUtils.add(this.eventsEnded, this.correctEvent);
                 this.correctEvent = 0;
             }
+            this.correctEventRarity = EventHandler.RARITY.COMMON;
         }
 
         public String getCorrectEventState() {
-            return this.correctEvent + ":" + this.correctEventEnded;
+            return this.correctEvent + ":" + this.correctEventEnded + ":" + this.correctEventRarity.name;
         }
 
         public boolean worldCompletedEvent(int id) {
@@ -177,8 +182,8 @@ public class EventSaveData extends WorldSavedData {
             return false;
         }
 
-        public boolean canStartSearch() {
-            return this.correctEventEnded && this.correctEvent == 0;
+        public boolean canStartSearch(EventHandler.RARITY nextRarity) {
+            return this.correctEventRarity.canChangeEvent(nextRarity) || this.correctEventEnded && this.correctEvent == 0;
         }
 
         public boolean worldCanStartEvent(int id) {
@@ -195,16 +200,18 @@ public class EventSaveData extends WorldSavedData {
         public String player;
         public int correctEvent;
         public boolean correctEventEnded;
+        public EventHandler.RARITY correctEventRarity;
         public int[] eventsEnded;
-        public EVENT_PLAYER_DATA(String p, int correct, boolean correct_end, int... ended) {
+        public EVENT_PLAYER_DATA(String p, int correct, boolean correct_end, EventHandler.RARITY rarity, int... ended) {
             this.player = p;
             this.correctEvent = correct;
             this.correctEventEnded = correct_end;
+            this.correctEventRarity = rarity;
             this.eventsEnded = ended;
         }
 
         public EVENT_PLAYER_DATA(String p, String[] both, int... ended) {
-            this(p, Integer.parseInt(both[0]), Boolean.parseBoolean(both[1]), ended);
+            this(p, Integer.parseInt(both[0]), Boolean.parseBoolean(both[1]), EventHandler.getRarityByName(both[2]), ended);
         }
 
         public void setEventEnded() {
@@ -213,10 +220,11 @@ public class EventSaveData extends WorldSavedData {
                 this.eventsEnded = ArrayUtils.add(this.eventsEnded, this.correctEvent);
                 this.correctEvent = 0;
             }
+            this.correctEventRarity = EventHandler.RARITY.COMMON;
         }
 
         public String getCorrectEventState() {
-            return this.correctEvent + ":" + this.correctEventEnded;
+            return this.correctEvent + ":" + this.correctEventEnded + ":" + this.correctEventRarity.name;
         }
 
         public boolean playerCompletedEvent(int id) {
@@ -228,12 +236,12 @@ public class EventSaveData extends WorldSavedData {
             return false;
         }
 
-        public boolean canStartSearch() {
-            return this.correctEventEnded && this.correctEvent == 0;
+        public boolean canStartSearch(EventHandler.RARITY nextRarity) {
+            return this.correctEventRarity.canChangeEvent(nextRarity) || this.correctEventEnded && this.correctEvent == 0;
         }
 
-        public boolean playerCanStartEvent(int id) {
-            if (!this.canStartSearch()) {
+        public boolean playerCanStartEvent(int id, EventHandler.RARITY nextRarity) {
+            if (!this.canStartSearch(nextRarity)) {
                 return false;
             }
             for (int test : this.eventsEnded) {
