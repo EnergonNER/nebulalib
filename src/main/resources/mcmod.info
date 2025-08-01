@@ -12,7 +12,7 @@
   "logoFile": "assets/nebulalib/logo.png",
   "screenshots": [],
   "dependencies": [],
-  "requiredMods": ["srparasites"],
+  "requiredMods": [],
   "useDependencyInformation": "true"
 }
 ]

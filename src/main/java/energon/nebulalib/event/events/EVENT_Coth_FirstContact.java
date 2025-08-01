@@ -2,7 +2,6 @@ package energon.nebulalib.event.events;
 
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
@@ -11,6 +10,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -46,18 +46,20 @@ public class EVENT_Coth_FirstContact extends EventBase {
     public void serverTick() {
         if (this.player != null) {
             int radius = 16;
-            int height = 6;
+            int height = 8;
             for (EntityLiving target : this.player.world.getEntitiesWithinAABB(EntityLiving.class,
                     new AxisAlignedBB(this.player.posX - radius, this.player.posY - height, this.player.posZ - radius,
                             this.player.posX + radius, this.player.posY + height, this.player.posZ + radius))) {
                 target.setAttackTarget(null);
                 target.setRevengeTarget(null);
                 target.getNavigator().clearPath();
-                if (target instanceof EntityParasiteBase) {
-                    ((EntityParasiteBase) target).setWait(60);
+                if (this.eventProgress % 5 == 2) {
+                    if (target instanceof EntityParasiteBase) {
+                        ((EntityParasiteBase) target).setWait(60);
+                    }
+                    target.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 60, 255));
+                    target.addPotionEffect(new PotionEffect(MobEffects.WEAKNESS, 60, 255));
                 }
-                target.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 60, 255));
-                target.addPotionEffect(new PotionEffect(MobEffects.WEAKNESS, 60, 255));
             }
         }
     }
@@ -96,7 +98,12 @@ public class EVENT_Coth_FirstContact extends EventBase {
     }
 
     @Override
-    public boolean disableAttack(Entity target) {
+    public boolean disableAttack(AttackEntityEvent event) {
+        return true;
+    }
+
+    @Override
+    public boolean disableGetDamage(AttackEntityEvent event) {
         return true;
     }
 

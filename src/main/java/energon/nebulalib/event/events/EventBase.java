@@ -1,10 +1,10 @@
 package energon.nebulalib.event.events;
 
 import energon.nebulalib.event.EventHandler;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -14,10 +14,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 
 public abstract class EventBase {
-    public final EntityPlayer player;
+    public EntityPlayer player;
     public World world;
     public int eventProgress = 0;
     public int eventTime;
+    public int eventID = 0;
 
     public EventBase(@Nullable EntityPlayer p, int time) {
         this.player = p;
@@ -55,7 +56,7 @@ public abstract class EventBase {
         }
     }
 
-    private void saveData() {
+    public void saveData() {
         if (this.world != null) {
             EventHandler.DATA.setWorldEventEnded(this.world.provider.getDimension());
         } else if (this.player != null && FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(this.player.getName()) != null) {
@@ -74,7 +75,12 @@ public abstract class EventBase {
     @SideOnly(Side.CLIENT)
     public void clientEventEnd(EntityPlayer player) {}
 
-    public boolean disableAttack(Entity target) {
+    public boolean disableAttack(AttackEntityEvent event) {
+        return false;
+    }
+
+    /**Cancels damage to a player affected by the event*/
+    public boolean disableGetDamage(AttackEntityEvent event) {
         return false;
     }
 

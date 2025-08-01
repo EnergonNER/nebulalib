@@ -54,5 +54,6 @@ public class ClientProxy extends CommonProxy {
 				return;
 			}
 		}
+		EventHandlerClient.CORRECT_EVENT = null;
 	}
 }

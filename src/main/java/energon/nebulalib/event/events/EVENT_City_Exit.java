@@ -26,7 +26,7 @@ public class EVENT_City_Exit extends EVENT_Coth_FirstContact {
         } else if (this.phase == (byte) 3 && this.eventProgress > 330) {
             Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.city_exit.title4"), "", 20, 60, 20);
             this.phase++;
-        } else if (this.phase == (byte) 5 && this.eventProgress > 430) {
+        } else if (this.phase == (byte) 4 && this.eventProgress > 430) {
             Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.city_exit.title5"), "", 20, 60, 40);
             this.phase++;
         }

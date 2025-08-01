@@ -4,6 +4,7 @@ import energon.nebulalib.event.EventHandler;
 import energon.nebulalib.event.Network;
 import energon.nebulalib.inject.SRPInject;
 import energon.nebulalib.config.NLibConfig;
+import energon.nebulalib.network.NLibEventCommand;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.event.*;
 
@@ -26,7 +27,7 @@ public class CommonProxy {
 	}
 
 	public void serverStart(FMLServerStartingEvent event) {
-
+		event.registerServerCommand(new NLibEventCommand());
 
 	}
 

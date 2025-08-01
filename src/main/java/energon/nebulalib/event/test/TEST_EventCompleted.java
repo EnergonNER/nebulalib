@@ -115,7 +115,7 @@ public class TEST_EventCompleted implements ITestBase {
     @Override
     public boolean canStartEvent(EntityLivingBase deadEntity, DamageSource source) {
         if (deadEntity instanceof EntityPlayer) {
-            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(deadEntity.getName());
+            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(deadEntity.getName(), true);
             if (this.all) {
                 for (int i : this.events) {
                     if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {
@@ -130,7 +130,7 @@ public class TEST_EventCompleted implements ITestBase {
                 }
             }
         } else if (source.getTrueSource() instanceof EntityPlayer) {
-            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(source.getTrueSource().getName());
+            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(source.getTrueSource().getName(), true);
             if (this.all) {
                 for (int i : this.events) {
                     if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {
@@ -151,7 +151,7 @@ public class TEST_EventCompleted implements ITestBase {
     @Override
     public boolean canStartEvent(Entity attacker, Entity target) {
         if (attacker instanceof EntityPlayer) {
-            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(attacker.getName());
+            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(attacker.getName(), true);
             if (this.all) {
                 for (int i : this.events) {
                     if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {
@@ -166,7 +166,7 @@ public class TEST_EventCompleted implements ITestBase {
                 }
             }
         } else if (target instanceof EntityPlayer) {
-            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(target.getName());
+            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(target.getName(), true);
             if (this.all) {
                 for (int i : this.events) {
                     if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {

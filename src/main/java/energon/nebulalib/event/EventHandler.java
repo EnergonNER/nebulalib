@@ -12,6 +12,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
@@ -34,32 +35,45 @@ public class EventHandler {
     public static int ticks = -200;
     public static boolean importData = true;
     public static EventSaveData DATA;
+    public static boolean DEBUG = false;
 
-    private final static List<EventBase> PLAYERS_EVENT = new ArrayList<>();
+    public final static List<EventBase> PLAYERS_EVENT = new ArrayList<>();
     public static List<EventBase> PLAYERS_EVENT_ADD = new ArrayList<>();
 
-    private final static List<EventBase> WORLDS_EVENT = new ArrayList<>();
+    public final static List<EventBase> WORLDS_EVENT = new ArrayList<>();
     public static List<EventBase> WORLDS_EVENT_ADD = new ArrayList<>();
 
     public static void init() {
-        EVENTS.add(new EVENT(1, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_FirstContact::new, new TEST_Delay(4), new TEST_EvoPhase(0, 0), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(2, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Again::new, new TEST_Delay(4), new TEST_EvoPhase(1, 1), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(3, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Another::new, new TEST_Delay(4), new TEST_EvoPhase(2, 2), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(4, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Saw_Beckon::new, new TEST_PlayerLooksAtEntity(EntityPStationaryArchitect.class, 0.035)));
-        EVENTS.add(new EVENT(5, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Biome_Enter::new, new TEST_Delay(4), new TEST_PlayerInBiome(SRPBiomes.biomeInfested)));
-        EVENTS.add(new EVENT(6, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Node_Destroyed::new, new TEST_PlayerBreakBlock(SRPBlocks.BiomeHeart)));
-        EVENTS.add(new EVENT(7, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_City_Exit::new, new TEST_PlayerChangeDimension(0, 111)));
-        EVENTS.add(new EVENT(8, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Kill_Preem::new, new TEST_PlayerKillEntity(EntityPPreeminent.class)));
+        EVENTS.add(new EVENT(1, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_FirstContact::new, "coth_0", "", new TEST_Delay(4), new TEST_EvoPhase(0, 0), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(2, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Again::new, "coth_1", "", new TEST_Delay(4), new TEST_EvoPhase(1, 1), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(3, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Another::new, "coth_2", "", new TEST_Delay(4), new TEST_EvoPhase(2, 2), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(4, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Saw_Beckon::new, "saw_beckon", "", new TEST_PlayerLooksAtEntity(EntityPStationaryArchitect.class, 0.035)));
+        EVENTS.add(new EVENT(5, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Biome_Enter::new, "biome_enter", "", new TEST_Delay(4), new TEST_PlayerInBiome(SRPBiomes.biomeInfested)));
+        EVENTS.add(new EVENT(6, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Node_Destroyed::new, "node_destroyed", "", new TEST_PlayerBreakBlock(SRPBlocks.BiomeHeart)));
+        EVENTS.add(new EVENT(7, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_City_Exit::new, "city_exit", "", new TEST_PlayerChangeDimension(0, 111)));
+        EVENTS.add(new EVENT(8, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Kill_Preem::new, "kill_preem", "", new TEST_PlayerKillEntity(EntityPPreeminent.class)));
     }
 
     public static void serverStarted() {
         ticks = -200;
         importData = true;
+        if (DEBUG) {
+            for (EntityPlayer player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+                player.sendMessage(new TextComponentString("(EventHandler) Server Started!"));
+            }
+        }
+        DEBUG = false;
     }
 
     public static void serverStopping() {
+        if (DEBUG) {
+            for (EntityPlayer player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+                player.sendMessage(new TextComponentString("(EventHandler) Server Stopping!"));
+            }
+        }
         ticks = -200;
         DATA = null;
+        DEBUG = false;
         PLAYERS_EVENT.clear();
         PLAYERS_EVENT_ADD.clear();
         WORLDS_EVENT.clear();
@@ -71,7 +85,7 @@ public class EventHandler {
         DATA = EventSaveData.get(world);
         EventSaveData.EVENT_WORLD_DATA worldData;
         for (int worldID : DimensionManager.getStaticDimensionIDs()) {
-            worldData = DATA.getWorldData(worldID);
+            worldData = DATA.getWorldData(worldID, true);
             if (worldData.correctEvent != 0 || !worldData.correctEventEnded) {
                 for (EVENT test : EVENTS) {
                     if (test.eventID == worldData.correctEvent) {
@@ -82,6 +96,11 @@ public class EventHandler {
                 }
             }
         }
+        if (DEBUG) {
+            for (EntityPlayer player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+                player.sendMessage(new TextComponentString("(EventHandler) Data initialized!"));
+            }
+        }
     }
 
     @SubscribeEvent
@@ -89,7 +108,7 @@ public class EventHandler {
         if (importData || DATA == null) {
             initDATA(event.player.world);
         }
-        EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.player.getName());
+        EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.player.getName(), true);
         if (playerData.correctEvent != 0 || !playerData.correctEventEnded) {
             List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
             for (EventBase eventBase : local) {
@@ -117,7 +136,7 @@ public class EventHandler {
                 }
                 EventSaveData.EVENT_PLAYER_DATA playerData;
                 for (EntityPlayer player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
-                    playerData = DATA.getPlayerData(player.getName());
+                    playerData = DATA.getPlayerData(player.getName(), true);
                     for (EVENT test : EVENTS) {
                         if (test.side.isPlayerUpdateEvent() && playerData.canStartSearch(test.rarity) && test.canStartEvent(player, playerData)) {
                             test.startEvent(player);
@@ -128,9 +147,9 @@ public class EventHandler {
                 if (ticks % 50 == 5) {
                     EventSaveData.EVENT_WORLD_DATA worldData;
                     for (int worldID : DimensionManager.getStaticDimensionIDs()) {
-                        worldData = DATA.getWorldData(worldID);
+                        worldData = DATA.getWorldData(worldID, true);
                         for (EVENT test : EVENTS) {
-                            if (test.side.inWorldUpdateEvent() && worldData.canStartSearch(test.rarity) && worldData.worldCanStartEvent(test.eventID) && test.canStartEvent(worldID, worldData)) {
+                            if (test.side.isWorldUpdateEvent() && worldData.canStartSearch(test.rarity) && worldData.worldCanStartEvent(test.eventID) && test.canStartEvent(worldID, worldData)) {
                                 test.startEvent(DimensionManager.getWorld(worldID));
                                 break;
                             }
@@ -158,7 +177,9 @@ public class EventHandler {
             Entity target = event.getTarget();
             List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
             for (EventBase eventBase : local) {
-                if (eventBase.player == attacker && eventBase.disableAttack(target)) {
+                if (eventBase.player == attacker && eventBase.disableAttack(event)) {
+                    event.setCanceled(true);
+                } else if (eventBase.player == target && eventBase.disableGetDamage(event)) {
                     event.setCanceled(true);
                 }
             }
@@ -169,12 +190,12 @@ public class EventHandler {
                             test.startEventZone(attacker);
                         } else if (attacker instanceof EntityPlayer) {
                             EntityPlayer player = (EntityPlayer) attacker;
-                            if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID, test.rarity)) {
+                            if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
                                 test.startEvent(player);
                             }
                         } else if (target instanceof EntityPlayer) {
                             EntityPlayer player = (EntityPlayer) target;
-                            if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID, test.rarity)) {
+                            if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
                                 test.startEvent(player);
                             }
                         }
@@ -195,12 +216,12 @@ public class EventHandler {
                         test.startEventZone(deadEntity);
                     } else if (event.getSource().getTrueSource() instanceof EntityPlayer) {
                         EntityPlayer player = (EntityPlayer) event.getSource().getTrueSource();
-                        if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID, test.rarity)) {
+                        if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
                             test.startEvent(player);
                         }
                     } else if (deadEntity instanceof EntityPlayer) {
                         EntityPlayer player = (EntityPlayer) deadEntity;
-                        if (DATA.getPlayerData(player.getName()).playerCanStartEvent(test.eventID, test.rarity)) {
+                        if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
                             test.startEvent(player);
                         }
                     }
@@ -212,7 +233,7 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-        EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.player.getName());
+        EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.player.getName(), true);
         for (EVENT test : EVENTS) {
             if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
                 test.startEvent(event.player);
@@ -243,7 +264,7 @@ public class EventHandler {
                 }
             }
             if (!event.isCanceled()) {
-                EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.getPlayer().getName());
+                EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.getPlayer().getName(), true);
                 for (EVENT test : EVENTS) {
                     if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
                         test.startEvent(event.getPlayer());
@@ -264,7 +285,7 @@ public class EventHandler {
                 }
             }
             if (!event.isCanceled()) {
-                EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.getEntity().getName());
+                EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.getEntity().getName(), true);
                 for (EVENT test : EVENTS) {
                     if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
                         test.startEvent((EntityPlayer) event.getEntity());
@@ -292,25 +313,44 @@ public class EventHandler {
         public final RARITY rarity;
         public final Function<EntityPlayer,EventBase> supplier;
         public final ITestBase[] tests;
-        public EVENT(int id, SIDE side, RARITY r, Function<EntityPlayer,EventBase> s, ITestBase... t) {
+        public final String name;
+        public final String description;
+        public EVENT(int id, SIDE side, RARITY r, Function<EntityPlayer,EventBase> s, String name, String description, ITestBase... t) {
             this.eventID = id;
             this.side = side;
             this.rarity = r;
             this.supplier = s;
+            this.name = name;
+            this.description = description;
             this.tests = t;
         }
 
         public EventBase getEvent(EntityPlayer player) {
-            return supplier.apply(player);
+            EventBase base = supplier.apply(player);
+            base.eventID = this.eventID;
+            return base;
         }
 
         /**START*/
         public void startEvent(EntityPlayer player) {
+            for (EventBase eventTEST : PLAYERS_EVENT) {
+                if (eventTEST.player != null && eventTEST.player.getName().equals(player.getName())) {
+                    eventTEST.eventProgress += eventTEST.eventTime;
+                    eventTEST.saveData();
+                    eventTEST.player = null;
+                }
+            }
+
             EventBase eventBase = this.getEvent(player);
-            //EventBase.?(player, this.eventID);
             EventHandler.DATA.addPlayerEvent(player.getName(), this.eventID, this.rarity);
             Network.sendPlayerEvent(player, this.eventID);
             PLAYERS_EVENT_ADD.add(eventBase);
+
+            if (DEBUG) {
+                for (EntityPlayer FMLPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+                    FMLPlayer.sendMessage(new TextComponentString("(EventHandler) Player - \"" + player.getName() + "\"  started event – \"" + this.name + "\""));
+                }
+            }
         }
 
         //RULES
@@ -406,7 +446,7 @@ public class EventHandler {
         /**ENTITY_KILLED*/
         public void startEventZone(World world, AxisAlignedBB box) {
             for (EntityPlayer player : world.getEntitiesWithinAABB(EntityPlayer.class, box)) {
-                if (DATA.getPlayerData(player.getName()).playerCanStartEvent(this.eventID, this.rarity)) {
+                if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(this.eventID, this.rarity)) {
                     this.startEvent(player);
                 }
             }
@@ -417,15 +457,25 @@ public class EventHandler {
             if (world == null) {
                 return;
             }
+
+            for (EventBase eventBase : WORLDS_EVENT) {
+                if (eventBase.world != null && eventBase.world.provider.getDimension() == world.provider.getDimension() && eventBase.eventID == this.eventID) {
+                    eventBase.eventProgress += eventBase.eventTime;
+                    eventBase.saveData();
+                    eventBase.world = null;
+                }
+            }
+
             DATA.addWorldEvent(world.provider.getDimension(), this.eventID, this.rarity);
             EventBase base = this.getEvent(null);
             base.world = world;
             WORLDS_EVENT_ADD.add(base);
-            /*for (EntityPlayer player : world.playerEntities) {
-                if (DATA.getPlayerData(player.getName()).playerCanStartEvent(this.eventID)) {
-                    this.startEvent(player);
+
+            if (DEBUG) {
+                for (EntityPlayer FMLPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+                    FMLPlayer.sendMessage(new TextComponentString("(EventHandler) World - \"" + world.provider.getDimension() + "\"  started event – \"" + this.name + "\""));
                 }
-            }*/
+            }
         }
     }
 
@@ -442,8 +492,12 @@ public class EventHandler {
             return this == PLAYER_TICK;
         }
 
-        public boolean inWorldUpdateEvent() {
+        public boolean isWorldUpdateEvent() {
             return this == WORLD_TICK;
+        }
+
+        public boolean isPlayerEvent() {
+            return this != WORLD_TICK;
         }
 
         public boolean isInteractEvent() {

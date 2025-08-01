@@ -33,11 +33,11 @@ public class TEST_ColonyNoMoreExists implements ITestBase {
     @Override
     public boolean canStartEvent(EntityLivingBase deadEntity, DamageSource source) {
         if (deadEntity instanceof EntityPlayer) {
-            if (!EventSaveData.get(deadEntity.world).getPlayerData(deadEntity.getName()).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+            if (!EventSaveData.get(deadEntity.world).getPlayerData(deadEntity.getName(), true).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
                 return SRPWorldData.get(deadEntity.world).getColonies("a").isEmpty();
             }
         } else if (source.getTrueSource() instanceof EntityPlayer) {
-            if (!EventSaveData.get(deadEntity.world).getPlayerData(source.getTrueSource().getName()).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+            if (!EventSaveData.get(deadEntity.world).getPlayerData(source.getTrueSource().getName(), true).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
                 return SRPWorldData.get(deadEntity.world).getColonies("a").isEmpty();
             }
         }
@@ -47,11 +47,11 @@ public class TEST_ColonyNoMoreExists implements ITestBase {
     @Override
     public boolean canStartEvent(Entity attacker, Entity target) {
         if (attacker instanceof EntityPlayer) {
-            if (!EventSaveData.get(attacker.world).getPlayerData(attacker.getName()).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+            if (!EventSaveData.get(attacker.world).getPlayerData(attacker.getName(), true).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
                 return SRPWorldData.get(attacker.world).getColonies("a").isEmpty();
             }
         } else if (target instanceof EntityPlayer) {
-            if (!EventSaveData.get(target.world).getPlayerData(target.getName()).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+            if (!EventSaveData.get(target.world).getPlayerData(target.getName(), true).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
                 return SRPWorldData.get(target.world).getColonies("a").isEmpty();
             }
         }

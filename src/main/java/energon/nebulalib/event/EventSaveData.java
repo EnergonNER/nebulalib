@@ -1,10 +1,13 @@
 package energon.nebulalib.event;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
@@ -32,28 +35,36 @@ public class EventSaveData extends WorldSavedData {
         return instance;
     }
 
-    public EVENT_PLAYER_DATA getPlayerData(String playerName) {
+    public EVENT_PLAYER_DATA getPlayerData(String playerName, boolean create) {
         for (EVENT_PLAYER_DATA data : playersEventData) {
             if (data.player.equals(playerName)) {
                 return data;
             }
         }
-        EVENT_PLAYER_DATA newData = new EVENT_PLAYER_DATA(playerName, 0, true, EventHandler.RARITY.COMMON);
-        playersEventData.add(newData);
-        this.setDirty(true);
-        return newData;
+        if (create) {
+            EVENT_PLAYER_DATA newData = new EVENT_PLAYER_DATA(playerName, 0, true, EventHandler.RARITY.COMMON);
+            playersEventData.add(newData);
+            this.setDirty(true);
+            return newData;
+        }
+        return null;
     }
 
-    public EVENT_WORLD_DATA getWorldData(int worldID) {
+
+
+    public EVENT_WORLD_DATA getWorldData(int worldID, boolean create) {
         for (EVENT_WORLD_DATA data : this.worldsEventData) {
             if (data.worldID == worldID) {
                 return data;
             }
         }
-        EVENT_WORLD_DATA newData = new EVENT_WORLD_DATA(worldID, 0, true, EventHandler.RARITY.COMMON);
-        this.worldsEventData.add(newData);
-        this.setDirty(true);
-        return newData;
+        if (create) {
+            EVENT_WORLD_DATA newData = new EVENT_WORLD_DATA(worldID, 0, true, EventHandler.RARITY.COMMON);
+            this.worldsEventData.add(newData);
+            this.setDirty(true);
+            return newData;
+        }
+        return null;
     }
 
     public void addPlayerEvent(String playerName, int id, EventHandler.RARITY rarity) {
@@ -83,8 +94,14 @@ public class EventSaveData extends WorldSavedData {
     public void setPlayerEventEnded(String playerName) {
         for (EVENT_PLAYER_DATA data : this.playersEventData) {
             if (data.player.equals(playerName)) {
+                int old = data.correctEvent;
                 data.setEventEnded();
                 this.setDirty(true);
+                if (EventHandler.DEBUG) {
+                    for (EntityPlayer FMLPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+                        FMLPlayer.sendMessage(new TextComponentString("(SaveData) Player - \"" + playerName + "\"  ended event – \"" + old + "\""));
+                    }
+                }
                 return;
             }
         }
@@ -93,8 +110,14 @@ public class EventSaveData extends WorldSavedData {
     public void setWorldEventEnded(int worldID) {
         for (EVENT_WORLD_DATA data : this.worldsEventData) {
             if (data.worldID == worldID) {
+                int old = data.correctEvent;
                 data.setEventEnded();
                 this.setDirty(true);
+                if (EventHandler.DEBUG) {
+                    for (EntityPlayer FMLPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+                        FMLPlayer.sendMessage(new TextComponentString("(SaveData) World - \"" + worldID + "\"  ended event – \"" + old + "\""));
+                    }
+                }
                 return;
             }
         }
@@ -163,7 +186,9 @@ public class EventSaveData extends WorldSavedData {
         public void setEventEnded() {
             this.correctEventEnded = true;
             if (this.correctEvent != 0) {
-                this.eventsEnded = ArrayUtils.add(this.eventsEnded, this.correctEvent);
+                if (!this.worldCompletedEvent(this.correctEvent)) {
+                    this.eventsEnded = ArrayUtils.add(this.eventsEnded, this.correctEvent);
+                }
                 this.correctEvent = 0;
             }
             this.correctEventRarity = EventHandler.RARITY.COMMON;
@@ -217,7 +242,9 @@ public class EventSaveData extends WorldSavedData {
         public void setEventEnded() {
             this.correctEventEnded = true;
             if (this.correctEvent != 0) {
-                this.eventsEnded = ArrayUtils.add(this.eventsEnded, this.correctEvent);
+                if (!this.playerCompletedEvent(this.correctEvent)) {
+                    this.eventsEnded = ArrayUtils.add(this.eventsEnded, this.correctEvent);
+                }
                 this.correctEvent = 0;
             }
             this.correctEventRarity = EventHandler.RARITY.COMMON;
