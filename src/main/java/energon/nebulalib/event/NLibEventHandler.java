@@ -94,6 +94,7 @@ public class NLibEventHandler {
                         return;
                     }
                     worldData.setEventEnded();
+                    DATA.setDirty(true);
                 }
             }
         }

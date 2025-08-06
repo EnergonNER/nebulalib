@@ -13,6 +13,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -30,6 +31,7 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 public class EVENT_Coth_FirstContact extends EventBase {
     private Collection<PotionEffect> effects;
@@ -40,11 +42,39 @@ public class EVENT_Coth_FirstContact extends EventBase {
         super(p, 270);
     }
 
+    /**effects|reg_name;duration;amplifier;isAmbient;showParticles,...*/
+    @Override
+    public void getFromData(String data, boolean playerEvent) {
+        if (data.startsWith("effects")) {
+            this.effects = new ArrayList<>();
+            String[] parts = data.substring(8).split(Pattern.quote(","));
+            for (String effectInstance : parts) {
+                String[] effect = effectInstance.split(Pattern.quote(";"));
+                if (effect.length == 5) {
+                    Potion potion = Potion.getPotionFromResourceLocation(effect[0]);
+                    if (potion != null) {
+                        this.effects.add(new PotionEffect(potion, Integer.parseInt(effect[1]), Integer.parseInt(effect[2]), Boolean.parseBoolean(effect[3]), Boolean.parseBoolean(effect[4])));
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void serverEventStart() {
         if (this.player != null) {
-            this.effects = new ArrayList<>(this.player.getActivePotionEffects());
-            this.player.clearActivePotions();
+            if (!this.fromData) {
+                this.effects = new ArrayList<>(this.player.getActivePotionEffects());
+                StringBuilder builder = new StringBuilder("effects|");
+                for (PotionEffect effect : this.effects) {
+                    ResourceLocation loc = effect.getPotion().getRegistryName();
+                    if (loc != null) {
+                        builder.append(loc.toString()).append(";").append(effect.getDuration()).append(";").append(effect.getAmplifier()).append(";").append(effect.getIsAmbient()).append(";").append(effect.doesShowParticles()).append(",");
+                    }
+                }
+                this.saveToData(builder.toString());
+                this.player.clearActivePotions();
+            }
             this.player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, this.eventTime - 40, 3, false, false));
             this.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, this.eventTime - 40, 1, false, false));
             this.player.addPotionEffect(new PotionEffect(MobEffects.MINING_FATIGUE, this.eventTime - 40, 3, false, false));
@@ -81,11 +111,12 @@ public class EVENT_Coth_FirstContact extends EventBase {
     @Override
     public void serverEventEnd() {
         if (this.player != null) {
-            this.player.clearActivePotions();
+            //this.player.clearActivePotions();
             for (PotionEffect potionEffect : this.effects) {
                 this.player.addPotionEffect(potionEffect);
             }
         }
+        effects.clear();
     }
 
     @Override

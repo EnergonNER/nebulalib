@@ -1,5 +1,6 @@
 package energon.nebulalib.event.events;
 
+import energon.nebulalib.event.EventSaveData;
 import energon.nebulalib.event.NLibEventHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
@@ -64,12 +65,16 @@ public abstract class EventBase {
         return false;
     }
 
-    public void saveData() {
-        if (this.world != null) {
-            NLibEventHandler.DATA.setWorldEventEnded(this.world.provider.getDimension());
-        } else if (this.player != null && FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(this.player.getName()) != null) {
-            NLibEventHandler.DATA.setPlayerEventEnded(this.player.getName());
-        }
+    public boolean isPlayerEvent() {
+        return this.player != null;
+    }
+
+    public boolean playerPresent() {
+        return this.player != null && FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(this.player.getName()) != null;
+    }
+
+    public boolean isWorldEvent() {
+        return this.world != null;
     }
 
     public boolean serverHandler() {
@@ -80,11 +85,47 @@ public abstract class EventBase {
             return true;
         } else {
             if (this.eventProgress == 0) {
+                if (this.fromData) {
+                    if (this.isWorldEvent()) {
+                        EventSaveData.EVENT_WORLD_DATA data = NLibEventHandler.DATA.getWorldData(this.world.provider.getDimension(), false);
+                        if (data != null) {
+                            this.getFromData(data.variable, false);
+                        }
+                    } else if (this.playerPresent()) {
+                        EventSaveData.EVENT_PLAYER_DATA data = NLibEventHandler.DATA.getPlayerData(this.player.getName(), false);
+                        if (data != null) {
+                            this.getFromData(data.variable, true);
+                        }
+                    }
+                }
                 this.serverEventStart();
             }
             this.serverTick();
             this.eventProgress++;
             return false;
+        }
+    }
+
+    public void saveData() {
+        if (this.isWorldEvent()) {
+            NLibEventHandler.DATA.setWorldEventEnded(this.world.provider.getDimension());
+        } else if (this.playerPresent()) {
+            NLibEventHandler.DATA.setPlayerEventEnded(this.player.getName());
+        }
+    }
+
+    public void getFromData(String data, boolean playerEvent) {}
+    public void saveToData(String variables) {
+        if (this.isWorldEvent()) {
+            EventSaveData.EVENT_WORLD_DATA data = NLibEventHandler.DATA.getWorldData(this.world.provider.getDimension(), false);
+            if (data != null) {
+                data.variable = variables;
+            }
+        } else if (this.playerPresent()) {
+            EventSaveData.EVENT_PLAYER_DATA data = NLibEventHandler.DATA.getPlayerData(this.player.getName(), false);
+            if (data != null) {
+                data.variable = variables;
+            }
         }
     }
 
