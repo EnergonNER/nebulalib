@@ -249,6 +249,7 @@ public class NLibEventCommand extends CommandBase {
                                         builde2r.append("ERROR!");
                                     } else {
                                         builde2r.append("\n> CORRECT_EVENT: ").append(worldData.correctEvent).append("\n> ENDED: ").append(worldData.correctEventEnded).append("\n> RARITY: ").append(worldData.correctEventRarity.name.toUpperCase());
+                                        builde2r.append("\n> VARIABLES: ").append(worldData.variable);
                                         builde2r.append("\n> ENDED_EVENTS: ").append(this.getNameIDEventList(worldData.eventsEnded));
                                     }
                                     builde2r.append("\n------------------------");
@@ -259,6 +260,7 @@ public class NLibEventCommand extends CommandBase {
                                 for (EventSaveData.EVENT_WORLD_DATA worldData : da3ta.worldsEventData) {
                                     builde2r.append("\nDIM_ID: ").append(worldData.worldID);
                                     builde2r.append("\n> CORRECT_EVENT: ").append(worldData.correctEvent).append("\n> ENDED: ").append(worldData.correctEventEnded).append("\n> RARITY: ").append(worldData.correctEventRarity.name.toUpperCase());
+                                    builde2r.append("\n> VARIABLES: ").append(worldData.variable);
                                     builde2r.append("\n> ENDED_EVENTS: ").append(this.getNameIDEventList(worldData.eventsEnded));
                                 }
                                 builde2r.append("\n------------------------");
@@ -271,14 +273,24 @@ public class NLibEventCommand extends CommandBase {
                                     for (EventSaveData.EVENT_WORLD_DATA worldData : saveData.worldsEventData) {
                                         if (worldData.worldID == dimID) {
                                             worldData.eventsEnded = new int[]{};
+                                            worldData.correctEvent = 0;
+                                            worldData.correctEventEnded = true;
+                                            worldData.correctEventRarity = NLibEventHandler.RARITY.COMMON;
+                                            worldData.variable = "";
                                         }
                                     }
+                                    saveData.setDirty(true);
                                     iCommandSender.sendMessage(new TextComponentString("List cleared."));
                                     return;
                                 }
                                 for (EventSaveData.EVENT_WORLD_DATA worldData : saveData.worldsEventData) {
                                     worldData.eventsEnded = new int[]{};
+                                    worldData.correctEvent = 0;
+                                    worldData.correctEventEnded = true;
+                                    worldData.correctEventRarity = NLibEventHandler.RARITY.COMMON;
+                                    worldData.variable = "";
                                 }
+                                saveData.setDirty(true);
                                 iCommandSender.sendMessage(new TextComponentString("List cleared."));
                                 break;
                             case "add":
@@ -557,6 +569,7 @@ public class NLibEventCommand extends CommandBase {
                                         builderR.append("ERROR!");
                                     } else {
                                         builderR.append("\n> CORRECT_EVENT: ").append(playerData.correctEvent).append("\n> ENDED: ").append(playerData.correctEventEnded).append("\n> RARITY: ").append(playerData.correctEventRarity.name.toUpperCase());
+                                        builderR.append("\n> VARIABLES: ").append(playerData.variable);
                                         builderR.append("\n> ENDED_EVENTS: ").append(this.getNameIDEventList(playerData.eventsEnded));
                                     }
                                     builderR.append("\n------------------------");
@@ -567,6 +580,7 @@ public class NLibEventCommand extends CommandBase {
                                 for (EventSaveData.EVENT_PLAYER_DATA playerData : dataR.playersEventData) {
                                     builderR.append("\nPLAYER_NAME: ").append(playerData.player);
                                     builderR.append("\n> CORRECT_EVENT: ").append(playerData.correctEvent).append("\n> ENDED: ").append(playerData.correctEventEnded).append("\n> RARITY: ").append(playerData.correctEventRarity.name.toUpperCase());
+                                    builderR.append("\n> VARIABLES: ").append(playerData.variable);
                                     builderR.append("\n> ENDED_EVENTS: ").append(this.getNameIDEventList(playerData.eventsEnded));
                                 }
                                 builderR.append("\n------------------------");
@@ -575,17 +589,27 @@ public class NLibEventCommand extends CommandBase {
                             case "clear":
                                 EventSaveData saveData = EventSaveData.get(iCommandSender.getEntityWorld());
                                 if (strings.length == 4) {
-                                    for (EventSaveData.EVENT_PLAYER_DATA worldData : saveData.playersEventData) {
-                                        if (worldData.player.equals(strings[3])) {
-                                            worldData.eventsEnded = new int[]{};
+                                    for (EventSaveData.EVENT_PLAYER_DATA playerData : saveData.playersEventData) {
+                                        if (playerData.player.equals(strings[3])) {
+                                            playerData.eventsEnded = new int[]{};
+                                            playerData.correctEvent = 0;
+                                            playerData.correctEventEnded = true;
+                                            playerData.correctEventRarity = NLibEventHandler.RARITY.COMMON;
+                                            playerData.variable = "";
                                         }
                                     }
+                                    saveData.setDirty(true);
                                     iCommandSender.sendMessage(new TextComponentString("List cleared."));
                                     return;
                                 }
-                                for (EventSaveData.EVENT_PLAYER_DATA worldData : saveData.playersEventData) {
-                                    worldData.eventsEnded = new int[]{};
+                                for (EventSaveData.EVENT_PLAYER_DATA playerData : saveData.playersEventData) {
+                                    playerData.eventsEnded = new int[]{};
+                                    playerData.correctEvent = 0;
+                                    playerData.correctEventEnded = true;
+                                    playerData.correctEventRarity = NLibEventHandler.RARITY.COMMON;
+                                    playerData.variable = "";
                                 }
+                                saveData.setDirty(true);
                                 iCommandSender.sendMessage(new TextComponentString("List cleared."));
                                 break;
                             case "add":
