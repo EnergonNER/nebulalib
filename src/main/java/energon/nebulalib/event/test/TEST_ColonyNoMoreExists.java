@@ -1,7 +1,7 @@
 package energon.nebulalib.event.test;
 
 import com.dhanantry.scapeandrunparasites.world.SRPWorldData;
-import energon.nebulalib.event.EventHandler;
+import energon.nebulalib.event.NLibEventHandler;
 import energon.nebulalib.event.EventSaveData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -33,11 +33,11 @@ public class TEST_ColonyNoMoreExists implements ITestBase {
     @Override
     public boolean canStartEvent(EntityLivingBase deadEntity, DamageSource source) {
         if (deadEntity instanceof EntityPlayer) {
-            if (!EventSaveData.get(deadEntity.world).getPlayerData(deadEntity.getName(), true).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+            if (!EventSaveData.get(deadEntity.world).getPlayerData(deadEntity.getName(), true).playerCanStartEvent(this.colonyExistEvent, NLibEventHandler.RARITY.COMMON)) {
                 return SRPWorldData.get(deadEntity.world).getColonies("a").isEmpty();
             }
         } else if (source.getTrueSource() instanceof EntityPlayer) {
-            if (!EventSaveData.get(deadEntity.world).getPlayerData(source.getTrueSource().getName(), true).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+            if (!EventSaveData.get(deadEntity.world).getPlayerData(source.getTrueSource().getName(), true).playerCanStartEvent(this.colonyExistEvent, NLibEventHandler.RARITY.COMMON)) {
                 return SRPWorldData.get(deadEntity.world).getColonies("a").isEmpty();
             }
         }
@@ -47,11 +47,11 @@ public class TEST_ColonyNoMoreExists implements ITestBase {
     @Override
     public boolean canStartEvent(Entity attacker, Entity target) {
         if (attacker instanceof EntityPlayer) {
-            if (!EventSaveData.get(attacker.world).getPlayerData(attacker.getName(), true).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+            if (!EventSaveData.get(attacker.world).getPlayerData(attacker.getName(), true).playerCanStartEvent(this.colonyExistEvent, NLibEventHandler.RARITY.COMMON)) {
                 return SRPWorldData.get(attacker.world).getColonies("a").isEmpty();
             }
         } else if (target instanceof EntityPlayer) {
-            if (!EventSaveData.get(target.world).getPlayerData(target.getName(), true).playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+            if (!EventSaveData.get(target.world).getPlayerData(target.getName(), true).playerCanStartEvent(this.colonyExistEvent, NLibEventHandler.RARITY.COMMON)) {
                 return SRPWorldData.get(target.world).getColonies("a").isEmpty();
             }
         }
@@ -60,7 +60,7 @@ public class TEST_ColonyNoMoreExists implements ITestBase {
 
     @Override
     public boolean canStartEvent(EntityPlayer player, EventSaveData.EVENT_PLAYER_DATA data) {
-        if (!data.playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+        if (!data.playerCanStartEvent(this.colonyExistEvent, NLibEventHandler.RARITY.COMMON)) {
             return SRPWorldData.get(player.world).getColonies("a").isEmpty();
         }
         return false;
@@ -68,7 +68,7 @@ public class TEST_ColonyNoMoreExists implements ITestBase {
 
     @Override
     public boolean canStartEvent(PlayerEvent.PlayerChangedDimensionEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
-        if (!data.playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+        if (!data.playerCanStartEvent(this.colonyExistEvent, NLibEventHandler.RARITY.COMMON)) {
             return SRPWorldData.get(event.player.world).getColonies("a").isEmpty();
         }
         return false;
@@ -76,7 +76,7 @@ public class TEST_ColonyNoMoreExists implements ITestBase {
 
     @Override
     public boolean canStartEvent(BlockEvent.BreakEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
-        if (!data.playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+        if (!data.playerCanStartEvent(this.colonyExistEvent, NLibEventHandler.RARITY.COMMON)) {
             return SRPWorldData.get(event.getWorld()).getColonies("a").isEmpty();
         }
         return false;
@@ -84,7 +84,7 @@ public class TEST_ColonyNoMoreExists implements ITestBase {
 
     @Override
     public boolean canStartEvent(BlockEvent.EntityPlaceEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
-        if (!data.playerCanStartEvent(this.colonyExistEvent, EventHandler.RARITY.COMMON)) {
+        if (!data.playerCanStartEvent(this.colonyExistEvent, NLibEventHandler.RARITY.COMMON)) {
             return SRPWorldData.get(event.getWorld()).getColonies("a").isEmpty();
         }
         return false;

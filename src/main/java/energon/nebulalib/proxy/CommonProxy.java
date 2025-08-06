@@ -1,7 +1,8 @@
 package energon.nebulalib.proxy;
 
-import energon.nebulalib.event.EventHandler;
-import energon.nebulalib.event.Network;
+import energon.nebulalib.event.NLibEventHandler;
+import energon.nebulalib.network.NLibNetwork;
+import energon.nebulalib.handler.NLibSoundHandler;
 import energon.nebulalib.inject.SRPInject;
 import energon.nebulalib.config.NLibConfig;
 import energon.nebulalib.network.NLibEventCommand;
@@ -13,17 +14,17 @@ public class CommonProxy {
 
 	public void preInit(FMLPreInitializationEvent event) {
 		NLibConfig.registerConfig(event);
-		Network.init();
+		NLibNetwork.init();
 	}
 
 	public void init(FMLInitializationEvent event) {
-
+		NLibSoundHandler.registerSounds();
 
 	}
 
 	public void postInit(FMLPostInitializationEvent event) {
 		SRPInject.inj();
-		EventHandler.init();
+		NLibEventHandler.init();
 	}
 
 	public void serverStart(FMLServerStartingEvent event) {

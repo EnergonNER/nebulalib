@@ -1,8 +1,7 @@
 package energon.nebulalib.network;
 
-import energon.nebulalib.event.EventHandler;
+import energon.nebulalib.event.NLibEventHandler;
 import energon.nebulalib.event.EventSaveData;
-import energon.nebulalib.event.Network;
 import energon.nebulalib.event.events.EventBase;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -40,7 +39,7 @@ public class NLibEventCommand extends CommandBase {
         oy:
         for (int i : events) {
             builder.append("\n    ID: ").append(i).append("  NAME: \"");
-            for (EventHandler.EVENT test : EventHandler.EVENTS) {
+            for (NLibEventHandler.EVENT test : NLibEventHandler.EVENTS) {
                 if (test.eventID == i) {
                     builder.append(test.name).append("\", ");
                     continue oy;
@@ -87,15 +86,15 @@ public class NLibEventCommand extends CommandBase {
         }
         switch (strings[0]) {
             case "debug":
-                EventHandler.DEBUG = !EventHandler.DEBUG;
-                iCommandSender.sendMessage(new TextComponentString("Debug - " + EventHandler.DEBUG));
+                NLibEventHandler.DEBUG = !NLibEventHandler.DEBUG;
+                iCommandSender.sendMessage(new TextComponentString("Debug - " + NLibEventHandler.DEBUG));
                 break;
             case "help":
                 this.help(iCommandSender);
                 break;
             case "list":
                 StringBuilder infoList = new StringBuilder("------------------------");
-                for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                     infoList.append("\nEVENT_ID: ").append(event.eventID).append("\nEVENT_NAME: ").append(event.name).append("\n> INFO: ").append(event.description);
                     infoList.append("\n------------------------");
                 }
@@ -108,7 +107,7 @@ public class NLibEventCommand extends CommandBase {
                 }
                 switch (strings[1]) {
                     case "info":
-                        List<EventBase> local = new ArrayList<>(EventHandler.WORLDS_EVENT);
+                        List<EventBase> local = new ArrayList<>(NLibEventHandler.WORLDS_EVENT);
                         if (local.isEmpty()) {
                             iCommandSender.sendMessage(new TextComponentString("------------------------\nEMPTY\n------------------------"));
                             return;
@@ -148,10 +147,10 @@ public class NLibEventCommand extends CommandBase {
                                 newEvent = null;
                             }
                             if (newEvent != null) {
-                                for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                     if (event.eventID == newEvent) {
                                         if (event.side.isWorldUpdateEvent()) {
-                                            event.startEvent(DimensionManager.getWorld(Integer.parseInt(strings[2])));
+                                            event.startEvent(DimensionManager.getWorld(Integer.parseInt(strings[2])), false);
                                             iCommandSender.sendMessage(new TextComponentString("Event set to – \"" + event.name + "\"."));
                                         } else {
                                             iCommandSender.sendMessage(new TextComponentString("ERROR! (Player Event)"));
@@ -161,10 +160,10 @@ public class NLibEventCommand extends CommandBase {
                                 }
                                 iCommandSender.sendMessage(new TextComponentString("ERROR! (Event not found)"));
                             } else {
-                                for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                     if (event.name.equals(strings[3])) {
                                         if (event.side.isWorldUpdateEvent()) {
-                                            event.startEvent(DimensionManager.getWorld(Integer.parseInt(strings[2])));
+                                            event.startEvent(DimensionManager.getWorld(Integer.parseInt(strings[2])), false);
                                             iCommandSender.sendMessage(new TextComponentString("Event set to – \"" + event.name + "\"."));
                                         } else {
                                             iCommandSender.sendMessage(new TextComponentString("ERROR! (Player Event)"));
@@ -181,7 +180,7 @@ public class NLibEventCommand extends CommandBase {
                     case "clear":
                         if (strings.length == 3) {
                             int worldID = Integer.parseInt(strings[2]);
-                            for (EventBase base : EventHandler.WORLDS_EVENT) {
+                            for (EventBase base : NLibEventHandler.WORLDS_EVENT) {
                                 if (base.world != null && base.world.provider.getDimension() == worldID) {
                                     base.eventProgress += base.eventTime;
                                 }
@@ -189,7 +188,7 @@ public class NLibEventCommand extends CommandBase {
                             iCommandSender.sendMessage(new TextComponentString("List cleared."));
                             break;
                         }
-                        for (EventBase base : EventHandler.WORLDS_EVENT) {
+                        for (EventBase base : NLibEventHandler.WORLDS_EVENT) {
                             if (base.world != null) {
                                 base.eventProgress += base.eventTime;
                             }
@@ -206,7 +205,7 @@ public class NLibEventCommand extends CommandBase {
                                 removeEvent = null;
                             }
                             if (removeEvent != null) {
-                                for (EventBase base : EventHandler.WORLDS_EVENT) {
+                                for (EventBase base : NLibEventHandler.WORLDS_EVENT) {
                                     if (base.world != null && base.world.provider.getDimension() == dimID && base.eventID == removeEvent) {
                                         base.eventProgress += base.eventTime;
                                         iCommandSender.sendMessage(new TextComponentString("Event deleted."));
@@ -214,13 +213,13 @@ public class NLibEventCommand extends CommandBase {
                                     }
                                 }
                             } else {
-                                for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                     if (event.side.isWorldUpdateEvent() && event.name.equals(strings[3])) {
                                         removeEvent = event.eventID;
                                     }
                                 }
                                 if (removeEvent != null) {
-                                    for (EventBase base : EventHandler.WORLDS_EVENT) {
+                                    for (EventBase base : NLibEventHandler.WORLDS_EVENT) {
                                         if (base.world != null && base.world.provider.getDimension() == dimID && base.eventID == removeEvent) {
                                             base.eventProgress += base.eventTime;
                                             iCommandSender.sendMessage(new TextComponentString("Event deleted."));
@@ -295,7 +294,7 @@ public class NLibEventCommand extends CommandBase {
                                         newEvent = null;
                                     }
                                     if (newEvent != null) {
-                                        for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                        for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                             if (event.eventID == newEvent) {
                                                 if (event.side.isWorldUpdateEvent()) {
                                                     EventSaveData save1Data = EventSaveData.get(iCommandSender.getEntityWorld());
@@ -317,7 +316,7 @@ public class NLibEventCommand extends CommandBase {
                                         }
                                         iCommandSender.sendMessage(new TextComponentString("ERROR! (Event not found)"));
                                     } else {
-                                        for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                        for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                             if (event.name.equals(strings[4])) {
                                                 if (event.side.isWorldUpdateEvent()) {
                                                     EventSaveData save1Data = EventSaveData.get(iCommandSender.getEntityWorld());
@@ -356,7 +355,7 @@ public class NLibEventCommand extends CommandBase {
                                         removeEvent = null;
                                     }
                                     if (removeEvent != null) {
-                                        for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                        for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                             if (event.eventID == removeEvent) {
                                                 if (event.side.isWorldUpdateEvent()) {
                                                     EventSaveData save1Data = EventSaveData.get(iCommandSender.getEntityWorld());
@@ -375,7 +374,7 @@ public class NLibEventCommand extends CommandBase {
                                             }
                                         }
                                     } else {
-                                        for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                        for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                             if (event.name.equals(strings[4])) {
                                                 if (event.side.isWorldUpdateEvent()) {
                                                     EventSaveData save1Data = EventSaveData.get(iCommandSender.getEntityWorld());
@@ -410,7 +409,7 @@ public class NLibEventCommand extends CommandBase {
                 }
                 switch (strings[1]) {
                     case "info":
-                        List<EventBase> local = new ArrayList<>(EventHandler.PLAYERS_EVENT);
+                        List<EventBase> local = new ArrayList<>(NLibEventHandler.PLAYERS_EVENT);
                         if (local.isEmpty()) {
                             iCommandSender.sendMessage(new TextComponentString("------------------------\nEMPTY\n------------------------"));
                             return;
@@ -449,12 +448,12 @@ public class NLibEventCommand extends CommandBase {
                                 newEvent = null;
                             }
                             if (newEvent != null) {
-                                for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                     if (event.eventID == newEvent) {
                                         if (event.side.isPlayerEvent()) {
                                             EntityPlayer player = minecraftServer.getPlayerList().getPlayerByUsername(strings[2]);
                                             if (player != null) {
-                                                event.startEvent(player);
+                                                event.startEvent(player, false);
                                                 iCommandSender.sendMessage(new TextComponentString("Event set to – \"" + event.name + "\""));
                                             }
                                         } else {
@@ -465,12 +464,12 @@ public class NLibEventCommand extends CommandBase {
                                 }
                                 iCommandSender.sendMessage(new TextComponentString("ERROR! (Event not found)"));
                             } else {
-                                for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                     if (event.name.equals(strings[3])) {
                                         if (event.side.isPlayerEvent()) {
                                             EntityPlayer player = minecraftServer.getPlayerList().getPlayerByUsername(strings[2]);
                                             if (player != null) {
-                                                event.startEvent(player);
+                                                event.startEvent(player, false);
                                                 iCommandSender.sendMessage(new TextComponentString("Event set to – \"" + event.name + "\""));
                                             }
                                         } else {
@@ -487,19 +486,19 @@ public class NLibEventCommand extends CommandBase {
                         break;
                     case "clear":
                         if (strings.length == 3) {
-                            for (EventBase base : EventHandler.PLAYERS_EVENT) {
+                            for (EventBase base : NLibEventHandler.PLAYERS_EVENT) {
                                 if (base.player != null && base.player.getName().equals(strings[2])) {
                                     base.eventProgress += base.eventTime;
-                                    Network.sendPlayerEvent(minecraftServer.getPlayerList().getPlayerByUsername(strings[2]), 0);
+                                    NLibNetwork.sendPlayerEvent(minecraftServer.getPlayerList().getPlayerByUsername(strings[2]), 0);
                                 }
                             }
                             iCommandSender.sendMessage(new TextComponentString("List cleared."));
                             break;
                         }
-                        for (EventBase base : EventHandler.PLAYERS_EVENT) {
+                        for (EventBase base : NLibEventHandler.PLAYERS_EVENT) {
                             if (base.player != null) {
                                 base.eventProgress += base.eventTime;
-                                Network.sendPlayerEvent(minecraftServer.getPlayerList().getPlayerByUsername(base.player.getName()), 0);
+                                NLibNetwork.sendPlayerEvent(minecraftServer.getPlayerList().getPlayerByUsername(base.player.getName()), 0);
                             }
                         }
                         iCommandSender.sendMessage(new TextComponentString("List cleared."));
@@ -513,25 +512,25 @@ public class NLibEventCommand extends CommandBase {
                                 removeEvent = null;
                             }
                             if (removeEvent != null) {
-                                for (EventBase base : EventHandler.PLAYERS_EVENT) {
+                                for (EventBase base : NLibEventHandler.PLAYERS_EVENT) {
                                     if (base.world == null && base.player != null && base.player.getName().equals(strings[2]) && base.eventID == removeEvent) {
                                         base.eventProgress += base.eventTime;
-                                        Network.sendPlayerEvent(minecraftServer.getPlayerList().getPlayerByUsername(strings[2]), 0);
+                                        NLibNetwork.sendPlayerEvent(minecraftServer.getPlayerList().getPlayerByUsername(strings[2]), 0);
                                         iCommandSender.sendMessage(new TextComponentString("Event deleted."));
                                         return;
                                     }
                                 }
                             } else {
-                                for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                     if (event.side.isPlayerEvent() && event.name.equals(strings[3])) {
                                         removeEvent = event.eventID;
                                     }
                                 }
                                 if (removeEvent != null) {
-                                    for (EventBase base : EventHandler.PLAYERS_EVENT) {
+                                    for (EventBase base : NLibEventHandler.PLAYERS_EVENT) {
                                         if (base.world == null && base.player != null && base.player.getName().equals(strings[2]) && base.eventID == removeEvent) {
                                             base.eventProgress += base.eventTime;
-                                            Network.sendPlayerEvent(minecraftServer.getPlayerList().getPlayerByUsername(strings[2]), 0);
+                                            NLibNetwork.sendPlayerEvent(minecraftServer.getPlayerList().getPlayerByUsername(strings[2]), 0);
                                             iCommandSender.sendMessage(new TextComponentString("Event deleted."));
                                             return;
                                         }
@@ -601,7 +600,7 @@ public class NLibEventCommand extends CommandBase {
                                         newEvent = null;
                                     }
                                     if (newEvent != null) {
-                                        for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                        for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                             if (event.eventID == newEvent) {
                                                 if (event.side.isPlayerEvent()) {
                                                     EventSaveData save1Data = EventSaveData.get(iCommandSender.getEntityWorld());
@@ -623,7 +622,7 @@ public class NLibEventCommand extends CommandBase {
                                         }
                                         iCommandSender.sendMessage(new TextComponentString("ERROR! (Event not found)"));
                                     } else {
-                                        for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                        for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                             if (event.name.equals(strings[4])) {
                                                 if (event.side.isPlayerEvent()) {
                                                     EventSaveData save1Data = EventSaveData.get(iCommandSender.getEntityWorld());
@@ -661,7 +660,7 @@ public class NLibEventCommand extends CommandBase {
                                         removeEvent = null;
                                     }
                                     if (removeEvent != null) {
-                                        for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                        for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                             if (event.eventID == removeEvent) {
                                                 if (event.side.isPlayerEvent()) {
                                                     EventSaveData save1Data = EventSaveData.get(iCommandSender.getEntityWorld());
@@ -680,7 +679,7 @@ public class NLibEventCommand extends CommandBase {
                                             }
                                         }
                                     } else {
-                                        for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                        for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                             if (event.name.equals(strings[4])) {
                                                 if (event.side.isPlayerEvent()) {
                                                     EventSaveData save1Data = EventSaveData.get(iCommandSender.getEntityWorld());
@@ -745,7 +744,7 @@ public class NLibEventCommand extends CommandBase {
                     case "set":
                     case "remove":
                         if (strings.length == 4) {
-                            for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                            for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                 if (event.side.isPlayerEvent()) {
                                     tab.add(event.name);
                                 }
@@ -774,7 +773,7 @@ public class NLibEventCommand extends CommandBase {
                             case "add":
                             case "remove":
                                 if (strings.length == 5) {
-                                    for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                    for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                         if (event.side.isPlayerEvent()) {
                                             tab.add(event.name);
                                         }
@@ -808,7 +807,7 @@ public class NLibEventCommand extends CommandBase {
                     case "set":
                     case "remove":
                         if (strings.length == 4) {
-                            for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                            for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                 if (event.side.isWorldUpdateEvent()) {
                                     tab.add(event.name);
                                 }
@@ -837,7 +836,7 @@ public class NLibEventCommand extends CommandBase {
                             case "add":
                             case "remove":
                                 if (strings.length == 5) {
-                                    for (EventHandler.EVENT event : EventHandler.EVENTS) {
+                                    for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
                                         if (event.side.isWorldUpdateEvent()) {
                                             tab.add(event.name);
                                         }

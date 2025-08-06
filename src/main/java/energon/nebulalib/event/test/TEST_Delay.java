@@ -1,6 +1,6 @@
 package energon.nebulalib.event.test;
 
-import energon.nebulalib.event.EventHandler;
+import energon.nebulalib.event.NLibEventHandler;
 import energon.nebulalib.event.EventSaveData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -17,36 +17,36 @@ public class TEST_Delay implements ITestBase {
 
     @Override
     public boolean canStartEvent(BlockEvent.EntityPlaceEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
-        return EventHandler.ticks % this.delay == 5;
+        return NLibEventHandler.ticks % this.delay == 5;
     }
 
     @Override
     public boolean canStartEvent(BlockEvent.BreakEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
-        return EventHandler.ticks % this.delay == 5;
+        return NLibEventHandler.ticks % this.delay == 5;
     }
 
     @Override
     public boolean canStartEvent(EntityPlayer player, EventSaveData.EVENT_PLAYER_DATA data) {
-        return EventHandler.ticks % this.delay == 5;
+        return NLibEventHandler.ticks % this.delay == 5;
     }
 
     @Override
     public boolean canStartEvent(PlayerEvent.PlayerChangedDimensionEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
-        return EventHandler.ticks % this.delay == 5;
+        return NLibEventHandler.ticks % this.delay == 5;
     }
 
     @Override
     public boolean canStartEvent(int dimID, EventSaveData.EVENT_WORLD_DATA data) {
-        return EventHandler.ticks % (this.delay * 5) == 5;
+        return NLibEventHandler.ticks % (this.delay * 5) == 5;
     }
 
     @Override
     public boolean canStartEvent(EntityLivingBase deadEntity, DamageSource source) {
-        return EventHandler.ticks % this.delay == 5;
+        return NLibEventHandler.ticks % this.delay == 5;
     }
 
     @Override
     public boolean canStartEvent(Entity attacker, Entity target) {
-        return EventHandler.ticks % this.delay == 5;
+        return NLibEventHandler.ticks % this.delay == 5;
     }
 }

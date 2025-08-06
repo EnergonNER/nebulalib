@@ -1,5 +1,6 @@
 package energon.nebulalib;
 
+import energon.nebulalib.event.NLibEventHandler;
 import energon.nebulalib.proxy.CommonProxy;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -50,16 +51,16 @@ public class NebulaLib {
     @EventHandler
     public void serverStarted(FMLServerStartedEvent event) {
         if (EVENTS_ON) {
-            MinecraftForge.EVENT_BUS.register(energon.nebulalib.event.EventHandler.class);
-            energon.nebulalib.event.EventHandler.serverStarted();
+            MinecraftForge.EVENT_BUS.register(NLibEventHandler.class);
+            NLibEventHandler.serverStarted();
         }
     }
 
     @EventHandler
     public void serverStopping(FMLServerStoppingEvent event) {
         if (EVENTS_ON) {
-            energon.nebulalib.event.EventHandler.serverStopping();
-            MinecraftForge.EVENT_BUS.unregister(energon.nebulalib.event.EventHandler.class);
+            NLibEventHandler.serverStopping();
+            MinecraftForge.EVENT_BUS.unregister(NLibEventHandler.class);
         }
     }
 

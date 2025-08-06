@@ -2,6 +2,7 @@ package energon.nebulalib.event;
 
 import energon.nebulalib.NebulaLib;
 import energon.nebulalib.event.events.EventBase;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -11,7 +12,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 @Mod.EventBusSubscriber(modid = NebulaLib.MODID, value = Side.CLIENT)
-public class EventHandlerClient {
+public class NLibEventHandlerClient {
     public static EventBase CORRECT_EVENT = null;
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = true)
@@ -20,6 +21,14 @@ public class EventHandlerClient {
             if (CORRECT_EVENT.clientHandler(event.player)) {
                 CORRECT_EVENT = null;
             }
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public static void onRenderOverlay(RenderGameOverlayEvent.Pre event) {
+        if (CORRECT_EVENT != null) {
+            CORRECT_EVENT.overlayRender(event);
         }
     }
 }

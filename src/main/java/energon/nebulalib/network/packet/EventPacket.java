@@ -1,4 +1,4 @@
-package energon.nebulalib.event;
+package energon.nebulalib.network.packet;
 
 import energon.nebulalib.NebulaLib;
 import energon.nebulalib.proxy.CommonProxy;

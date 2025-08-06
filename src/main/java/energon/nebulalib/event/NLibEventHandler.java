@@ -7,6 +7,7 @@ import com.dhanantry.scapeandrunparasites.init.SRPBlocks;
 import com.dhanantry.scapeandrunparasites.init.SRPPotions;
 import energon.nebulalib.event.events.*;
 import energon.nebulalib.event.test.*;
+import energon.nebulalib.network.NLibNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class EventHandler {
+public class NLibEventHandler {
     public static List<EVENT> EVENTS = new ArrayList<>();
     public static int ticks = -200;
     public static boolean importData = true;
@@ -44,14 +45,14 @@ public class EventHandler {
     public static List<EventBase> WORLDS_EVENT_ADD = new ArrayList<>();
 
     public static void init() {
-        EVENTS.add(new EVENT(1, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_FirstContact::new, "coth_0", "", new TEST_Delay(4), new TEST_EvoPhase(0, 0), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(2, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Again::new, "coth_1", "", new TEST_Delay(4), new TEST_EvoPhase(1, 1), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(3, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Another::new, "coth_2", "", new TEST_Delay(4), new TEST_EvoPhase(2, 2), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(4, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Saw_Beckon::new, "saw_beckon", "", new TEST_PlayerLooksAtEntity(EntityPStationaryArchitect.class, 0.035)));
-        EVENTS.add(new EVENT(5, SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Biome_Enter::new, "biome_enter", "", new TEST_Delay(4), new TEST_PlayerInBiome(SRPBiomes.biomeInfested)));
-        EVENTS.add(new EVENT(6, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Node_Destroyed::new, "node_destroyed", "", new TEST_PlayerBreakBlock(SRPBlocks.BiomeHeart)));
-        EVENTS.add(new EVENT(7, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_City_Exit::new, "city_exit", "", new TEST_PlayerChangeDimension(0, 111)));
-        EVENTS.add(new EVENT(8, SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Kill_Preem::new, "kill_preem", "", new TEST_PlayerKillEntity(EntityPPreeminent.class)));
+        EVENTS.add(new EVENT(1, "coth_0", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_FirstContact::new, "", new TEST_Delay(4), new TEST_EvoPhase(0, 0), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(2, "coth_1", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Again::new, "", new TEST_Delay(4), new TEST_EvoPhase(1, 1), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(3, "coth_2", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Another::new, "", new TEST_Delay(4), new TEST_EvoPhase(2, 2), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
+        EVENTS.add(new EVENT(4, "saw_beckon", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Saw_Beckon::new, "", new TEST_PlayerLooksAtEntity(EntityPStationaryArchitect.class, 0.035)));
+        EVENTS.add(new EVENT(5, "biome_enter", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Biome_Enter::new, "", new TEST_Delay(4), new TEST_PlayerInBiome(SRPBiomes.biomeInfested)));
+        EVENTS.add(new EVENT(6, "node_destroyed", SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Node_Destroyed::new, "", new TEST_PlayerBreakBlock(SRPBlocks.BiomeHeart)));
+        EVENTS.add(new EVENT(7, "city_exit", SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_City_Exit::new, "", new TEST_PlayerChangeDimension(0, 111)));
+        EVENTS.add(new EVENT(8, "kill_preem", SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Kill_Preem::new, "", new TEST_PlayerKillEntity(EntityPPreeminent.class)));
     }
 
     public static void serverStarted() {
@@ -89,7 +90,7 @@ public class EventHandler {
             if (worldData.correctEvent != 0 || !worldData.correctEventEnded) {
                 for (EVENT test : EVENTS) {
                     if (test.eventID == worldData.correctEvent) {
-                        test.startEvent(DimensionManager.getWorld(worldID));
+                        test.startEvent(DimensionManager.getWorld(worldID), true);
                         return;
                     }
                     worldData.setEventEnded();
@@ -118,7 +119,7 @@ public class EventHandler {
             }
             for (EVENT test : EVENTS) {
                 if (test.eventID == playerData.correctEvent) {
-                    test.startEvent(event.player);
+                    test.startEvent(event.player, true);
                     return;
                 }
             }
@@ -139,7 +140,7 @@ public class EventHandler {
                     playerData = DATA.getPlayerData(player.getName(), true);
                     for (EVENT test : EVENTS) {
                         if (test.side.isPlayerUpdateEvent() && playerData.canStartSearch(test.rarity) && test.canStartEvent(player, playerData)) {
-                            test.startEvent(player);
+                            test.startEvent(player, false);
                             break;
                         }
                     }
@@ -150,7 +151,7 @@ public class EventHandler {
                         worldData = DATA.getWorldData(worldID, true);
                         for (EVENT test : EVENTS) {
                             if (test.side.isWorldUpdateEvent() && worldData.canStartSearch(test.rarity) && worldData.worldCanStartEvent(test.eventID) && test.canStartEvent(worldID, worldData)) {
-                                test.startEvent(DimensionManager.getWorld(worldID));
+                                test.startEvent(DimensionManager.getWorld(worldID), false);
                                 break;
                             }
                         }
@@ -191,12 +192,12 @@ public class EventHandler {
                         } else if (attacker instanceof EntityPlayer) {
                             EntityPlayer player = (EntityPlayer) attacker;
                             if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
-                                test.startEvent(player);
+                                test.startEvent(player, false);
                             }
                         } else if (target instanceof EntityPlayer) {
                             EntityPlayer player = (EntityPlayer) target;
                             if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
-                                test.startEvent(player);
+                                test.startEvent(player, false);
                             }
                         }
                         break;
@@ -217,12 +218,12 @@ public class EventHandler {
                     } else if (event.getSource().getTrueSource() instanceof EntityPlayer) {
                         EntityPlayer player = (EntityPlayer) event.getSource().getTrueSource();
                         if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
-                            test.startEvent(player);
+                            test.startEvent(player, false);
                         }
                     } else if (deadEntity instanceof EntityPlayer) {
                         EntityPlayer player = (EntityPlayer) deadEntity;
                         if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
-                            test.startEvent(player);
+                            test.startEvent(player, false);
                         }
                     }
                     break;
@@ -236,7 +237,7 @@ public class EventHandler {
         EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.player.getName(), true);
         for (EVENT test : EVENTS) {
             if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
-                test.startEvent(event.player);
+                test.startEvent(event.player, false);
             }
         }
     }
@@ -267,7 +268,7 @@ public class EventHandler {
                 EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.getPlayer().getName(), true);
                 for (EVENT test : EVENTS) {
                     if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
-                        test.startEvent(event.getPlayer());
+                        test.startEvent(event.getPlayer(), false);
                         break;
                     }
                 }
@@ -288,7 +289,7 @@ public class EventHandler {
                 EventSaveData.EVENT_PLAYER_DATA playerData = DATA.getPlayerData(event.getEntity().getName(), true);
                 for (EVENT test : EVENTS) {
                     if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
-                        test.startEvent((EntityPlayer) event.getEntity());
+                        test.startEvent((EntityPlayer) event.getEntity(), false);
                     }
                 }
             }
@@ -315,12 +316,12 @@ public class EventHandler {
         public final ITestBase[] tests;
         public final String name;
         public final String description;
-        public EVENT(int id, SIDE side, RARITY r, Function<EntityPlayer,EventBase> s, String name, String description, ITestBase... t) {
+        public EVENT(int id, String name, SIDE side, RARITY r, Function<EntityPlayer,EventBase> s, String description, ITestBase... t) {
             this.eventID = id;
+            this.name = name;
             this.side = side;
             this.rarity = r;
             this.supplier = s;
-            this.name = name;
             this.description = description;
             this.tests = t;
         }
@@ -332,7 +333,7 @@ public class EventHandler {
         }
 
         /**START*/
-        public void startEvent(EntityPlayer player) {
+        public void startEvent(EntityPlayer player, boolean fromData) {
             for (EventBase eventTEST : PLAYERS_EVENT) {
                 if (eventTEST.player != null && eventTEST.player.getName().equals(player.getName())) {
                     eventTEST.eventProgress += eventTEST.eventTime;
@@ -342,8 +343,9 @@ public class EventHandler {
             }
 
             EventBase eventBase = this.getEvent(player);
-            EventHandler.DATA.addPlayerEvent(player.getName(), this.eventID, this.rarity);
-            Network.sendPlayerEvent(player, this.eventID);
+            eventBase.fromData = fromData;
+            NLibEventHandler.DATA.addPlayerEvent(player.getName(), this.eventID, this.rarity);
+            NLibNetwork.sendPlayerEvent(player, this.eventID);
             PLAYERS_EVENT_ADD.add(eventBase);
 
             if (DEBUG) {
@@ -447,13 +449,13 @@ public class EventHandler {
         public void startEventZone(World world, AxisAlignedBB box) {
             for (EntityPlayer player : world.getEntitiesWithinAABB(EntityPlayer.class, box)) {
                 if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(this.eventID, this.rarity)) {
-                    this.startEvent(player);
+                    this.startEvent(player, false);
                 }
             }
         }
 
         /**WORLD_TICK*/
-        public void startEvent(@Nullable World world) {
+        public void startEvent(@Nullable World world, boolean fromData) {
             if (world == null) {
                 return;
             }
@@ -468,6 +470,7 @@ public class EventHandler {
 
             DATA.addWorldEvent(world.provider.getDimension(), this.eventID, this.rarity);
             EventBase base = this.getEvent(null);
+            base.fromData = fromData;
             base.world = world;
             WORLDS_EVENT_ADD.add(base);
 
@@ -478,6 +481,7 @@ public class EventHandler {
             }
         }
     }
+
 
     public enum SIDE {
         /**onPlayerUpdate*/

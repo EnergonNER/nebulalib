@@ -1,6 +1,6 @@
 package energon.nebulalib.event.test;
 
-import energon.nebulalib.event.EventHandler;
+import energon.nebulalib.event.NLibEventHandler;
 import energon.nebulalib.event.EventSaveData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -40,7 +40,7 @@ public class TEST_EventCompleted implements ITestBase {
     public boolean canStartEvent(PlayerEvent.PlayerChangedDimensionEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
         if (this.all) {
             for (int i : this.events) {
-                if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {
+                if (data.playerCanStartEvent(i, NLibEventHandler.RARITY.COMMON)) {
                     return false;
                 }
             }
@@ -59,7 +59,7 @@ public class TEST_EventCompleted implements ITestBase {
     public boolean canStartEvent(EntityPlayer player, EventSaveData.EVENT_PLAYER_DATA data) {
         if (this.all) {
             for (int i : this.events) {
-                if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {
+                if (data.playerCanStartEvent(i, NLibEventHandler.RARITY.COMMON)) {
                     return false;
                 }
             }
@@ -78,7 +78,7 @@ public class TEST_EventCompleted implements ITestBase {
     public boolean canStartEvent(BlockEvent.BreakEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
         if (this.all) {
             for (int i : this.events) {
-                if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {
+                if (data.playerCanStartEvent(i, NLibEventHandler.RARITY.COMMON)) {
                     return false;
                 }
             }
@@ -97,7 +97,7 @@ public class TEST_EventCompleted implements ITestBase {
     public boolean canStartEvent(BlockEvent.EntityPlaceEvent event, EventSaveData.EVENT_PLAYER_DATA data) {
         if (this.all) {
             for (int i : this.events) {
-                if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {
+                if (data.playerCanStartEvent(i, NLibEventHandler.RARITY.COMMON)) {
                     return false;
                 }
             }
@@ -115,10 +115,10 @@ public class TEST_EventCompleted implements ITestBase {
     @Override
     public boolean canStartEvent(EntityLivingBase deadEntity, DamageSource source) {
         if (deadEntity instanceof EntityPlayer) {
-            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(deadEntity.getName(), true);
+            EventSaveData.EVENT_PLAYER_DATA data = NLibEventHandler.DATA.getPlayerData(deadEntity.getName(), true);
             if (this.all) {
                 for (int i : this.events) {
-                    if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {
+                    if (data.playerCanStartEvent(i, NLibEventHandler.RARITY.COMMON)) {
                         return false;
                     }
                 }
@@ -130,10 +130,10 @@ public class TEST_EventCompleted implements ITestBase {
                 }
             }
         } else if (source.getTrueSource() instanceof EntityPlayer) {
-            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(source.getTrueSource().getName(), true);
+            EventSaveData.EVENT_PLAYER_DATA data = NLibEventHandler.DATA.getPlayerData(source.getTrueSource().getName(), true);
             if (this.all) {
                 for (int i : this.events) {
-                    if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {
+                    if (data.playerCanStartEvent(i, NLibEventHandler.RARITY.COMMON)) {
                         return false;
                     }
                 }
@@ -151,10 +151,10 @@ public class TEST_EventCompleted implements ITestBase {
     @Override
     public boolean canStartEvent(Entity attacker, Entity target) {
         if (attacker instanceof EntityPlayer) {
-            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(attacker.getName(), true);
+            EventSaveData.EVENT_PLAYER_DATA data = NLibEventHandler.DATA.getPlayerData(attacker.getName(), true);
             if (this.all) {
                 for (int i : this.events) {
-                    if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {
+                    if (data.playerCanStartEvent(i, NLibEventHandler.RARITY.COMMON)) {
                         return false;
                     }
                 }
@@ -166,10 +166,10 @@ public class TEST_EventCompleted implements ITestBase {
                 }
             }
         } else if (target instanceof EntityPlayer) {
-            EventSaveData.EVENT_PLAYER_DATA data = EventHandler.DATA.getPlayerData(target.getName(), true);
+            EventSaveData.EVENT_PLAYER_DATA data = NLibEventHandler.DATA.getPlayerData(target.getName(), true);
             if (this.all) {
                 for (int i : this.events) {
-                    if (data.playerCanStartEvent(i, EventHandler.RARITY.COMMON)) {
+                    if (data.playerCanStartEvent(i, NLibEventHandler.RARITY.COMMON)) {
                         return false;
                     }
                 }

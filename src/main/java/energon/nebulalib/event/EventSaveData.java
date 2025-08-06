@@ -42,7 +42,7 @@ public class EventSaveData extends WorldSavedData {
             }
         }
         if (create) {
-            EVENT_PLAYER_DATA newData = new EVENT_PLAYER_DATA(playerName, 0, true, EventHandler.RARITY.COMMON);
+            EVENT_PLAYER_DATA newData = new EVENT_PLAYER_DATA(playerName, 0, true, NLibEventHandler.RARITY.COMMON);
             playersEventData.add(newData);
             this.setDirty(true);
             return newData;
@@ -59,7 +59,7 @@ public class EventSaveData extends WorldSavedData {
             }
         }
         if (create) {
-            EVENT_WORLD_DATA newData = new EVENT_WORLD_DATA(worldID, 0, true, EventHandler.RARITY.COMMON);
+            EVENT_WORLD_DATA newData = new EVENT_WORLD_DATA(worldID, 0, true, NLibEventHandler.RARITY.COMMON);
             this.worldsEventData.add(newData);
             this.setDirty(true);
             return newData;
@@ -67,7 +67,7 @@ public class EventSaveData extends WorldSavedData {
         return null;
     }
 
-    public void addPlayerEvent(String playerName, int id, EventHandler.RARITY rarity) {
+    public void addPlayerEvent(String playerName, int id, NLibEventHandler.RARITY rarity) {
         for (EVENT_PLAYER_DATA data : this.playersEventData) {
             if (data.player.equals(playerName)) {
                 data.correctEventEnded = false;
@@ -79,7 +79,7 @@ public class EventSaveData extends WorldSavedData {
         }
     }
 
-    public void addWorldEvent(int worldID, int id, EventHandler.RARITY rarity) {
+    public void addWorldEvent(int worldID, int id, NLibEventHandler.RARITY rarity) {
         for (EVENT_WORLD_DATA data : this.worldsEventData) {
             if (data.worldID == worldID) {
                 data.correctEventEnded = false;
@@ -97,7 +97,7 @@ public class EventSaveData extends WorldSavedData {
                 int old = data.correctEvent;
                 data.setEventEnded();
                 this.setDirty(true);
-                if (EventHandler.DEBUG) {
+                if (NLibEventHandler.DEBUG) {
                     for (EntityPlayer FMLPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
                         FMLPlayer.sendMessage(new TextComponentString("(SaveData) Player - \"" + playerName + "\"  ended event – \"" + old + "\""));
                     }
@@ -113,7 +113,7 @@ public class EventSaveData extends WorldSavedData {
                 int old = data.correctEvent;
                 data.setEventEnded();
                 this.setDirty(true);
-                if (EventHandler.DEBUG) {
+                if (NLibEventHandler.DEBUG) {
                     for (EntityPlayer FMLPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
                         FMLPlayer.sendMessage(new TextComponentString("(SaveData) World - \"" + worldID + "\"  ended event – \"" + old + "\""));
                     }
@@ -169,9 +169,9 @@ public class EventSaveData extends WorldSavedData {
         public int worldID;
         public int correctEvent;
         public boolean correctEventEnded;
-        public EventHandler.RARITY correctEventRarity;
+        public NLibEventHandler.RARITY correctEventRarity;
         public int[] eventsEnded;
-        public EVENT_WORLD_DATA(int p, int correct, boolean correct_end, EventHandler.RARITY rarity, int... ended) {
+        public EVENT_WORLD_DATA(int p, int correct, boolean correct_end, NLibEventHandler.RARITY rarity, int... ended) {
             this.worldID = p;
             this.correctEvent = correct;
             this.correctEventEnded = correct_end;
@@ -180,7 +180,7 @@ public class EventSaveData extends WorldSavedData {
         }
 
         public EVENT_WORLD_DATA(int p, String[] both, int... ended) {
-            this(p, Integer.parseInt(both[0]), Boolean.parseBoolean(both[1]), EventHandler.getRarityByName(both[2]), ended);
+            this(p, Integer.parseInt(both[0]), Boolean.parseBoolean(both[1]), NLibEventHandler.getRarityByName(both[2]), ended);
         }
 
         public void setEventEnded() {
@@ -191,7 +191,7 @@ public class EventSaveData extends WorldSavedData {
                 }
                 this.correctEvent = 0;
             }
-            this.correctEventRarity = EventHandler.RARITY.COMMON;
+            this.correctEventRarity = NLibEventHandler.RARITY.COMMON;
         }
 
         public String getCorrectEventState() {
@@ -207,7 +207,7 @@ public class EventSaveData extends WorldSavedData {
             return false;
         }
 
-        public boolean canStartSearch(EventHandler.RARITY nextRarity) {
+        public boolean canStartSearch(NLibEventHandler.RARITY nextRarity) {
             return this.correctEventRarity.canChangeEvent(nextRarity) || this.correctEventEnded && this.correctEvent == 0;
         }
 
@@ -225,9 +225,9 @@ public class EventSaveData extends WorldSavedData {
         public String player;
         public int correctEvent;
         public boolean correctEventEnded;
-        public EventHandler.RARITY correctEventRarity;
+        public NLibEventHandler.RARITY correctEventRarity;
         public int[] eventsEnded;
-        public EVENT_PLAYER_DATA(String p, int correct, boolean correct_end, EventHandler.RARITY rarity, int... ended) {
+        public EVENT_PLAYER_DATA(String p, int correct, boolean correct_end, NLibEventHandler.RARITY rarity, int... ended) {
             this.player = p;
             this.correctEvent = correct;
             this.correctEventEnded = correct_end;
@@ -236,7 +236,7 @@ public class EventSaveData extends WorldSavedData {
         }
 
         public EVENT_PLAYER_DATA(String p, String[] both, int... ended) {
-            this(p, Integer.parseInt(both[0]), Boolean.parseBoolean(both[1]), EventHandler.getRarityByName(both[2]), ended);
+            this(p, Integer.parseInt(both[0]), Boolean.parseBoolean(both[1]), NLibEventHandler.getRarityByName(both[2]), ended);
         }
 
         public void setEventEnded() {
@@ -247,7 +247,7 @@ public class EventSaveData extends WorldSavedData {
                 }
                 this.correctEvent = 0;
             }
-            this.correctEventRarity = EventHandler.RARITY.COMMON;
+            this.correctEventRarity = NLibEventHandler.RARITY.COMMON;
         }
 
         public String getCorrectEventState() {
@@ -263,11 +263,11 @@ public class EventSaveData extends WorldSavedData {
             return false;
         }
 
-        public boolean canStartSearch(EventHandler.RARITY nextRarity) {
+        public boolean canStartSearch(NLibEventHandler.RARITY nextRarity) {
             return this.correctEventRarity.canChangeEvent(nextRarity) || this.correctEventEnded && this.correctEvent == 0;
         }
 
-        public boolean playerCanStartEvent(int id, EventHandler.RARITY nextRarity) {
+        public boolean playerCanStartEvent(int id, NLibEventHandler.RARITY nextRarity) {
             if (!this.canStartSearch(nextRarity)) {
                 return false;
             }

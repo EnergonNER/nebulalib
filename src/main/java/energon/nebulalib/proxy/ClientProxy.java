@@ -1,8 +1,8 @@
 package energon.nebulalib.proxy;
 
-import energon.nebulalib.event.EventHandler;
-import energon.nebulalib.event.EventHandlerClient;
-import energon.nebulalib.handler.RenderHandler;
+import energon.nebulalib.event.NLibEventHandler;
+import energon.nebulalib.event.NLibEventHandlerClient;
+import energon.nebulalib.handler.NLibRenderHandler;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ModelLoader;
@@ -19,7 +19,7 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
-		RenderHandler.registerEntityRenders();
+		NLibRenderHandler.registerEntityRenders();
 	}
 
 	@Override
@@ -48,12 +48,12 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void eventHandler(int eventID) {
-		for (EventHandler.EVENT event : EventHandler.EVENTS) {
+		for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
 			if (event.eventID == eventID) {
-				EventHandlerClient.CORRECT_EVENT = event.getEvent(null);
+				NLibEventHandlerClient.CORRECT_EVENT = event.getEvent(null);
 				return;
 			}
 		}
-		EventHandlerClient.CORRECT_EVENT = null;
+		NLibEventHandlerClient.CORRECT_EVENT = null;
 	}
 }

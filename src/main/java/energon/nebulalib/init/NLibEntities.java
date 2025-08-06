@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.registries.IForgeRegistry;
 
-public class Entities {
+public class NLibEntities {
     public static EntityEntry[] ENTITIES;
 
     private static <T extends Entity> EntityEntry CreateEntityMob(String name, Class<T> cls, int primaryColorIn, int secondaryColorIn, int id, boolean active) {
@@ -38,12 +38,12 @@ public class Entities {
         @SubscribeEvent
         public static void onEvent(RegistryEvent.Register<EntityEntry> event) {
             IForgeRegistry<EntityEntry> registry = event.getRegistry();
-            Entities.ENTITIES = new EntityEntry[]{
+            NLibEntities.ENTITIES = new EntityEntry[]{
 
             };
-            for(int i = 0; i < Entities.ENTITIES.length; ++i) {
-                if (Entities.ENTITIES[i] != null) {
-                    registry.register(Entities.ENTITIES[i]);
+            for(int i = 0; i < NLibEntities.ENTITIES.length; ++i) {
+                if (NLibEntities.ENTITIES[i] != null) {
+                    registry.register(NLibEntities.ENTITIES[i]);
                 }
             }
         }
