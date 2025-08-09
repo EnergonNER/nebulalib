@@ -32,11 +32,11 @@ public abstract class EventBase {
     public void serverEventEnd(){}
 
     @SideOnly(Side.CLIENT)
-    public void clientEventStart(EntityPlayer player) {}
+    public void clientEventStart() {}
     @SideOnly(Side.CLIENT)
-    public abstract void clientTick(EntityPlayer player);
+    public abstract void clientTick();
     @SideOnly(Side.CLIENT)
-    public void clientEventEnd(EntityPlayer player) {}
+    public void clientEventEnd() {}
     @SideOnly(Side.CLIENT)
     public void overlayRender(RenderGameOverlayEvent.Pre event) {}
 
@@ -129,16 +129,16 @@ public abstract class EventBase {
         }
     }
 
-    public boolean clientHandler(EntityPlayer player) {
+    public boolean clientHandler() {
         if (this.eventProgress >= this.eventTime) {
-            this.clientTick(player);
-            this.clientEventEnd(player);
+            this.clientTick();
+            this.clientEventEnd();
             return true;
         } else {
             if (this.eventProgress == 0) {
-                this.clientEventStart(player);
+                this.clientEventStart();
             }
-            this.clientTick(player);
+            this.clientTick();
             this.eventProgress++;
             return false;
         }

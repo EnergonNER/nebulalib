@@ -39,7 +39,7 @@ public class EVENT_Coth_FirstContact extends EventBase {
     public static ResourceLocation TEXTUREN = new ResourceLocation("nebulalib", "textures/gui/tentacle_n.png");
     public static ResourceLocation TEXTURENN = new ResourceLocation("nebulalib", "textures/gui/tentacle_nn.png");
     public EVENT_Coth_FirstContact(@Nullable EntityPlayer p) {
-        super(p, 270);
+        super(p, 290);
     }
 
     /**effects|reg_name;duration;amplifier;isAmbient;showParticles,...*/
@@ -121,10 +121,10 @@ public class EVENT_Coth_FirstContact extends EventBase {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void clientEventStart(EntityPlayer player) {
-        Minecraft minecraft = Minecraft.getMinecraft();
-        minecraft.addScheduledTask(() -> {
-            minecraft.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(NLibSoundHandler.presence, 1F));
+    public void clientEventStart() {
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.addScheduledTask(() -> {
+            mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(NLibSoundHandler.presence, 1F));
         });
     }
 
@@ -132,7 +132,7 @@ public class EVENT_Coth_FirstContact extends EventBase {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void clientTick(EntityPlayer player) {
+    public void clientTick() {
         if (this.phase == (byte) 0 && this.eventProgress > 10) {
             Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.coth_phase0.title1"), "", 40, 80, 20);
             this.phase++;
@@ -143,12 +143,14 @@ public class EVENT_Coth_FirstContact extends EventBase {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void overlayRender(RenderGameOverlayEvent.Pre event) {
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
             return;
         }
         Minecraft mc = Minecraft.getMinecraft();
         ScaledResolution res = new ScaledResolution(mc);
+        //mc.player.sendMessage(new TextComponentString("FACTOR: " + res.getScaleFactor() + "  WEIGHT: " + res.getScaledWidth() + "  HEIGHT: " + res.getScaledHeight()));
         int screenWidth = res.getScaledWidth();
         int screenHeight = res.getScaledHeight();
         float partialTicks = event.getPartialTicks();
@@ -162,45 +164,84 @@ public class EVENT_Coth_FirstContact extends EventBase {
             progress = 0F;
         }
 
-        this.tentacle(mc, 0 - progress * 300, 40, 110, MathHelper.sin((mc.player.ticksExisted + partialTicks) * 0.1F) * (1.0F - progress * 0.8F), false);
-        this.tentacle(mc, 120 - progress * 300, -120 - progress * 120, 140, MathHelper.sin((mc.player.ticksExisted + partialTicks) * 0.13F) * (1.0F - progress * 0.8F), false);
+        float f3 = mc.player.ticksExisted + partialTicks;
+        float resScale;
+        switch (res.getScaleFactor()) {
+            case 1:
+                resScale = 1.5F;
+                break;
+            case 2:
+                resScale = 1F;
+                break;
+            case 3:
+                resScale = 0.75F;
+                break;
+            default:
+                resScale = 0.5F;
+                break;
+        }
+        //UL
+        //1
+        this.tentacle(mc, -30 * resScale - progress * 300, 40 * resScale, 110, MathHelper.sin(f3 * 0.09F) * (1.0F - progress * 0.8F), false, 0.7F * resScale);
+        //2
+        this.tentacle(mc, 180 * resScale - progress * 350, -30 * resScale - progress * 150, 150, MathHelper.sin(f3 * 0.071F) * (1.0F - progress * 0.8F), false, 0.9F * resScale);
+        //3
+        this.tentacle(mc, 320 * resScale - progress * 300, -50 * resScale - progress * 120, 150, MathHelper.sin(f3 * 0.082F) * (1.0F - progress * 0.8F), false, 0.7F * resScale);
 
-        this.tentacle(mc, 0 - progress * 300, screenHeight - 40, 70, -MathHelper.sin((mc.player.ticksExisted + partialTicks) * 0.12F) * (1.0F - progress * 0.9F), false);
-        this.tentacle(mc, 120 - progress * 300, screenHeight + 120 + progress * 120, 30, -MathHelper.sin((mc.player.ticksExisted + partialTicks) * 0.12F) * (1.0F - progress * 0.9F), false);
+
+        //DL
+        //4
+        this.tentacle(mc, -30 * resScale - progress * 300, screenHeight - 180 * resScale, 80, -MathHelper.sin(f3 * 0.043F) * (1.0F - progress * 0.9F), false, resScale);
+        //5
+        this.tentacle(mc, 30 * resScale - progress * 300, screenHeight + 50 * resScale + progress * 120, 30, -MathHelper.sin(f3 * 0.083F) * (1.0F - progress * 0.9F), false, 0.6F * resScale);
+        //6
+        this.tentacle(mc, 180 * resScale - progress * 350, screenHeight + 30 * resScale + progress * 180, 30, -MathHelper.sin(f3 * 0.067F) * (1.0F - progress * 0.9F), false, 0.75F * resScale);
+        //7
+        this.tentacle(mc, 290 * resScale - progress * 350, screenHeight + 50 * resScale + progress * 120, 20, -MathHelper.sin(f3 * 0.075F) * (1.0F - progress * 0.9F), false, 0.7F * resScale);
 
 
-        this.tentacle(mc, screenWidth + progress * 300, 40, -110, -MathHelper.sin((mc.player.ticksExisted + partialTicks) * 0.11F) * (1.0F - progress * 0.8F), true);
-        this.tentacle(mc, screenWidth - 150 + progress * 300, -90 - progress * 120, -150, -MathHelper.sin((mc.player.ticksExisted + partialTicks) * 0.13F) * (1.0F - progress * 0.9F), true);
+        //UR
+        //8
+        this.tentacle(mc, screenWidth + 40 * resScale + progress * 300, -20 * resScale, -130, -MathHelper.sin(f3 * 0.091F) * (1.0F - progress * 0.8F), true, 0.6F * resScale);
+        //9
+        this.tentacle(mc, screenWidth - 240 * resScale + progress * 350, -40 * resScale - progress * 120, -150, -MathHelper.sin(f3 * 0.081F) * (1.0F - progress * 0.9F), true, 0.7F * resScale);
+        //10
+        this.tentacle(mc, screenWidth + 20 * resScale + progress * 300, 120 * resScale - progress * 40, -100, -MathHelper.sin(f3 * 0.073F) * (1.0F - progress * 0.9F), true, 0.6F * resScale);
 
-        this.tentacle(mc, screenWidth + progress * 300, screenHeight - 40, -70, MathHelper.sin((mc.player.ticksExisted + partialTicks) * 0.08F) * (1.0F - progress * 0.7F), true);
-        this.tentacle(mc, screenWidth - 120 + progress * 300, screenHeight + 90 + progress * 120, -40, MathHelper.sin((mc.player.ticksExisted + partialTicks) * 0.09F) * (1.0F - progress * 0.8F), true);
 
+        //DR
+        //11
+        this.tentacle(mc, screenWidth + 40 * resScale + progress * 300, screenHeight - 120 * resScale, -70, -MathHelper.sin(f3 * 0.065F) * (1.0F - progress * 0.7F), true, resScale);
+        //12
+        this.tentacle(mc, screenWidth - 180 * resScale + progress * 350, screenHeight + 30 * resScale + progress * 120, -30, MathHelper.sin(f3 * 0.082F) * (1.0F - progress * 0.8F), true, 0.7F * resScale);
+        //13
+        this.tentacle(mc, screenWidth + 30 * resScale + progress * 300, screenHeight + 30 * resScale + progress * 120, -30, MathHelper.sin(f3 * 0.073F) * (1.0F - progress * 0.8F), true, 0.6F * resScale);
     }
 
-    public void tentacle(Minecraft mc, float x, float y, float angle, float sin, boolean re) {
+    public void tentacle(Minecraft mc, float x, float y, float angle, float sin, boolean re, float scale) {
         GlStateManager.pushMatrix();
 
         mc.getTextureManager().bindTexture(TEXTURE);
         GlStateManager.enableBlend();
         GlStateManager.translate(x, y, 0);
         GlStateManager.rotate(sin * 10 + angle, 0, 0, 1);
-        drawTexturedModalRect(-50, -80, 100, 100, re);
+        drawTexturedModalRect((int) (-50 * scale), (int) (-80 * scale), (int) (100 * scale), (int) (100 * scale), re);
 
         mc.getTextureManager().bindTexture(TEXTUREN);
-        GlStateManager.translate(0, -80, 0);
+        GlStateManager.translate(0, -80 * scale, 0);
         GlStateManager.rotate(sin * 10 , 0, 0, 1);
-        drawTexturedModalRect(-50, -80, 100, 100, re);
+        drawTexturedModalRect((int) (-50 * scale), (int) (-80 * scale), (int) (100 * scale), (int) (100 * scale), re);
 
         mc.getTextureManager().bindTexture(TEXTURENN);
-        GlStateManager.translate(0, -80, 0);
+        GlStateManager.translate(0, -80 * scale, 0);
         GlStateManager.rotate(sin * 10 , 0, 0, 1);
-        drawTexturedModalRect(-50, -80, 100, 100, re);
+        drawTexturedModalRect((int) (-50 * scale), (int) (-80 * scale), (int) (100 * scale), (int) (100 * scale), re);
 
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
     }
 
-    protected void drawTexturedModalRect(int x, int y, int width, int height, boolean rev) {
+    public void drawTexturedModalRect(int x, int y, int width, int height, boolean rev) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);

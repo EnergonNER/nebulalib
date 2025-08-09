@@ -1,19 +1,62 @@
 package energon.nebulalib.event.events;
 
+import energon.nebulalib.handler.NLibSoundHandler;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 
 public class EVENT_Kill_Preem extends EVENT_Coth_FirstContact {
     public EVENT_Kill_Preem(@Nullable EntityPlayer p) {
         super(p);
-        this.eventTime = 1000;
+        this.eventTime = 1030;
     }
 
     @Override
-    public void clientTick(EntityPlayer player) {
+    @SideOnly(Side.CLIENT)
+    public void clientEventStart() {}
+
+    public byte soundPhase = (byte) 0;
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void clientTick() {
+        if (this.soundPhase == (byte) 0 && this.eventProgress >= 0) {
+            Minecraft mc = Minecraft.getMinecraft();
+            mc.addScheduledTask(() -> {
+                mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(NLibSoundHandler.presence_start, 1F));//0,400
+            });
+            this.soundPhase++;
+        } else if (this.soundPhase == (byte) 1 && this.eventProgress >= 340) {
+            Minecraft mc = Minecraft.getMinecraft();
+            mc.addScheduledTask(() -> {
+                mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(NLibSoundHandler.presence_middle, 1F));//-60,200,140
+            });
+            this.soundPhase++;
+        } else if (this.soundPhase == (byte) 2 && this.eventProgress >= 480) {
+            Minecraft mc = Minecraft.getMinecraft();
+            mc.addScheduledTask(() -> {
+                mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(NLibSoundHandler.presence_middle, 1F));//-60,200,140
+            });
+            this.soundPhase++;
+        } else if (this.soundPhase == (byte) 3 && this.eventProgress >= 620) {
+            Minecraft mc = Minecraft.getMinecraft();
+            mc.addScheduledTask(() -> {
+                mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(NLibSoundHandler.presence_middle, 1F));//-60,200,140
+            });
+            this.soundPhase++;
+        } else if (this.soundPhase == (byte) 4 && this.eventProgress >= 760) {
+            Minecraft mc = Minecraft.getMinecraft();
+            mc.addScheduledTask(() -> {
+                mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(NLibSoundHandler.presence_end, 1F));//-60,360
+            });
+            this.soundPhase++;
+        }
+
         if (this.phase == (byte) 0 && this.eventProgress > 10) {
             Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.kill_preem.title1"), "", 40, 60, 20);
             this.phase++;
@@ -42,7 +85,7 @@ public class EVENT_Kill_Preem extends EVENT_Coth_FirstContact {
             Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.kill_preem.title9"), "", 20, 60, 20);
             this.phase++;
         } else if (this.phase == (byte) 9 && this.eventProgress > 930) {
-            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.kill_preem.title10"), "", 20, 60, 40);
+            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.kill_preem.title10"), "", 20, 60, 60);
             this.phase++;
         }
     }

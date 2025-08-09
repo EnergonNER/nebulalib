@@ -9,11 +9,11 @@ import javax.annotation.Nullable;
 public class EVENT_Coth_Another extends EVENT_Coth_FirstContact {
     public EVENT_Coth_Another(@Nullable EntityPlayer p) {
         super(p);
-        this.eventTime = 440;
+        this.eventTime = 470;
     }
 
     @Override
-    public void clientTick(EntityPlayer player) {
+    public void clientTick() {
         if (this.phase == (byte) 0 && this.eventProgress > 10) {
             Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.coth_phase2.title1"), "", 40, 80, 20);
             this.phase++;

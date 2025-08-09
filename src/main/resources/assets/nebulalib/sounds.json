@@ -4,5 +4,23 @@
     "sounds": [
       "nebulalib:presence"
     ]
+  },
+  "presence_start": {
+    "category": "ambient",
+    "sounds": [
+      "nebulalib:presence_start"
+    ]
+  },
+  "presence_middle": {
+    "category": "ambient",
+    "sounds": [
+      "nebulalib:presence_middle"
+    ]
+  },
+  "presence_end": {
+    "category": "ambient",
+    "sounds": [
+      "nebulalib:presence_end"
+    ]
   }
 }
