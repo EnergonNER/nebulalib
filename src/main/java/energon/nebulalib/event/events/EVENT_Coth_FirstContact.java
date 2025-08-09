@@ -39,7 +39,7 @@ public class EVENT_Coth_FirstContact extends EventBase {
     public static ResourceLocation TEXTUREN = new ResourceLocation("nebulalib", "textures/gui/tentacle_n.png");
     public static ResourceLocation TEXTURENN = new ResourceLocation("nebulalib", "textures/gui/tentacle_nn.png");
     public EVENT_Coth_FirstContact(@Nullable EntityPlayer p) {
-        super(p, 290);
+        super(p, 320);
     }
 
     /**effects|reg_name;duration;amplifier;isAmbient;showParticles,...*/
@@ -75,9 +75,9 @@ public class EVENT_Coth_FirstContact extends EventBase {
                 this.saveToData(builder.toString());
                 this.player.clearActivePotions();
             }
-            this.player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, this.eventTime - 40, 3, false, false));
-            this.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, this.eventTime - 40, 1, false, false));
-            this.player.addPotionEffect(new PotionEffect(MobEffects.MINING_FATIGUE, this.eventTime - 40, 3, false, false));
+            this.player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, this.eventTime - 20, 4, false, false));
+            this.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, this.eventTime - 20, 1, false, false));
+            this.player.addPotionEffect(new PotionEffect(MobEffects.MINING_FATIGUE, this.eventTime - 20, 4, false, false));
             for (ItemStack stack : this.player.inventory.mainInventory) {
                 if (!stack.isEmpty()) {
                     this.player.getCooldownTracker().setCooldown(stack.getItem(), this.eventTime - 10);
@@ -134,10 +134,10 @@ public class EVENT_Coth_FirstContact extends EventBase {
     @SideOnly(Side.CLIENT)
     public void clientTick() {
         if (this.phase == (byte) 0 && this.eventProgress > 10) {
-            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.coth_phase0.title1"), "", 40, 80, 20);
+            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.coth_phase0.title1"), "", 40, 100, 20);
             this.phase++;
-        } else if (this.phase == (byte) 1 && this.eventProgress > 150) {
-            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.coth_phase0.title2"), "", 20, 80, 40);
+        } else if (this.phase == (byte) 1 && this.eventProgress > 170) {
+            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.coth_phase0.title2"), "", 20, 100, 60);
             this.phase++;
         }
     }

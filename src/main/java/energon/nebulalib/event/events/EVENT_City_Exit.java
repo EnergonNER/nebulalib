@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 public class EVENT_City_Exit extends EVENT_Coth_FirstContact {
     public EVENT_City_Exit(@Nullable EntityPlayer p) {
         super(p);
-        this.eventTime = 530;
+        this.eventTime = 570;
     }
 
     @Override

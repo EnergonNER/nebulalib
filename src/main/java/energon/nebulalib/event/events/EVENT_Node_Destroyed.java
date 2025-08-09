@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 public class EVENT_Node_Destroyed extends EVENT_Coth_FirstContact {
     public EVENT_Node_Destroyed(@Nullable EntityPlayer p) {
         super(p);
-        this.eventTime = 830;
+        this.eventTime = 860;
     }
 
     @Override

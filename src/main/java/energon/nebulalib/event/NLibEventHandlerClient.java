@@ -18,7 +18,7 @@ public class NLibEventHandlerClient {
     public static EventBase CORRECT_EVENT = null;
     public static int preTick = 0;
     @SideOnly(Side.CLIENT)
-    @SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = true)
+    @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public static void playerTick(TickEvent.ClientTickEvent event) {
         if (CORRECT_EVENT != null && event.phase == TickEvent.Phase.END) {
             Minecraft mc = Minecraft.getMinecraft();
@@ -32,7 +32,7 @@ public class NLibEventHandlerClient {
     }
 
     @SideOnly(Side.CLIENT)
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public static void onRenderOverlay(RenderGameOverlayEvent.Pre event) {
         if (CORRECT_EVENT != null) {
             CORRECT_EVENT.overlayRender(event);

@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 public class EVENT_Kill_Preem extends EVENT_Coth_FirstContact {
     public EVENT_Kill_Preem(@Nullable EntityPlayer p) {
         super(p);
-        this.eventTime = 1030;
+        this.eventTime = 1060;
     }
 
     @Override
