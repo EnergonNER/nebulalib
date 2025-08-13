@@ -4,6 +4,7 @@ import energon.nebulalib.event.NLibEventHandler;
 import energon.nebulalib.proxy.CommonProxy;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -24,9 +25,11 @@ public class NebulaLib {
     public static Logger logger;
     public static Configuration config;
     public static boolean EVENTS_ON = true;
+    public static boolean srparasites = false;
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         logger = event.getModLog();
+        if (Loader.isModLoaded("srparasites")) {srparasites = true;}
         proxy.preInit(event);
     }
 

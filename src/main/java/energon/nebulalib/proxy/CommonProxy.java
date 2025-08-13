@@ -6,6 +6,7 @@ import energon.nebulalib.handler.NLibSoundHandler;
 import energon.nebulalib.inject.SRPInject;
 import energon.nebulalib.config.NLibConfig;
 import energon.nebulalib.network.NLibEventCommand;
+import energon.nebulalib.structure.NLibStructureHandler;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.event.*;
 
@@ -19,7 +20,7 @@ public class CommonProxy {
 
 	public void init(FMLInitializationEvent event) {
 		NLibSoundHandler.registerSounds();
-
+		NLibStructureHandler.init();
 	}
 
 	public void postInit(FMLPostInitializationEvent event) {

@@ -13,7 +13,7 @@ public class NLibConfig {
     }
 
     public static void registerConfig(FMLPreInitializationEvent event) {
-        NebulaLib.config = new Configuration(new File(event.getModConfigurationDirectory() + "/nebulalib.cfg"), NebulaLib.VERSION);
+        NebulaLib.config = new Configuration(new File(event.getModConfigurationDirectory(), "nebulalib/nebulalib.cfg"), NebulaLib.VERSION);
         if (!NebulaLib.config.getDefinedConfigVersion().equals(NebulaLib.config.getLoadedConfigVersion()) && NebulaLib.config.getConfigFile().exists() && NebulaLib.config.getConfigFile().delete()) {
 
         }
