@@ -563,7 +563,7 @@ public class Config {
             for (String parts : test.get()) {
                 if (parts.startsWith(ElementType.STRING_LIST.getPrefix())) {
                     String[] check = parts.split(Pattern.quote(list1));
-                    ConfigBase base = new StringListElement(check[0].substring(3), check[1].split(Pattern.quote(list2)));
+                    ConfigBase base = new StringListElement(check[0].substring(3), check.length == 2 ? check[1].split(Pattern.quote(list2)) : new String[0]);
                     elements.add(base);
                 } else if (parts.startsWith(ElementType.STRING.getPrefix())) {
                     String[] check = parts.substring(2).split(Pattern.quote(ElementType.EQUALS.getPrefix()));
