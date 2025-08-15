@@ -15,21 +15,21 @@ public class NLibFileUtilities {
     /**
      * NLibFileUtilities.copyFromMod("nebulalib/custom/", "appleskin.cfg", new File(file, "nebulalib/generators"), false);
      * */
-    public static boolean copyFromMod(String dir, String resource, File toDir, boolean ignoreExit) {
-        if (!ignoreExit && !(new File(toDir, resource)).exists()) {
-            return false;
+    public static int copyFromMod(String dir, String resource, File toDir, boolean ignoreExit) {
+        if (!ignoreExit && (new File(toDir, resource)).exists()) {
+            return 2;
         }
         if (!toDir.exists() && !toDir.mkdirs()) {
-            return false;
+            return 3;
         }
         try (InputStream input = NebulaLib.class.getResourceAsStream("/assets/" + dir + resource)) {
             if (input != null) {
                 Files.copy(input, new File(toDir, resource).toPath());
-                return true;
+                return 0;
             }
-            return false;
+            return 4;
         } catch (IOException e) {
-            return false;
+            return 1;
         }
     }
 

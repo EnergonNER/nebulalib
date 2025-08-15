@@ -1,4 +1,4 @@
-package energon.nebulalib.structure.str_test;
+package energon.nebulalib.structure.test;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;

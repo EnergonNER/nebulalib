@@ -1,5 +1,7 @@
-package energon.nebulalib.structure.str_test;
+package energon.nebulalib.structure.test;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import energon.nebulalib.util.NLibWorldUtilities;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -12,13 +14,10 @@ import java.util.List;
 public class TEST_Biome implements IStructureSpawnTest {
     public List<BIOME_LOCAL> biomeTests;
     public boolean BLB = true;
-    public TEST_Biome(String compact) {
-        this(compact.split(";"));
-    }
-
-    public TEST_Biome(String... biomes) {
+    public TEST_Biome(JsonObject object) {
         this.biomeTests = new ArrayList<>();
-        for (String test : biomes) {
+        for (JsonElement element : object.getAsJsonArray("biomes")) {
+            String test = element.getAsString();
             if (!test.isEmpty()) {
                 this.biomeTests.add(new BIOME_LOCAL(test));
                 if (this.BLB && test.charAt(0) != '!') {

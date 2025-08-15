@@ -1,9 +1,14 @@
-package energon.nebulalib.structure.str_test;
+package energon.nebulalib.structure.test;
 
+import com.google.gson.JsonObject;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class TEST_NodeColony implements IStructureSpawnTest {
+    public TEST_NodeColony(JsonObject object) {
+
+    }
+
     public TEST_NodeColony(String compact) {
 
     }

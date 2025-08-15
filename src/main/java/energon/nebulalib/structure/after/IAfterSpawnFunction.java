@@ -1,4 +1,4 @@
-package energon.nebulalib.structure.str_after;
+package energon.nebulalib.structure.after;
 
 import energon.nebulalib.structure.StructureBase;
 import net.minecraft.util.math.BlockPos;

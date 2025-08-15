@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 public class EVENT_Saw_Beckon extends EVENT_Coth_FirstContact {
     public EVENT_Saw_Beckon(@Nullable EntityPlayer p) {
         super(p);
-        this.eventTime = 620;
+        this.eventTime = 610;
     }
 
     @Override

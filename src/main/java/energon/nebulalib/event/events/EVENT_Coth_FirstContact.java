@@ -39,7 +39,7 @@ public class EVENT_Coth_FirstContact extends EventBase {
     public static ResourceLocation TEXTUREN = new ResourceLocation("nebulalib", "textures/gui/tentacle_n.png");
     public static ResourceLocation TEXTURENN = new ResourceLocation("nebulalib", "textures/gui/tentacle_nn.png");
     public EVENT_Coth_FirstContact(@Nullable EntityPlayer p) {
-        super(p, 320);
+        super(p, 330);
     }
 
     /**effects|reg_name;duration;amplifier;isAmbient;showParticles,...*/

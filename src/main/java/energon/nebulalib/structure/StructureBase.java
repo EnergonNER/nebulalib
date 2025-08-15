@@ -1,7 +1,8 @@
 package energon.nebulalib.structure;
 
-import energon.nebulalib.structure.str_after.IAfterSpawnFunction;
-import energon.nebulalib.structure.str_test.IStructureSpawnTest;
+import com.google.gson.JsonObject;
+import energon.nebulalib.structure.after.IAfterSpawnFunction;
+import energon.nebulalib.structure.test.IStructureSpawnTest;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -12,7 +13,7 @@ public class StructureBase {
     public final int id;
     public final String name;
     public final String structureLink;
-    public String generatorLink = null;
+    public JsonObject generatorLink = null;
     public final int offsetX;
     public final int offsetY;
     public final int offsetZ;

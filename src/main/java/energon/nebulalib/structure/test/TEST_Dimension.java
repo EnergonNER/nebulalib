@@ -1,5 +1,7 @@
-package energon.nebulalib.structure.str_test;
+package energon.nebulalib.structure.test;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -9,6 +11,19 @@ import java.util.List;
 public class TEST_Dimension implements IStructureSpawnTest {
     public List<DIM_LOCAL> dimensions;
     public boolean BLB = true;
+    public TEST_Dimension(JsonObject object) {
+        this.dimensions = new ArrayList<>();
+        for (JsonElement element : object.getAsJsonArray("dims")) {
+            String part = element.getAsString();
+            if (!part.isEmpty()) {
+                this.dimensions.add(new DIM_LOCAL(part));
+                if (this.BLB && part.charAt(0) != '!') {
+                    this.BLB = false;
+                }
+            }
+        }
+    }
+
     public TEST_Dimension(String compact) {
         this(compact.split(";"));
     }

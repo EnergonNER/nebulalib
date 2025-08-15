@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 public class EVENT_Node_Destroyed extends EVENT_Coth_FirstContact {
     public EVENT_Node_Destroyed(@Nullable EntityPlayer p) {
         super(p);
-        this.eventTime = 860;
+        this.eventTime = 950;
     }
 
     @Override
@@ -46,6 +46,12 @@ public class EVENT_Node_Destroyed extends EVENT_Coth_FirstContact {
         } else if (this.soundPhase == (byte) 3 && this.eventProgress >= 620) {
             Minecraft mc = Minecraft.getMinecraft();
             mc.addScheduledTask(() -> {
+                mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(NLibSoundHandler.presence_middle, 1F));//-60,200,140
+            });
+            this.soundPhase++;
+        } else if (this.soundPhase == (byte) 4 && this.eventProgress >= 760) {
+            Minecraft mc = Minecraft.getMinecraft();
+            mc.addScheduledTask(() -> {
                 mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(NLibSoundHandler.presence_end, 1F));//-60,360
             });
             this.soundPhase++;
@@ -73,7 +79,10 @@ public class EVENT_Node_Destroyed extends EVENT_Coth_FirstContact {
             Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.node_destroyed.title7"), "", 20, 60, 20);
             this.phase++;
         } else if (this.phase == (byte) 7 && this.eventProgress > 730) {
-            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.node_destroyed.title8"), "", 20, 60, 40);
+            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.node_destroyed.title8"), "", 20, 60, 20);
+            this.phase++;
+        } else if (this.phase == (byte) 8 && this.eventProgress > 830) {
+            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.node_destroyed.title9"), "", 20, 60, 40);
             this.phase++;
         }
     }

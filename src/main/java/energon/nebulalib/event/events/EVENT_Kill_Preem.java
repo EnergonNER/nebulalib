@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 public class EVENT_Kill_Preem extends EVENT_Coth_FirstContact {
     public EVENT_Kill_Preem(@Nullable EntityPlayer p) {
         super(p);
-        this.eventTime = 1060;
+        this.eventTime = 1170;
     }
 
     @Override
@@ -52,6 +52,12 @@ public class EVENT_Kill_Preem extends EVENT_Coth_FirstContact {
         } else if (this.soundPhase == (byte) 4 && this.eventProgress >= 760) {
             Minecraft mc = Minecraft.getMinecraft();
             mc.addScheduledTask(() -> {
+                mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(NLibSoundHandler.presence_middle, 1F));//-60,200,140
+            });
+            this.soundPhase++;
+        } else if (this.soundPhase == (byte) 5 && this.eventProgress >= 900) {
+            Minecraft mc = Minecraft.getMinecraft();
+            mc.addScheduledTask(() -> {
                 mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(NLibSoundHandler.presence_end, 1F));//-60,360
             });
             this.soundPhase++;
@@ -85,7 +91,10 @@ public class EVENT_Kill_Preem extends EVENT_Coth_FirstContact {
             Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.kill_preem.title9"), "", 20, 60, 20);
             this.phase++;
         } else if (this.phase == (byte) 9 && this.eventProgress > 930) {
-            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.kill_preem.title10"), "", 20, 60, 60);
+            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.kill_preem.title10"), "", 20, 60, 20);
+            this.phase++;
+        } else if (this.phase == (byte) 10 && this.eventProgress > 1030) {
+            Minecraft.getMinecraft().ingameGUI.displayTitle(I18n.translateToLocal("catalyst.event.kill_preem.title11"), "", 20, 60, 60);
             this.phase++;
         }
     }

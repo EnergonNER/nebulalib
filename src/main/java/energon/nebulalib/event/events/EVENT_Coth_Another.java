@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 public class EVENT_Coth_Another extends EVENT_Coth_FirstContact {
     public EVENT_Coth_Another(@Nullable EntityPlayer p) {
         super(p);
-        this.eventTime = 500;
+        this.eventTime = 490;
     }
 
     @Override

@@ -1,0 +1,12 @@
+{
+  "required_mods": [],
+  "name": "simple",
+  "generator_type": "simple",
+  "every_x_chunk": 4,
+  "global_weight": 1000,
+  "offset_x": 2,
+  "offset_z": -1,
+  "structures": [],
+  "spawn_rules": [],
+  "after_spawn": []
+}

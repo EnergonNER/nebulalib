@@ -1,4 +1,4 @@
-package energon.nebulalib.structure.str_test;
+package energon.nebulalib.structure.test;
 
 public interface IChance {
     int getWeight();
