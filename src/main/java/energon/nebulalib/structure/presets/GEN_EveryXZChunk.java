@@ -6,55 +6,42 @@ import energon.nebulalib.structure.NLibStructureHandler;
 import energon.nebulalib.structure.StructureBase;
 import energon.nebulalib.structure.StructureGeneratorBase;
 import energon.nebulalib.structure.after.IAfterSpawnFunction;
-import energon.nebulalib.structure.test.IStructureSpawnTest;
+import energon.nebulalib.structure.test.structure.IStructureSpawnTest;
+import net.minecraft.util.Rotation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.IChunkGenerator;
+import org.apache.commons.lang3.ArrayUtils;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Function;
 
 public class GEN_EveryXZChunk extends StructureGeneratorBase {
     public List<GEN_STRUCTURE_ELEMENT> elements = new ArrayList<>();
-    public int everyXChunk;
-    public int offsetX;
-    public int offsetZ;
     public int globalWight;
-    public List<IStructureSpawnTest> locationTests = null;
-    public List<IAfterSpawnFunction> afterFunctions = null;
-
+    public int everyXChunk;
+    public int chunkOffsetX;
+    public int chunkOffsetZ;
+    public int spawnOffsetX;
+    public int spawnOffsetZ;
+    public int randomOffsetXZ;
     public GEN_EveryXZChunk(JsonObject object) {
-        super(object.get("name").getAsString());
-        this.everyXChunk = object.get("every_x_chunk").getAsInt();
+        super(object);
         this.globalWight = object.get("global_weight").getAsInt();
-        this.offsetX = object.get("offset_x").getAsInt();
-        this.offsetZ = object.get("offset_z").getAsInt();
+        this.everyXChunk = object.get("every_x_chunk").getAsInt();
+
+        this.chunkOffsetX = object.has("chunk_offset_x") ? object.get("chunk_offset_x").getAsInt() : 0;
+        this.chunkOffsetZ = object.has("chunk_offset_z") ? object.get("chunk_offset_z").getAsInt() : 0;
+        this.spawnOffsetX = object.has("spawn_offset_x") ? object.get("spawn_offset_x").getAsInt() : 0;
+        this.spawnOffsetZ = object.has("spawn_offset_z") ? object.get("spawn_offset_z").getAsInt() : 0;
+        this.randomOffsetXZ = object.has("random_offset_xz") ? object.get("random_offset_xz").getAsInt() : 0;
+
         for (JsonElement element : object.getAsJsonArray("structures")) {
             this.addElement(element.getAsJsonObject());
-        }
-        if (object.has("spawn_rules")) {
-            for (JsonElement element : object.getAsJsonArray("spawn_rules")) {
-                JsonObject ruleObj = element.getAsJsonObject();
-                if (ruleObj.has("type")) {
-                    String type = ruleObj.get("type").getAsString();
-                    Function<JsonObject, IStructureSpawnTest> fun = NLibStructureHandler.MAP_STR_TEST.get(type);
-                    if (fun != null) {
-                        this.locationTests.add(fun.apply(ruleObj));
-                    }
-                }
-            }
-        }
-
-        if (object.has("after_spawn")) {
-            for (JsonElement element : object.getAsJsonArray("after_spawn")) {
-                JsonObject ruleObj = element.getAsJsonObject();
-                if (ruleObj.has("type")) {
-                    String type = ruleObj.get("type").getAsString();
-                    Function<JsonObject, IAfterSpawnFunction> fun = NLibStructureHandler.MAP_STR_AFTER.get(type);
-                    if (fun != null) {
-                        this.afterFunctions.add(fun.apply(ruleObj));
-                    }
-                }
-            }
         }
     }
 
@@ -75,12 +62,25 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
                 structure.get("spawn_type").getAsInt()
         );
 
+        if (structure.has("rotations")) {
+            strElement.rotations = new Rotation[0];
+            for (JsonElement element : structure.getAsJsonArray("rotations")) {
+                String rotName = element.getAsString();
+                for (Rotation rot : Rotation.values()) {
+                    if (rot.name().equals(rotName)) {
+                        strElement.rotations = ArrayUtils.add(strElement.rotations, rot);
+                        break;
+                    }
+                }
+            }
+        }
+
         if (structure.has("spawn_rules")) {
             for (JsonElement element : structure.getAsJsonArray("spawn_rules")) {
                 JsonObject ruleObj = element.getAsJsonObject();
                 if (ruleObj.has("type")) {
                     String type = ruleObj.get("type").getAsString();
-                    Function<JsonObject, IStructureSpawnTest> fun = NLibStructureHandler.MAP_STR_TEST.get(type);
+                    Function<JsonObject, IStructureSpawnTest> fun = NLibStructureHandler.MAP_TEST.get(type);
                     if (fun != null) {
                         strElement.locationTests.add(fun.apply(ruleObj));
                     }
@@ -93,7 +93,7 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
                 JsonObject ruleObj = element.getAsJsonObject();
                 if (ruleObj.has("type")) {
                     String type = ruleObj.get("type").getAsString();
-                    Function<JsonObject, IAfterSpawnFunction> fun = NLibStructureHandler.MAP_STR_AFTER.get(type);
+                    Function<JsonObject, IAfterSpawnFunction> fun = NLibStructureHandler.MAP_AFTER.get(type);
                     if (fun != null) {
                         strElement.afterFunctions.add(fun.apply(ruleObj));
                     }
@@ -105,8 +105,43 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
     }
 
     @Override
-    public void generate(int xChunk, int zChunk, World world) {
+    public boolean canStartSearch(Random random, int chunkX, int chunkZ, World world, IChunkGenerator iChunkGenerator, IChunkProvider iChunkProvider) {
+        if ((chunkX - this.chunkOffsetX) % this.everyXChunk == 0 && (chunkZ - this.chunkOffsetZ) % this.everyXChunk == 0) {
+            return super.canStartSearch(random, chunkX, chunkZ, world, iChunkGenerator, iChunkProvider);
+        }
+        return false;
+    }
 
+    @Override
+    public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator iChunkGenerator, IChunkProvider iChunkProvider) {
+        GEN_STRUCTURE_ELEMENT element = getRandomElement(random);
+        BlockPos pos = this.randomOffsetXZ > 0 ?
+                new BlockPos(chunkX * 16 + this.spawnOffsetX + (random.nextInt(this.randomOffsetXZ * 2 + 1) - this.randomOffsetXZ), 0, chunkZ * 16 + this.spawnOffsetZ + (random.nextInt(this.randomOffsetXZ * 2 + 1) - this.randomOffsetXZ)) :
+                new BlockPos(chunkX * 16 + this.spawnOffsetX, 0, chunkZ * 16 + this.spawnOffsetZ);
+        if (element != null && element.canStartSearch(world, pos)) {
+            StructureBase structureBase = NLibStructureHandler.getStructureById(element.strId);
+            if (structureBase != null) {
+                pos = this.getSpawnPos(world, pos, element.spawnType, structureBase);
+                if (pos != null && structureBase.canStartSearch(world, pos)) {
+                    Rotation rotation = element.getRandomRotation(random);
+                    if (structureBase.generate(world, pos, rotation)) {
+                        this.runAfterFunctions(world, pos, structureBase);
+                    }
+                }
+            }
+        }
+    }
+
+    @Nullable
+    public GEN_STRUCTURE_ELEMENT getRandomElement(Random random) {
+        int test = 0;
+        int randomNumber = random.nextInt(this.globalWight);
+        for (GEN_STRUCTURE_ELEMENT element : this.elements) {
+            if (randomNumber < (test += element.weight)) {
+                return element;
+            }
+        }
+        return null;
     }
 
     public static class GEN_STRUCTURE_ELEMENT {
@@ -116,11 +151,30 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
         public final int spawnType;
         public List<IStructureSpawnTest> locationTests = null;
         public List<IAfterSpawnFunction> afterFunctions = null;
+        public Rotation[] rotations = null;
         public GEN_STRUCTURE_ELEMENT(String strName, int strId, int weight, int spawnType) {
             this.strName = strName;
             this.strId = strId;
             this.weight = weight;
             this.spawnType = spawnType;
+        }
+
+        public boolean canStartSearch(World world, BlockPos pos) {
+            if (this.locationTests != null) {
+                for (IStructureSpawnTest test : this.locationTests) {
+                    if (!test.runTest(world, pos)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        public Rotation getRandomRotation(Random random) {
+            if (this.rotations != null && this.rotations.length != 0) {
+                return this.rotations[random.nextInt(this.rotations.length)];
+            }
+            return Rotation.NONE;
         }
     }
 }

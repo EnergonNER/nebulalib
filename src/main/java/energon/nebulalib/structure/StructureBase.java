@@ -2,7 +2,7 @@ package energon.nebulalib.structure;
 
 import com.google.gson.JsonObject;
 import energon.nebulalib.structure.after.IAfterSpawnFunction;
-import energon.nebulalib.structure.test.IStructureSpawnTest;
+import energon.nebulalib.structure.test.structure.IStructureSpawnTest;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -12,7 +12,8 @@ import java.util.List;
 public class StructureBase {
     public final int id;
     public final String name;
-    public final String structureLink;
+    public final String structureLinkName;
+    public final int structureLinkID;
     public JsonObject generatorLink = null;
     public final int offsetX;
     public final int offsetY;
@@ -21,11 +22,11 @@ public class StructureBase {
     public List<IStructureSpawnTest> locationTests = null;
     public List<IAfterSpawnFunction> afterFunctions = null;
 
-    public StructureBase(int id, String name, String structureLink, int offsetX, int offsetY, int offsetZ) {
+    public StructureBase(int id, String name, String structureLink, int structureLinkID, int offsetX, int offsetY, int offsetZ) {
         this.id = id;
         this.name = name;
-        this.structureLink = structureLink;
-
+        this.structureLinkName = structureLink;
+        this.structureLinkID = structureLinkID;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.offsetZ = offsetZ;
@@ -35,7 +36,6 @@ public class StructureBase {
         this.defRotation = rotation;
     }
 
-    //FIRST
     public boolean canStartSearch(World world, BlockPos pos) {
         if (this.locationTests != null) {
             for (IStructureSpawnTest test : this.locationTests) {
@@ -45,5 +45,21 @@ public class StructureBase {
             }
         }
         return true;
+    }
+
+    public boolean generate(World world, BlockPos pos, Rotation rotation) {
+        NLibStructureHandler.TEMPLATE template = NLibStructureHandler.getTemplateById(this.structureLinkID);
+        if (template != null) {
+            return template.generate(world, pos, rotation);
+        }
+        return false;
+    }
+
+    public void runAfterFunction(World world, BlockPos pos) {
+        if (this.afterFunctions != null) {
+            for (IAfterSpawnFunction function : this.afterFunctions) {
+                function.start(world, pos, this);
+            }
+        }
     }
 }

@@ -1,12 +1,17 @@
 {
   "required_mods": [],
   "name": "simple",
+  "skip": false,
+  "priority": 5,
+  "generator_start_tests": [],
+  "after_spawn": [],
   "generator_type": "simple",
-  "every_x_chunk": 4,
   "global_weight": 1000,
-  "offset_x": 2,
-  "offset_z": -1,
-  "structures": [],
-  "spawn_rules": [],
-  "after_spawn": []
+  "every_x_chunk": 4,
+  "chunk_offset_x": 2,
+  "chunk_offset_z": -1,
+  "spawn_offset_x": 8,
+  "spawn_offset_z": 8,
+  "random_offset_xz": 8,
+  "structures": []
 }

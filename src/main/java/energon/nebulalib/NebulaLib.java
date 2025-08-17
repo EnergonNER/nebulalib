@@ -2,6 +2,7 @@ package energon.nebulalib;
 
 import energon.nebulalib.event.NLibEventHandler;
 import energon.nebulalib.proxy.CommonProxy;
+import energon.nebulalib.structure.NLibStructureHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Loader;
@@ -9,6 +10,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.apache.logging.log4j.Logger;
 
 @Mod(modid = NebulaLib.MODID, name = NebulaLib.NAME, version = NebulaLib.VERSION)
@@ -25,6 +27,7 @@ public class NebulaLib {
     public static Logger logger;
     public static Configuration config;
     public static boolean EVENTS_ON = true;
+    public static boolean STRUCTURES_ON = true;
     public static boolean srparasites = false;
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -36,7 +39,9 @@ public class NebulaLib {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
-
+        if (STRUCTURES_ON) {
+            GameRegistry.registerWorldGenerator(new NLibStructureHandler(), 5);
+        }
     }
 
     @EventHandler

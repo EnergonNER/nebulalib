@@ -5,68 +5,130 @@ import energon.nebulalib.NebulaLib;
 import energon.nebulalib.structure.presets.GEN_EveryXZChunk;
 import energon.nebulalib.structure.after.AFTER_SpawnEntity;
 import energon.nebulalib.structure.after.IAfterSpawnFunction;
-import energon.nebulalib.structure.test.*;
+import energon.nebulalib.structure.test.generator.IGeneratorStartTest;
+import energon.nebulalib.structure.test.structure.*;
 import energon.nebulalib.util.NLibFileUtilities;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraft.world.gen.structure.template.Template;
+import net.minecraftforge.fml.common.IWorldGenerator;
 import net.minecraftforge.fml.common.Loader;
 
 import javax.annotation.Nullable;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
-public class NLibStructureHandler {
-    public static String VERSION = "1.0";
+public class NLibStructureHandler implements IWorldGenerator {
     public static int ASTR = 0;
     public static int ATEM = 0;
 
-    public static HashMap<String, Function<JsonObject, IStructureSpawnTest>> MAP_STR_TEST;
-    public static HashMap<String, Function<JsonObject, IAfterSpawnFunction>> MAP_STR_AFTER;
+    public static HashMap<String, Function<JsonObject, IStructureSpawnTest>> MAP_TEST;
+    public static HashMap<String, Function<JsonObject, IGeneratorStartTest>> MAP_GEN_TEST;
+    public static HashMap<String, Function<JsonObject, IAfterSpawnFunction>> MAP_AFTER;
     public static HashMap<String, Function<JsonObject, StructureGeneratorBase>> MAP_GENERATORS;
 
     public static List<TEMPLATE> LIST_TEMPLATES = new ArrayList<>();
     public static List<StructureBase> LIST_STRUCTURES = new ArrayList<>();
     public static List<StructureGeneratorBase> LIST_GENERATORS = new ArrayList<>();
+
+    @Override
+    public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator iChunkGenerator, IChunkProvider iChunkProvider) {
+        boolean spawned = false;
+        for (StructureGeneratorBase generator : LIST_GENERATORS) {
+            if (!(generator.skip && spawned) && generator.canStartSearch(random, chunkX, chunkZ, world, iChunkGenerator, iChunkProvider)) {
+                generator.generate(random, chunkX, chunkZ, world, iChunkGenerator, iChunkProvider);
+                spawned = true;
+            }
+        }
+    }
+
+    public static void writeStaticValues() {}
+
+    public static void copy() {
+        File configDir = Loader.instance().getConfigDir();
+        File nebulaGenDir = new File(configDir, "nebulalib/generators/nebula");
+        if (!nebulaGenDir.exists()) {
+            info("NEBULA: LIB <> COPY FROM MOD START   ");
+            for (String resource : new String[]{"simple.json"}) {
+                switch (NLibFileUtilities.copyFromMod("nebulalib/custom/", resource, nebulaGenDir, false)) {
+                    case 0:
+                        debug("NEBULA: LIB > " + resource + " SUCCESSFUL   ");
+                        break;
+                    case 1:
+                        alert("NEBULA: LIB > " + resource + " ERROR!!!   ");
+                        break;
+                    case 2:
+                        alert("NEBULA: LIB > " + resource + " FILE EXIST!!!   ");
+                        break;
+                    case 3:
+                        alert("NEBULA: LIB > " + resource + " FILE PATH ERROR!!!   ");
+                        break;
+                    case 4:
+                        alert("NEBULA: LIB > " + resource + " INPUT = NULL!!!   ");
+                        break;
+                }
+            }
+            info("NEBULA: LIB <> COPY FROM MOD END   ");
+        }
+    }
+
     public static void init() {
-        System.out.println("NEBULA: LIB STRUCTURE GENERATOR START   ");
+        info("NEBULA: LIB <> STRUCTURE GENERATOR START   ");
 
 
         File configDir = Loader.instance().getConfigDir();
 
-        File structureDir = new File(configDir, "nebulalib/structures");
-        System.out.println("NEBULA: LIB > START READ TEMPLATE   ");
-        readTemplate(structureDir);
-        System.out.println("NEBULA: LIB > END READ TEMPLATE   ");
+        File templateDir = new File(configDir, "nebulalib/template");
+        info("NEBULA: LIB > START READ TEMPLATE   ");
+        readTemplate(templateDir);
+        info("NEBULA: LIB > END READ TEMPLATE   ");
 
-        System.out.println("NEBULA: LIB > START READ STRUCTURES   ");
+        File structureDir = new File(configDir, "nebulalib/structures");
+        info("NEBULA: LIB > START READ STRUCTURES   ");
         readStructures(structureDir);
-        System.out.println("NEBULA: LIB > END READ STRUCTURES   ");
+        info("NEBULA: LIB > END READ STRUCTURES   ");
 
         File generatorDir = new File(configDir, "nebulalib/generators");
-        System.out.println("NEBULA: LIB > START READ GENERATORS   ");
+        info("NEBULA: LIB > START READ GENERATORS   ");
         readGenerators(generatorDir);
-        System.out.println("NEBULA: LIB > END READ GENERATORS   ");
+        info("NEBULA: LIB > END READ GENERATORS   ");
 
-        System.out.println("NEBULA: LIB > START READ STRUCTURE > GENERATOR LINK   ");
+        info("NEBULA: LIB > START STRUCTURE DATA PROCESSING > GENERATOR LINK   ");
         for (StructureBase base : LIST_STRUCTURES) {
             if (base.generatorLink != null) {
                 StructureGeneratorBase generator = getGeneratorByName(base.generatorLink.get("generator_name").getAsString());
                 if (generator != null) {
                     generator.addElement(base, base.generatorLink);
+                    debug("STRUCTURE LINK: " + base.name + " SUCCESSFUL   ");
+                } else {
+                    alert("STRUCTURE LINK: " + base.name + " SKIP: GENERATOR NOT FOUND   ");
                 }
+                base.generatorLink = null;
             }
         }
-        System.out.println("NEBULA: LIB > END READ STRUCTURE > GENERATOR LINK   ");
+        info("NEBULA: LIB > END STRUCTURE DATA PROCESSING > GENERATOR LINK   ");
 
+        info("NEBULA: LIB > START GENERATOR DATA PROCESSING > GENERATOR PRIORITY   ");
+        LIST_GENERATORS.sort(Comparator.comparingInt(StructureGeneratorBase::getPriority).thenComparing(StructureGeneratorBase::getName));
+        info("NEBULA: LIB > END GENERATOR DATA PROCESSING > GENERATOR PRIORITY   ");
 
-        System.out.println("NEBULA: LIB STRUCTURE GENERATOR END   ");
+        info("NEBULA: LIB <> STRUCTURE GENERATOR END   ");
     }
 
     public static void alert(String error) {
         System.out.println(error);
+    }
+
+    public static void debug(String text) {
+        System.out.println(text);
+    }
+
+    public static void info(String text) {
+        System.out.println(text);
     }
 
     public static void readGenerators(File dir) {
@@ -85,19 +147,19 @@ public class NLibStructureHandler {
                 if (fileName.endsWith(".json")) {
                     switch (CreateGenerator(testFile)) {
                         case 0:
-                            alert("GENERATOR:" + fileName + "  SUCCESSFUL   ");
+                            debug("GENERATOR: " + fileName + "  SUCCESSFUL   ");
                             break;
                         case 1:
-                            alert("GENERATOR:" + fileName + "  SKIP: GENERATOR NOT FOUND!!!   ");
+                            alert("GENERATOR: " + fileName + "  SKIP: GENERATOR NOT FOUND!!!   ");
                             break;
                         case 2:
-                            alert("GENERATOR:" + fileName + "  SKIP: REQUIRED MODS!!!   ");
+                            alert("GENERATOR: " + fileName + "  SKIP: REQUIRED MODS!!!   ");
                             break;
                         case 3:
-                            alert("GENERATOR:" + fileName + "  ERROR!!!   ");
+                            alert("GENERATOR: " + fileName + "  ERROR!!!   ");
                             break;
                         case 4:
-                            alert("GENERATOR:" + fileName + "  WRONG SYNTAX!!!   ");
+                            alert("GENERATOR: " + fileName + "  WRONG SYNTAX!!!   ");
                             break;
                     }
                 }
@@ -148,9 +210,9 @@ public class NLibStructureHandler {
                     Template template = NLibFileUtilities.getTemplateFromFile(testFile);
                     if (template != null) {
                         LIST_TEMPLATES.add(new TEMPLATE(ATEM++, NLibFileUtilities.getNameWithoutExt(fileName), template));
-                        alert("TEMPLATE:" + fileName + "  SUCCESSFUL   ");
+                        debug("TEMPLATE: " + fileName + "  SUCCESSFUL   ");
                     } else {
-                        alert("TEMPLATE:" + fileName + "  ERROR!!!   ");
+                        alert("TEMPLATE: " + fileName + "  ERROR!!!   ");
                     }
                 } else if (fileName.endsWith(".cfg")) {
                     NLibTemplate nLibTemplate = NLibTemplate.create(testFile);
@@ -178,16 +240,16 @@ public class NLibStructureHandler {
                 if (fileName.endsWith(".json")) {
                     switch (Create_Structure(testFile)) {
                         case 0:
-                            alert("STRUCTURE:" + fileName + "  SUCCESSFUL   ");
+                            debug("STRUCTURE: " + fileName + "  SUCCESSFUL   ");
                             break;
                         case 1:
-                            alert("STRUCTURE:" + fileName + "  ERROR!!!   ");
+                            alert("STRUCTURE: " + fileName + "  ERROR!!!   ");
                             break;
                         case 2:
-                            alert("STRUCTURE:" + fileName + "  SKIP: REQUIRED MODS!!!   ");
+                            alert("STRUCTURE: " + fileName + "  SKIP: REQUIRED MODS!!!   ");
                             break;
                         case 3:
-                            alert("STRUCTURE:" + fileName + "  SKIP: STRUCTURE NOT FOUND!!!   ");
+                            alert("STRUCTURE: " + fileName + "  SKIP: STRUCTURE NOT FOUND!!!   ");
                             break;
                     }
                 }
@@ -198,7 +260,6 @@ public class NLibStructureHandler {
     public static int Create_Structure(File file) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileReader reader = new FileReader(file)) {
-            String fileNameWithoutExt = NLibFileUtilities.getFileNameWithoutExt(file);
             JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
             if (jsonObject.has("required_mods")) {
                 JsonArray requiredArray = jsonObject.getAsJsonArray("required_mods");
@@ -209,6 +270,8 @@ public class NLibStructureHandler {
                 }
             }
 
+            String structureName = NLibFileUtilities.getFileNameWithoutExt(file);
+            TEMPLATE strLinkTemplate;
             String structureLocation;
             if (jsonObject.has("structure_location")) {
                 String strLocWithoutExt;
@@ -219,23 +282,29 @@ public class NLibStructureHandler {
                     strLocWithoutExt = structureLocation;
                     structureLocation += ".nbt";
                 }
-                if (getTemplateByName(strLocWithoutExt) == null) {
+                strLinkTemplate = getTemplateByName(strLocWithoutExt);
+                if (strLinkTemplate == null) {
                     Template template = NLibFileUtilities.getTemplateFromMod(structureLocation);
                     if (template != null) {
-                        structureLocation = strLocWithoutExt;
-                        LIST_TEMPLATES.add(new TEMPLATE(ATEM++, strLocWithoutExt, template));
+                        strLinkTemplate = new TEMPLATE(ATEM++, strLocWithoutExt, template);
+                        LIST_TEMPLATES.add(strLinkTemplate);
                     } else {
                         return 3;
                     }
                 }
-            } else if (getTemplateByName(fileNameWithoutExt) != null) {
-                structureLocation = fileNameWithoutExt;
             } else {
-                return 3;
+                strLinkTemplate = getTemplateByName(structureName);
+                if (strLinkTemplate == null) {
+                    return 3;
+                }
+            }
+
+            if (jsonObject.has("name")) {
+                structureName = jsonObject.get("name").getAsString();
             }
 
             StructureBase structure = new StructureBase(
-                    ASTR++, fileNameWithoutExt, structureLocation,
+                    ASTR++, structureName, strLinkTemplate.name, strLinkTemplate.id,
                     //jsonObject.has("spawn_type") ? jsonObject.get("spawn_type").getAsInt() : 0,
                     jsonObject.has("offsetX") ? jsonObject.get("offsetX").getAsInt() : 0,
                     jsonObject.has("offsetY") ? jsonObject.get("offsetY").getAsInt() : 0,
@@ -246,7 +315,7 @@ public class NLibStructureHandler {
                 String testRotation = jsonObject.get("default_rotation").getAsString();
                 for (Rotation rot : Rotation.values()) {
                     if (rot.name().equals(testRotation)) {
-                        structure.defRotation = rot;
+                        structure.changeDefaultRotation(rot);
                         break;
                     }
                 }
@@ -257,7 +326,7 @@ public class NLibStructureHandler {
                     JsonObject ruleObj = element.getAsJsonObject();
                     if (ruleObj.has("type")) {
                         String type = ruleObj.get("type").getAsString();
-                        Function<JsonObject, IStructureSpawnTest> fun = MAP_STR_TEST.get(type);
+                        Function<JsonObject, IStructureSpawnTest> fun = MAP_TEST.get(type);
                         if (fun != null) {
                             structure.locationTests.add(fun.apply(ruleObj));
                         }
@@ -270,7 +339,7 @@ public class NLibStructureHandler {
                     JsonObject ruleObj = element.getAsJsonObject();
                     if (ruleObj.has("type")) {
                         String type = ruleObj.get("type").getAsString();
-                        Function<JsonObject, IAfterSpawnFunction> fun = MAP_STR_AFTER.get(type);
+                        Function<JsonObject, IAfterSpawnFunction> fun = MAP_AFTER.get(type);
                         if (fun != null) {
                             structure.afterFunctions.add(fun.apply(ruleObj));
                         }
@@ -341,21 +410,22 @@ public class NLibStructureHandler {
 
     static {
         //init
-        MAP_STR_TEST = new HashMap<>();
-        MAP_STR_AFTER = new HashMap<>();
+        MAP_TEST = new HashMap<>();
+        MAP_GEN_TEST = new HashMap<>();
+        MAP_AFTER = new HashMap<>();
         MAP_GENERATORS = new HashMap<>();
 
         //test`s
-        MAP_STR_TEST.put("biome_test", TEST_Biome::new);
-        MAP_STR_TEST.put("dimension_test", TEST_Dimension::new);
+        MAP_TEST.put("biome", TEST_Biome::new);
+        MAP_TEST.put("dimension", TEST_Dimension::new);
         //after`s
-        MAP_STR_AFTER.put("spawn_entity", AFTER_SpawnEntity::new);
+        MAP_AFTER.put("spawn_entity", AFTER_SpawnEntity::new);
         //generator`s
         MAP_GENERATORS.put("simple", GEN_EveryXZChunk::new);
         //compatibility
         if (NebulaLib.srparasites) {
-            MAP_STR_TEST.put("evo_phase", TEST_EvoPhase::new);
-            MAP_STR_TEST.put("node_colony", TEST_NodeColony::new);
+            MAP_TEST.put("evo_phase", TEST_EvoPhase::new);
+            MAP_TEST.put("node_colony", TEST_NodeColony::new);
         }
     }
 
@@ -378,16 +448,9 @@ public class NLibStructureHandler {
             this(id, name);
             this.nLibTemplate = nLib;
         }
-    }
 
-    public static class SPAWN_TYPE {
-        public final int id;
-        public final String name;
-        public final SpawnType spawnType;
-        public SPAWN_TYPE(int id, String name, SpawnType spawnType) {
-            this.id = id;
-            this.name = name;
-            this.spawnType = spawnType;
+        public boolean generate(World world, BlockPos pos, Rotation rotation) {
+            return true;
         }
     }
 }

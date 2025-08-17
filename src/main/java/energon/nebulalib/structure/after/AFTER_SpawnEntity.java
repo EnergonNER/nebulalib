@@ -20,13 +20,12 @@ public class AFTER_SpawnEntity implements IAfterSpawnFunction {
                     modCompact.get("min").getAsInt(),
                     modCompact.get("max").getAsInt(),
                     modCompact.get("spawn_type").getAsInt()
-                    ));
+            ));
         }
     }
 
     @Override
-    public boolean start(World world, BlockPos pos, StructureBase base) {
-        return true;
+    public void start(World world, BlockPos pos, StructureBase base) {
     }
 
     public static class SPAWN_ENTITY_LOCAL {

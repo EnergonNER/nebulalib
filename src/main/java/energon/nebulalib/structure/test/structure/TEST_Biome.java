@@ -1,4 +1,4 @@
-package energon.nebulalib.structure.test;
+package energon.nebulalib.structure.test.structure;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,13 +16,19 @@ public class TEST_Biome implements IStructureSpawnTest {
     public boolean BLB = true;
     public TEST_Biome(JsonObject object) {
         this.biomeTests = new ArrayList<>();
-        for (JsonElement element : object.getAsJsonArray("biomes")) {
+        for (JsonElement element : object.getAsJsonArray("whitelist")) {
             String test = element.getAsString();
             if (!test.isEmpty()) {
-                this.biomeTests.add(new BIOME_LOCAL(test));
-                if (this.BLB && test.charAt(0) != '!') {
+                this.biomeTests.add(new BIOME_LOCAL(test, false));
+                if (this.BLB) {
                     this.BLB = false;
                 }
+            }
+        }
+        for (JsonElement element : object.getAsJsonArray("blacklist")) {
+            String test = element.getAsString();
+            if (!test.isEmpty()) {
+                this.biomeTests.add(new BIOME_LOCAL(test, true));
             }
         }
     }
@@ -66,24 +72,13 @@ public class TEST_Biome implements IStructureSpawnTest {
     public static class BIOME_LOCAL {
         public TEST_TYPE test;
         public String part;
-        public BIOME_LOCAL(String part) {
-            if (part.contains(":")) {
-                if (part.charAt(0) == '!') {
-                    this.test = TEST_TYPE.N_REG;
-                    this.part = part.substring(1);
-                } else {
-                    this.test = TEST_TYPE.REG;
-                    this.part = part;
-                }
+        public BIOME_LOCAL(String part, boolean negative) {
+            if (negative) {
+                this.test = part.contains(":") ? TEST_TYPE.N_REG : TEST_TYPE.N_TYPE;
             } else {
-                if (part.charAt(0) == '!') {
-                    this.test = TEST_TYPE.N_TYPE;
-                    this.part = part.substring(1);
-                } else {
-                    this.test = TEST_TYPE.TYPE;
-                    this.part = part;
-                }
+                this.test = part.contains(":") ? TEST_TYPE.REG : TEST_TYPE.TYPE;
             }
+            this.part = part;
         }
     }
 

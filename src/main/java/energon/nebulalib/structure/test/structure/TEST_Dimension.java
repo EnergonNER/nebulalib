@@ -1,4 +1,4 @@
-package energon.nebulalib.structure.test;
+package energon.nebulalib.structure.test.structure;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -13,29 +13,19 @@ public class TEST_Dimension implements IStructureSpawnTest {
     public boolean BLB = true;
     public TEST_Dimension(JsonObject object) {
         this.dimensions = new ArrayList<>();
-        for (JsonElement element : object.getAsJsonArray("dims")) {
-            String part = element.getAsString();
-            if (!part.isEmpty()) {
-                this.dimensions.add(new DIM_LOCAL(part));
-                if (this.BLB && part.charAt(0) != '!') {
+        for (JsonElement element : object.getAsJsonArray("whitelist")) {
+            String test = element.getAsString();
+            if (!test.isEmpty()) {
+                this.dimensions.add(new DIM_LOCAL(test, false));
+                if (this.BLB) {
                     this.BLB = false;
                 }
             }
         }
-    }
-
-    public TEST_Dimension(String compact) {
-        this(compact.split(";"));
-    }
-
-    public TEST_Dimension(String... dimIDs) {
-        this.dimensions = new ArrayList<>();
-        for (String part : dimIDs) {
-            if (!part.isEmpty()) {
-                this.dimensions.add(new DIM_LOCAL(part));
-                if (this.BLB && part.charAt(0) != '!') {
-                    this.BLB = false;
-                }
+        for (JsonElement element : object.getAsJsonArray("blacklist")) {
+            String test = element.getAsString();
+            if (!test.isEmpty()) {
+                this.dimensions.add(new DIM_LOCAL(test, true));
             }
         }
     }
@@ -61,14 +51,9 @@ public class TEST_Dimension implements IStructureSpawnTest {
     public static class DIM_LOCAL {
         public boolean negative;
         public int dimID;
-        public DIM_LOCAL(String part) {
-            if (part.charAt(0) == '!') {
-                negative = true;
-                dimID = Integer.parseInt(part.substring(1));
-            } else {
-                negative = false;
-                dimID = Integer.parseInt(part);
-            }
+        public DIM_LOCAL(String part, boolean negative) {
+            this.dimID = Integer.parseInt(part);
+            this.negative = negative;
         }
     }
 }

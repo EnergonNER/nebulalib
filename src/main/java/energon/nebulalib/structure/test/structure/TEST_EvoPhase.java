@@ -1,4 +1,4 @@
-package energon.nebulalib.structure.test;
+package energon.nebulalib.structure.test.structure;
 
 import com.google.gson.JsonObject;
 import net.minecraft.util.math.BlockPos;

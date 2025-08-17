@@ -1,5 +1,6 @@
-package energon.nebulalib.structure.test;
+package energon.nebulalib.structure.test.structure;
 
+import energon.nebulalib.structure.test.IChance;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
