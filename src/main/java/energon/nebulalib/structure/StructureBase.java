@@ -32,6 +32,11 @@ public class StructureBase {
         this.offsetZ = offsetZ;
     }
 
+    @Override
+    public String toString() {
+        return "Structure name: " + this.name + "  ";
+    }
+
     public void changeDefaultRotation(Rotation rotation) {
         this.defRotation = rotation;
     }
@@ -48,7 +53,7 @@ public class StructureBase {
     }
 
     public boolean generate(World world, BlockPos pos, Rotation rotation) {
-        NLibStructureHandler.TEMPLATE template = NLibStructureHandler.getTemplateById(this.structureLinkID);
+        TemplateElement template = NLibStructureHandler.getTemplateById(this.structureLinkID);
         if (template != null) {
             return template.generate(world, pos, rotation);
         }

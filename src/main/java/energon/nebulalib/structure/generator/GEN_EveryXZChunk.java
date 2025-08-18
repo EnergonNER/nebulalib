@@ -1,4 +1,4 @@
-package energon.nebulalib.structure.presets;
+package energon.nebulalib.structure.generator;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -6,6 +6,7 @@ import energon.nebulalib.structure.NLibStructureHandler;
 import energon.nebulalib.structure.StructureBase;
 import energon.nebulalib.structure.StructureGeneratorBase;
 import energon.nebulalib.structure.after.IAfterSpawnFunction;
+import energon.nebulalib.structure.spawn.DefaultStructureSpawnRules;
 import energon.nebulalib.structure.test.structure.IStructureSpawnTest;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -121,7 +122,7 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
         if (element != null && element.canStartSearch(world, pos)) {
             StructureBase structureBase = NLibStructureHandler.getStructureById(element.strId);
             if (structureBase != null) {
-                pos = this.getSpawnPos(world, pos, element.spawnType, structureBase);
+                pos = DefaultStructureSpawnRules.getSpawnPos(world, pos, element.spawnType, structureBase);
                 if (pos != null && structureBase.canStartSearch(world, pos)) {
                     Rotation rotation = element.getRandomRotation(random);
                     if (structureBase.generate(world, pos, rotation)) {

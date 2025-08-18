@@ -51,7 +51,8 @@ public class NLibEventCommand extends CommandBase {
     }
 
     public void help(ICommandSender iCommandSender) {
-        iCommandSender.sendMessage(new TextComponentString("------------------------" +
+        iCommandSender.sendMessage(new TextComponentString(
+                "------------------------" +
                 "\n> debug - ." +
                 "\n> help - ." +
                 "\n> list - ." +
@@ -75,7 +76,8 @@ public class NLibEventCommand extends CommandBase {
                 "\n>    info   <world_id>" +
                 "\n>    remove <world_id> <id-name>" +
                 "\n>    set    <world_id> <id-name>" +
-                "\n------------------------"));
+                "\n------------------------"
+        ));
     }
 
     @Override

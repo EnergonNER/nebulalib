@@ -8,6 +8,7 @@ import energon.nebulalib.handler.NLibSoundHandler;
 import energon.nebulalib.inject.SRPInject;
 import energon.nebulalib.config.NLibConfig;
 import energon.nebulalib.network.NLibEventCommand;
+import energon.nebulalib.network.NLibStructureCommand;
 import energon.nebulalib.structure.NLibStructureHandler;
 import energon.nebulalib.structure.spawn.DefaultStructureSpawnRules;
 import net.minecraft.item.Item;
@@ -43,6 +44,7 @@ public class CommonProxy {
 
 	public void serverStart(FMLServerStartingEvent event) {
 		event.registerServerCommand(new NLibEventCommand());
+		event.registerServerCommand(new NLibStructureCommand());
 		if (NebulaLib.STRUCTURES_ON) {
 
 		}

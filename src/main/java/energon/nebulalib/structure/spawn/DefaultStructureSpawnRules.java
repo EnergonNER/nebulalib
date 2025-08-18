@@ -5,6 +5,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 
 public class DefaultStructureSpawnRules {
@@ -16,6 +17,15 @@ public class DefaultStructureSpawnRules {
         STRUCTURE_SPAWN_RULES.put(0, new SeaLevel());
         STRUCTURE_SPAWN_RULES.put(1, new ONE());
         STRUCTURE_SPAWN_RULES.put(2, new TWO());
+    }
+
+    @Nullable
+    public static BlockPos getSpawnPos(World world, BlockPos pos, int spawnType, StructureBase structureBase) {
+        IStructureSpawnRule rule = DefaultStructureSpawnRules.STRUCTURE_SPAWN_RULES.get(spawnType);
+        if (rule != null) {
+            return rule.getSpawnPos(world, pos, structureBase);
+        }
+        return null;
     }
 
     public static class OnWater implements IStructureSpawnRule {

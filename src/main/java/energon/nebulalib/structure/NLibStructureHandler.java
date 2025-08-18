@@ -2,14 +2,13 @@ package energon.nebulalib.structure;
 
 import com.google.gson.*;
 import energon.nebulalib.NebulaLib;
-import energon.nebulalib.structure.presets.GEN_EveryXZChunk;
+import energon.nebulalib.structure.generator.GEN_EveryXZChunk;
 import energon.nebulalib.structure.after.AFTER_SpawnEntity;
 import energon.nebulalib.structure.after.IAfterSpawnFunction;
 import energon.nebulalib.structure.test.generator.IGeneratorStartTest;
 import energon.nebulalib.structure.test.structure.*;
 import energon.nebulalib.util.NLibFileUtilities;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.IChunkGenerator;
@@ -31,7 +30,7 @@ public class NLibStructureHandler implements IWorldGenerator {
     public static HashMap<String, Function<JsonObject, IAfterSpawnFunction>> MAP_AFTER;
     public static HashMap<String, Function<JsonObject, StructureGeneratorBase>> MAP_GENERATORS;
 
-    public static List<TEMPLATE> LIST_TEMPLATES = new ArrayList<>();
+    public static List<TemplateElement> LIST_TEMPLATES = new ArrayList<>();
     public static List<StructureBase> LIST_STRUCTURES = new ArrayList<>();
     public static List<StructureGeneratorBase> LIST_GENERATORS = new ArrayList<>();
 
@@ -78,9 +77,8 @@ public class NLibStructureHandler implements IWorldGenerator {
 
     public static void init() {
         info("NEBULA: LIB <> STRUCTURE GENERATOR START   ");
-
-
         File configDir = Loader.instance().getConfigDir();
+
 
         File templateDir = new File(configDir, "nebulalib/template");
         info("NEBULA: LIB > START READ TEMPLATE   ");
@@ -115,6 +113,7 @@ public class NLibStructureHandler implements IWorldGenerator {
         info("NEBULA: LIB > START GENERATOR DATA PROCESSING > GENERATOR PRIORITY   ");
         LIST_GENERATORS.sort(Comparator.comparingInt(StructureGeneratorBase::getPriority).thenComparing(StructureGeneratorBase::getName));
         info("NEBULA: LIB > END GENERATOR DATA PROCESSING > GENERATOR PRIORITY   ");
+
 
         info("NEBULA: LIB <> STRUCTURE GENERATOR END   ");
     }
@@ -209,7 +208,7 @@ public class NLibStructureHandler implements IWorldGenerator {
                 if (fileName.endsWith(".nbt")) {
                     Template template = NLibFileUtilities.getTemplateFromFile(testFile);
                     if (template != null) {
-                        LIST_TEMPLATES.add(new TEMPLATE(ATEM++, NLibFileUtilities.getNameWithoutExt(fileName), template));
+                        LIST_TEMPLATES.add(new TemplateElement(ATEM++, NLibFileUtilities.getNameWithoutExt(fileName), template));
                         debug("TEMPLATE: " + fileName + "  SUCCESSFUL   ");
                     } else {
                         alert("TEMPLATE: " + fileName + "  ERROR!!!   ");
@@ -217,7 +216,7 @@ public class NLibStructureHandler implements IWorldGenerator {
                 } else if (fileName.endsWith(".cfg")) {
                     NLibTemplate nLibTemplate = NLibTemplate.create(testFile);
                     if (nLibTemplate != null) {
-                        LIST_TEMPLATES.add(new TEMPLATE(ATEM++, NLibFileUtilities.getNameWithoutExt(fileName), nLibTemplate));
+                        LIST_TEMPLATES.add(new TemplateElement(ATEM++, NLibFileUtilities.getNameWithoutExt(fileName), nLibTemplate));
                     }
                 }
             }
@@ -271,7 +270,7 @@ public class NLibStructureHandler implements IWorldGenerator {
             }
 
             String structureName = NLibFileUtilities.getFileNameWithoutExt(file);
-            TEMPLATE strLinkTemplate;
+            TemplateElement strLinkTemplate;
             String structureLocation;
             if (jsonObject.has("structure_location")) {
                 String strLocWithoutExt;
@@ -286,7 +285,7 @@ public class NLibStructureHandler implements IWorldGenerator {
                 if (strLinkTemplate == null) {
                     Template template = NLibFileUtilities.getTemplateFromMod(structureLocation);
                     if (template != null) {
-                        strLinkTemplate = new TEMPLATE(ATEM++, strLocWithoutExt, template);
+                        strLinkTemplate = new TemplateElement(ATEM++, strLocWithoutExt, template);
                         LIST_TEMPLATES.add(strLinkTemplate);
                     } else {
                         return 3;
@@ -359,8 +358,8 @@ public class NLibStructureHandler implements IWorldGenerator {
     }
 
     @Nullable
-    public static TEMPLATE getTemplateByName(String searchName) {
-        for (TEMPLATE template : LIST_TEMPLATES) {
+    public static TemplateElement getTemplateByName(String searchName) {
+        for (TemplateElement template : LIST_TEMPLATES) {
             if (template.name.equals(searchName)) {
                 return template;
             }
@@ -369,8 +368,8 @@ public class NLibStructureHandler implements IWorldGenerator {
     }
 
     @Nullable
-    public static TEMPLATE getTemplateById(int id) {
-        for (TEMPLATE template : LIST_TEMPLATES) {
+    public static TemplateElement getTemplateById(int id) {
+        for (TemplateElement template : LIST_TEMPLATES) {
             if (template.id == id) {
                 return template;
             }
@@ -426,31 +425,6 @@ public class NLibStructureHandler implements IWorldGenerator {
         if (NebulaLib.srparasites) {
             MAP_TEST.put("evo_phase", TEST_EvoPhase::new);
             MAP_TEST.put("node_colony", TEST_NodeColony::new);
-        }
-    }
-
-    public static class TEMPLATE {
-        public final int id;
-        public final String name;
-        public Template minecraftTemplate = null;
-        public NLibTemplate nLibTemplate = null;
-        public TEMPLATE(int id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public TEMPLATE(int id, String name, Template mcTemplate) {
-            this(id, name);
-            this.minecraftTemplate = mcTemplate;
-        }
-
-        public TEMPLATE(int id, String name, NLibTemplate nLib) {
-            this(id, name);
-            this.nLibTemplate = nLib;
-        }
-
-        public boolean generate(World world, BlockPos pos, Rotation rotation) {
-            return true;
         }
     }
 }
