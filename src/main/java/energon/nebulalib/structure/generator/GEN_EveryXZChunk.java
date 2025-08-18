@@ -8,6 +8,7 @@ import energon.nebulalib.structure.StructureGeneratorBase;
 import energon.nebulalib.structure.after.IAfterSpawnFunction;
 import energon.nebulalib.structure.spawn.DefaultStructureSpawnRules;
 import energon.nebulalib.structure.test.structure.IStructureSpawnTest;
+import energon.nebulalib.util.NLibStructureUtilities;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -48,7 +49,7 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
 
     @Override
     public void addElement(JsonObject structure) {
-        StructureBase base = NLibStructureHandler.getStructureByName(structure.get("name").getAsString());
+        StructureBase base = NLibStructureHandler.getStructureByName(structure.get("structure_name").getAsString());
         if (base != null) {
             this.addElement(base, structure);
         }
@@ -66,12 +67,9 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
         if (structure.has("rotations")) {
             strElement.rotations = new Rotation[0];
             for (JsonElement element : structure.getAsJsonArray("rotations")) {
-                String rotName = element.getAsString();
-                for (Rotation rot : Rotation.values()) {
-                    if (rot.name().equals(rotName)) {
-                        strElement.rotations = ArrayUtils.add(strElement.rotations, rot);
-                        break;
-                    }
+                Rotation rotation = NLibStructureUtilities.getTrueRotationByName(element.getAsString());
+                if (rotation != null) {
+                    strElement.rotations = ArrayUtils.add(strElement.rotations, rotation);
                 }
             }
         }
@@ -124,9 +122,9 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
             if (structureBase != null) {
                 pos = DefaultStructureSpawnRules.getSpawnPos(world, pos, element.spawnType, structureBase);
                 if (pos != null && structureBase.canStartSearch(world, pos)) {
-                    Rotation rotation = element.getRandomRotation(random);
+                    Rotation rotation = structureBase.defRotation.add(element.getRandomRotation(random));
                     if (structureBase.generate(world, pos, rotation)) {
-                        this.runAfterFunctions(world, pos, structureBase);
+                        this.runAfterFunctions(world, pos, structureBase, rotation);
                     }
                 }
             }

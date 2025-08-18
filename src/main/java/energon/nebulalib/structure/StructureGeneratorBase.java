@@ -4,11 +4,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import energon.nebulalib.structure.after.IAfterSpawnFunction;
 import energon.nebulalib.structure.test.generator.IGeneratorStartTest;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.IChunkGenerator;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
@@ -55,6 +60,52 @@ public abstract class StructureGeneratorBase {
         }
     }
 
+    @Override
+    public String toString() {
+        return this.getInfo(false);
+    }
+
+    public String getInfo(boolean all) {
+        if (all) {
+            return "Generator name: " + this.name + "  ";
+        }
+        return "Generator name: " + this.name + "  ";
+    }
+
+    public void commandExecuteHandler(MinecraftServer minecraftServer, ICommandSender iCommandSender, String[] strings) {
+        if (strings.length == 2) {
+            iCommandSender.sendMessage(new TextComponentString("<info,remove,spawn>"));
+            return;
+        }
+        switch (strings[2]) {
+            case "info":
+                iCommandSender.sendMessage(new TextComponentString(this.getInfo(true)));
+                break;
+            case "remove":
+                if (NLibStructureHandler.LIST_STRUCTURES.removeIf((structureBase -> structureBase.name.equals(this.name)))) {
+                    iCommandSender.sendMessage(new TextComponentString("Generator: " + this.name + "  removed from the list."));
+                } else {
+                    iCommandSender.sendMessage(new TextComponentString("Generator not found."));
+                }
+                break;
+        }
+    }
+
+    public void commandTabHandler(MinecraftServer server, ICommandSender sender, String[] strings, @Nullable BlockPos pos, List<String> tab) {
+        if (strings.length == 3) {
+            tab.add("info");
+            tab.add("remove");
+            tab.add("reset");
+            return;
+        }
+        switch (strings[2]) {
+            case "info":
+            case "remove":
+            case "reset":
+                break;
+        }
+    }
+
     public int getPriority() {
         return this.priority;
     }
@@ -79,12 +130,12 @@ public abstract class StructureGeneratorBase {
 
     public abstract void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator iChunkGenerator, IChunkProvider iChunkProvider);
 
-    public void runAfterFunctions(World world, BlockPos pos, StructureBase base) {
+    public void runAfterFunctions(World world, BlockPos pos, StructureBase base, Rotation rotation) {
         if (this.afterFunctions != null) {
             for (IAfterSpawnFunction function : this.afterFunctions) {
-                function.start(world, pos, base);
+                function.start(world, pos, base, rotation);
             }
         }
-        base.runAfterFunction(world, pos);
+        base.runAfterFunctions(world, pos, rotation);
     }
 }

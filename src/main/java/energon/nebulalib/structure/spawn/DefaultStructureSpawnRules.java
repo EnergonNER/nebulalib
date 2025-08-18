@@ -36,8 +36,8 @@ public class DefaultStructureSpawnRules {
 
         @Override
         public BlockPos getSpawnPos(World world, BlockPos pos, StructureBase structure) {
-            if (this.canSpawn(world, pos.up(world.getSeaLevel()), structure)) {
-                return pos.up(world.getSeaLevel());
+            if (this.canSpawn(world, pos.up(world.getSeaLevel() - 1), structure)) {
+                return pos.up(world.getSeaLevel() - 1);
             }
             return null;
         }

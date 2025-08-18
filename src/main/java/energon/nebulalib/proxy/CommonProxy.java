@@ -42,11 +42,10 @@ public class CommonProxy {
 		}
 	}
 
-	public void serverStart(FMLServerStartingEvent event) {
+	public void serverStarting(FMLServerStartingEvent event) {
 		event.registerServerCommand(new NLibEventCommand());
-		event.registerServerCommand(new NLibStructureCommand());
 		if (NebulaLib.STRUCTURES_ON) {
-
+			event.registerServerCommand(new NLibStructureCommand());
 		}
 	}
 

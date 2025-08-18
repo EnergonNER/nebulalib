@@ -8,7 +8,7 @@ import energon.nebulalib.structure.after.IAfterSpawnFunction;
 import energon.nebulalib.structure.test.generator.IGeneratorStartTest;
 import energon.nebulalib.structure.test.structure.*;
 import energon.nebulalib.util.NLibFileUtilities;
-import net.minecraft.util.Rotation;
+import energon.nebulalib.util.NLibStructureUtilities;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.IChunkGenerator;
@@ -24,6 +24,8 @@ import java.util.function.Function;
 public class NLibStructureHandler implements IWorldGenerator {
     public static int ASTR = 0;
     public static int ATEM = 0;
+    public static boolean SPAWN = true;
+    public static boolean DEBUG = false;
 
     public static HashMap<String, Function<JsonObject, IStructureSpawnTest>> MAP_TEST;
     public static HashMap<String, Function<JsonObject, IGeneratorStartTest>> MAP_GEN_TEST;
@@ -116,6 +118,11 @@ public class NLibStructureHandler implements IWorldGenerator {
 
 
         info("NEBULA: LIB <> STRUCTURE GENERATOR END   ");
+    }
+
+    public static void serverStarted() {
+        DEBUG = false;
+        SPAWN = NebulaLib.STRUCTURES_ON;
     }
 
     public static void alert(String error) {
@@ -311,13 +318,7 @@ public class NLibStructureHandler implements IWorldGenerator {
             );
 
             if (jsonObject.has("default_rotation")) {
-                String testRotation = jsonObject.get("default_rotation").getAsString();
-                for (Rotation rot : Rotation.values()) {
-                    if (rot.name().equals(testRotation)) {
-                        structure.changeDefaultRotation(rot);
-                        break;
-                    }
-                }
+                structure.changeDefaultRotation(NLibStructureUtilities.getRotationByName(jsonObject.get("default_rotation").getAsString()));
             }
 
             if (jsonObject.has("spawn_rules")) {

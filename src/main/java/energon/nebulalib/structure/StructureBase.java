@@ -34,6 +34,13 @@ public class StructureBase {
 
     @Override
     public String toString() {
+        return this.getInfo(false);
+    }
+
+    public String getInfo(boolean all) {
+        if (all) {
+            return "Structure name: " + this.name + "  ";
+        }
         return "Structure name: " + this.name + "  ";
     }
 
@@ -60,10 +67,10 @@ public class StructureBase {
         return false;
     }
 
-    public void runAfterFunction(World world, BlockPos pos) {
+    public void runAfterFunctions(World world, BlockPos pos, Rotation rotation) {
         if (this.afterFunctions != null) {
             for (IAfterSpawnFunction function : this.afterFunctions) {
-                function.start(world, pos, this);
+                function.start(world, pos, this, rotation);
             }
         }
     }

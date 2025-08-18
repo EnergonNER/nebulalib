@@ -52,7 +52,7 @@ public class NebulaLib {
 
     @EventHandler
     public void serverInit(FMLServerStartingEvent event) {
-        proxy.serverStart(event);
+        proxy.serverStarting(event);
 
     }
 
@@ -61,6 +61,9 @@ public class NebulaLib {
         if (EVENTS_ON) {
             MinecraftForge.EVENT_BUS.register(NLibEventHandler.class);
             NLibEventHandler.serverStarted();
+        }
+        if (STRUCTURES_ON) {
+            NLibStructureHandler.serverStarted();
         }
     }
 

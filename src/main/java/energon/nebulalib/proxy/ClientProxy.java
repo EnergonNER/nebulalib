@@ -35,8 +35,8 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void serverStart(FMLServerStartingEvent event) {
-		super.serverStart(event);
+	public void serverStarting(FMLServerStartingEvent event) {
+		super.serverStarting(event);
 
 	}
 

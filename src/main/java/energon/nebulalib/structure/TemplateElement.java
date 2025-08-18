@@ -26,6 +26,18 @@ public class TemplateElement {
         this.nLibTemplate = nLib;
     }
 
+    @Override
+    public String toString() {
+        return this.getInfo(false);
+    }
+
+    public String getInfo(boolean all) {
+        if (all) {
+            return "Template name: " + this.name + "  ";
+        }
+        return "Template name: " + this.name + "  ";
+    }
+
     public boolean generate(World world, BlockPos pos, Rotation rotation) {
         if (this.minecraftTemplate != null) {
             return this.generateMCTemplate(world, pos, rotation);

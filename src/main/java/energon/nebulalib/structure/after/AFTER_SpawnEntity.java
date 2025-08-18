@@ -3,6 +3,7 @@ package energon.nebulalib.structure.after;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import energon.nebulalib.structure.StructureBase;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -25,7 +26,7 @@ public class AFTER_SpawnEntity implements IAfterSpawnFunction {
     }
 
     @Override
-    public void start(World world, BlockPos pos, StructureBase base) {
+    public void start(World world, BlockPos pos, StructureBase base, Rotation rotation) {
     }
 
     public static class SPAWN_ENTITY_LOCAL {
