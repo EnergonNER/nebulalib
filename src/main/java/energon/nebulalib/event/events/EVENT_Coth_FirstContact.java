@@ -1,6 +1,7 @@
 package energon.nebulalib.event.events;
 
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
+import energon.nebulalib.event.EventSaveData;
 import energon.nebulalib.handler.NLibSoundHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -13,7 +14,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -31,7 +31,6 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.regex.Pattern;
 
 public class EVENT_Coth_FirstContact extends EventBase {
     private Collection<PotionEffect> effects;
@@ -42,22 +41,9 @@ public class EVENT_Coth_FirstContact extends EventBase {
         super(p, 330);
     }
 
-    /**effects|reg_name;duration;amplifier;isAmbient;showParticles,...*/
     @Override
     public void getFromData(String data, boolean playerEvent) {
-        if (data.startsWith("effects")) {
-            this.effects = new ArrayList<>();
-            String[] parts = data.substring(8).split(Pattern.quote(","));
-            for (String effectInstance : parts) {
-                String[] effect = effectInstance.split(Pattern.quote(";"));
-                if (effect.length == 5) {
-                    Potion potion = Potion.getPotionFromResourceLocation(effect[0]);
-                    if (potion != null) {
-                        this.effects.add(new PotionEffect(potion, Integer.parseInt(effect[1]), Integer.parseInt(effect[2]), Boolean.parseBoolean(effect[3]), Boolean.parseBoolean(effect[4])));
-                    }
-                }
-            }
-        }
+        this.effects = EventSaveData.getPotionsFromData(data);
     }
 
     @Override
@@ -65,14 +51,7 @@ public class EVENT_Coth_FirstContact extends EventBase {
         if (this.player != null) {
             if (!this.fromData) {
                 this.effects = new ArrayList<>(this.player.getActivePotionEffects());
-                StringBuilder builder = new StringBuilder("effects|");
-                for (PotionEffect effect : this.effects) {
-                    ResourceLocation loc = effect.getPotion().getRegistryName();
-                    if (loc != null) {
-                        builder.append(loc.toString()).append(";").append(effect.getDuration()).append(";").append(effect.getAmplifier()).append(";").append(effect.getIsAmbient()).append(";").append(effect.doesShowParticles()).append(",");
-                    }
-                }
-                this.saveToData(builder.toString());
+                this.saveToData(EventSaveData.createDataForPotions(this.effects, ""));
                 this.player.clearActivePotions();
             }
             this.player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, this.eventTime - 20, 4, false, false));
@@ -155,67 +134,40 @@ public class EVENT_Coth_FirstContact extends EventBase {
         int screenHeight = res.getScaledHeight();
         float partialTicks = event.getPartialTicks();
         float progress;
-        int tp = this.eventTime / 6;
-        if (this.eventProgress < tp) {
+        if (this.eventProgress < 60) {
             progress = 1F - MathHelper.sin(Math.min((this.eventProgress + partialTicks) * 0.02F, 1F) * 1.57F);
-        } else if (this.eventProgress > tp * 5) {
+        } else if (this.eventProgress > (this.eventTime - 60)) {
             progress = 1F - MathHelper.sin(Math.min((this.eventTime - this.eventProgress - partialTicks) * 0.02F, 1F) * 1.57F);
         } else {
             progress = 0F;
         }
 
         float f3 = mc.player.ticksExisted + partialTicks;
-        float resScale;
-        switch (res.getScaleFactor()) {
-            case 1:
-                resScale = 1.5F;
-                break;
-            case 2:
-                resScale = 1F;
-                break;
-            case 3:
-                resScale = 0.75F;
-                break;
-            default:
-                resScale = 0.5F;
-                break;
-        }
-        //UL
+        float resScale = (screenHeight / 540F) * 0.85F;
+
+        //Upper Left
         //1
-        this.tentacle(mc, -30 * resScale - progress * 300, 40 * resScale, 110, MathHelper.sin(f3 * 0.09F) * (1.0F - progress * 0.8F), false, 0.7F * resScale);
+        this.tentacle(mc, -30 * resScale - progress * 300, 120 * resScale, 120, MathHelper.sin(f3 * 0.09F) * (1.0F - progress * 0.8F), false, 1F * resScale);
         //2
-        this.tentacle(mc, 180 * resScale - progress * 350, -30 * resScale - progress * 150, 150, MathHelper.sin(f3 * 0.071F) * (1.0F - progress * 0.8F), false, 0.9F * resScale);
+        this.tentacle(mc, 210 * resScale - progress * 300, -30 * resScale - progress * 150, 150, MathHelper.sin(f3 * 0.071F) * (1.0F - progress * 0.8F), false, 0.9F * resScale);
+
+        //Lower Left
         //3
-        this.tentacle(mc, 320 * resScale - progress * 300, -50 * resScale - progress * 120, 150, MathHelper.sin(f3 * 0.082F) * (1.0F - progress * 0.8F), false, 0.7F * resScale);
-
-
-        //DL
+        this.tentacle(mc, -30 * resScale - progress * 300, screenHeight - 120 * resScale, 60, -MathHelper.sin(f3 * 0.043F) * (1.0F - progress * 0.9F), false, resScale);
         //4
-        this.tentacle(mc, -30 * resScale - progress * 300, screenHeight - 180 * resScale, 80, -MathHelper.sin(f3 * 0.043F) * (1.0F - progress * 0.9F), false, resScale);
+        this.tentacle(mc, 210 * resScale - progress * 300, screenHeight + 30 * resScale + progress * 150, 30, -MathHelper.sin(f3 * 0.083F) * (1.0F - progress * 0.9F), false, 1F * resScale);
+
+        //Upper Right
         //5
-        this.tentacle(mc, 30 * resScale - progress * 300, screenHeight + 50 * resScale + progress * 120, 30, -MathHelper.sin(f3 * 0.083F) * (1.0F - progress * 0.9F), false, 0.6F * resScale);
+        this.tentacle(mc, screenWidth + 30 * resScale + progress * 300, 120 * resScale, -120, -MathHelper.sin(f3 * 0.091F) * (1.0F - progress * 0.8F), true, 0.9F * resScale);
         //6
-        this.tentacle(mc, 180 * resScale - progress * 350, screenHeight + 30 * resScale + progress * 180, 30, -MathHelper.sin(f3 * 0.067F) * (1.0F - progress * 0.9F), false, 0.75F * resScale);
+        this.tentacle(mc, screenWidth - 210 * resScale + progress * 300, -30 * resScale - progress * 150, -150, -MathHelper.sin(f3 * 0.081F) * (1.0F - progress * 0.9F), true, 1F * resScale);
+
+        //Lower Right
         //7
-        this.tentacle(mc, 290 * resScale - progress * 350, screenHeight + 50 * resScale + progress * 120, 20, -MathHelper.sin(f3 * 0.075F) * (1.0F - progress * 0.9F), false, 0.7F * resScale);
-
-
-        //UR
+        this.tentacle(mc, screenWidth + 30 * resScale + progress * 300, screenHeight - 120 * resScale, -60, -MathHelper.sin(f3 * 0.065F) * (1.0F - progress * 0.7F), true, resScale);
         //8
-        this.tentacle(mc, screenWidth + 40 * resScale + progress * 300, -20 * resScale, -130, -MathHelper.sin(f3 * 0.091F) * (1.0F - progress * 0.8F), true, 0.6F * resScale);
-        //9
-        this.tentacle(mc, screenWidth - 240 * resScale + progress * 350, -40 * resScale - progress * 120, -150, -MathHelper.sin(f3 * 0.081F) * (1.0F - progress * 0.9F), true, 0.7F * resScale);
-        //10
-        this.tentacle(mc, screenWidth + 20 * resScale + progress * 300, 120 * resScale - progress * 40, -100, -MathHelper.sin(f3 * 0.073F) * (1.0F - progress * 0.9F), true, 0.6F * resScale);
-
-
-        //DR
-        //11
-        this.tentacle(mc, screenWidth + 40 * resScale + progress * 300, screenHeight - 120 * resScale, -70, -MathHelper.sin(f3 * 0.065F) * (1.0F - progress * 0.7F), true, resScale);
-        //12
-        this.tentacle(mc, screenWidth - 180 * resScale + progress * 350, screenHeight + 30 * resScale + progress * 120, -30, MathHelper.sin(f3 * 0.082F) * (1.0F - progress * 0.8F), true, 0.7F * resScale);
-        //13
-        this.tentacle(mc, screenWidth + 30 * resScale + progress * 300, screenHeight + 30 * resScale + progress * 120, -30, MathHelper.sin(f3 * 0.073F) * (1.0F - progress * 0.8F), true, 0.6F * resScale);
+        this.tentacle(mc, screenWidth - 210 * resScale + progress * 300, screenHeight + 30 * resScale + progress * 150, -30, MathHelper.sin(f3 * 0.082F) * (1.0F - progress * 0.8F), true, 0.9F * resScale);
     }
 
     public void tentacle(Minecraft mc, float x, float y, float angle, float sin, boolean re, float scale) {
@@ -225,23 +177,23 @@ public class EVENT_Coth_FirstContact extends EventBase {
         GlStateManager.enableBlend();
         GlStateManager.translate(x, y, 0);
         GlStateManager.rotate(sin * 10 + angle, 0, 0, 1);
-        drawTexturedModalRect((int) (-50 * scale), (int) (-80 * scale), (int) (100 * scale), (int) (100 * scale), re);
+        draw((int) (-50 * scale), (int) (-80 * scale), (int) (100 * scale), (int) (100 * scale), re);
 
         mc.getTextureManager().bindTexture(TEXTUREN);
-        GlStateManager.translate(0, -80 * scale, 0);
+        GlStateManager.translate(0, -81.25 * scale, 0);
         GlStateManager.rotate(sin * 10 , 0, 0, 1);
-        drawTexturedModalRect((int) (-50 * scale), (int) (-80 * scale), (int) (100 * scale), (int) (100 * scale), re);
+        draw((int) (-50 * scale), (int) (-80 * scale), (int) (100 * scale), (int) (100 * scale), re);
 
         mc.getTextureManager().bindTexture(TEXTURENN);
-        GlStateManager.translate(0, -80 * scale, 0);
+        GlStateManager.translate(0, -81.25 * scale, 0);
         GlStateManager.rotate(sin * 10 , 0, 0, 1);
-        drawTexturedModalRect((int) (-50 * scale), (int) (-80 * scale), (int) (100 * scale), (int) (100 * scale), re);
+        draw((int) (-50 * scale), (int) (-80 * scale), (int) (100 * scale), (int) (100 * scale), re);
 
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
     }
 
-    public void drawTexturedModalRect(int x, int y, int width, int height, boolean rev) {
+    public void draw(int x, int y, int width, int height, boolean rev) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);

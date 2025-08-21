@@ -128,7 +128,7 @@ public abstract class StructureGeneratorBase {
         return true;
     }
 
-    public abstract void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator iChunkGenerator, IChunkProvider iChunkProvider);
+    public abstract boolean generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator iChunkGenerator, IChunkProvider iChunkProvider);
 
     public void runAfterFunctions(World world, BlockPos pos, StructureBase base, Rotation rotation) {
         if (this.afterFunctions != null) {

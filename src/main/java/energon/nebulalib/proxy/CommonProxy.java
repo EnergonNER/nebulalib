@@ -1,6 +1,5 @@
 package energon.nebulalib.proxy;
 
-import energon.nebulalib.NebulaLib;
 import energon.nebulalib.entity.spawn.DefaultEntitySpawnRules;
 import energon.nebulalib.event.NLibEventHandler;
 import energon.nebulalib.network.NLibNetwork;
@@ -22,14 +21,14 @@ public class CommonProxy {
 		NLibNetwork.init();
 		DefaultEntitySpawnRules.writeStaticValues();
 		DefaultStructureSpawnRules.writeStaticValues();
-		if (NebulaLib.STRUCTURES_ON) {
+		if (NLibConfig.STRUCTURES_ON) {
 			NLibStructureHandler.writeStaticValues();
 		}
 	}
 
 	public void init(FMLInitializationEvent event) {
 		NLibSoundHandler.registerSounds();
-		if (NebulaLib.STRUCTURES_ON) {
+		if (NLibConfig.STRUCTURES_ON) {
 			NLibStructureHandler.copy();
 		}
 	}
@@ -37,14 +36,14 @@ public class CommonProxy {
 	public void postInit(FMLPostInitializationEvent event) {
 		SRPInject.inj();
 		NLibEventHandler.init();
-		if (NebulaLib.STRUCTURES_ON) {
+		if (NLibConfig.STRUCTURES_ON) {
 			NLibStructureHandler.init();
 		}
 	}
 
 	public void serverStarting(FMLServerStartingEvent event) {
 		event.registerServerCommand(new NLibEventCommand());
-		if (NebulaLib.STRUCTURES_ON) {
+		if (NLibConfig.STRUCTURES_ON) {
 			event.registerServerCommand(new NLibStructureCommand());
 		}
 	}

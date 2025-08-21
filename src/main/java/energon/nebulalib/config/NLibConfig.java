@@ -7,9 +7,13 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import java.io.File;
 
 public class NLibConfig {
+    public static boolean EVENTS_ON = true;
+    public static boolean STRUCTURES_ON = false;
 
     private static void initMainSettings(Configuration config) {
         String category = "+main";
+        EVENTS_ON = config.getBoolean("event_on", category, EVENTS_ON, "");
+        STRUCTURES_ON = config.getBoolean("structure_spawn", category, STRUCTURES_ON, "");
     }
 
     public static void registerConfig(FMLPreInitializationEvent event) {

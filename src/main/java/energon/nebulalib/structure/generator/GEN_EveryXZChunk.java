@@ -112,7 +112,7 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
     }
 
     @Override
-    public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator iChunkGenerator, IChunkProvider iChunkProvider) {
+    public boolean generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator iChunkGenerator, IChunkProvider iChunkProvider) {
         GEN_STRUCTURE_ELEMENT element = getRandomElement(random);
         BlockPos pos = this.randomOffsetXZ > 0 ?
                 new BlockPos(chunkX * 16 + this.spawnOffsetX + (random.nextInt(this.randomOffsetXZ * 2 + 1) - this.randomOffsetXZ), 0, chunkZ * 16 + this.spawnOffsetZ + (random.nextInt(this.randomOffsetXZ * 2 + 1) - this.randomOffsetXZ)) :
@@ -125,10 +125,12 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
                     Rotation rotation = structureBase.defRotation.add(element.getRandomRotation(random));
                     if (structureBase.generate(world, pos, rotation)) {
                         this.runAfterFunctions(world, pos, structureBase, rotation);
+                        return true;
                     }
                 }
             }
         }
+        return false;
     }
 
     @Nullable

@@ -3,6 +3,9 @@ package energon.nebulalib.event;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
@@ -11,7 +14,9 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class EventSaveData extends WorldSavedData {
     public static final String DATA_NAME = "nebula_custom_events";
@@ -33,6 +38,44 @@ public class EventSaveData extends WorldSavedData {
             storage.setData(DATA_NAME, instance);
         }
         return instance;
+    }
+
+    public static Collection<PotionEffect> getPotionsFromData(String data) {
+        Collection<PotionEffect> potions = new ArrayList<>();
+        for (String element : data.split(Pattern.quote("<>"))) {
+            String[] dataInfo = element.split(Pattern.quote("|"));
+            if (dataInfo.length == 2 && dataInfo[0].equals("effects")) {
+                String[] dataParts = dataInfo[1].split(Pattern.quote(","));
+                for (String part : dataParts) {
+                    String[] info = part.split(Pattern.quote(";"));
+                    if (info.length == 5) {
+                        Potion potion = Potion.getPotionFromResourceLocation(info[0]);
+                        if (potion != null) {
+                            potions.add(new PotionEffect(potion, Integer.parseInt(info[1]), Integer.parseInt(info[2]),
+                                    Boolean.parseBoolean(info[3]), Boolean.parseBoolean(info[4])));
+                        }
+                    }
+                }
+            }
+        }
+        return potions;
+    }
+
+    public static String createDataForPotions(Collection<PotionEffect> potions, String data) {
+        StringBuilder builder = new StringBuilder(data);
+        builder.append("effects|");
+        for (PotionEffect effect : potions) {
+            ResourceLocation loc = effect.getPotion().getRegistryName();
+            if (loc != null) {
+                builder.append(loc.toString()).append(";")
+                        .append(effect.getDuration()).append(";")
+                        .append(effect.getAmplifier()).append(";")
+                        .append(effect.getIsAmbient()).append(";")
+                        .append(effect.doesShowParticles()).append(",");
+            }
+        }
+        builder.append("<>");
+        return builder.toString();
     }
 
     public EVENT_PLAYER_DATA getPlayerData(String playerName, boolean create) {

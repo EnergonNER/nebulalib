@@ -45,6 +45,9 @@ public class NLibEventHandler {
     public static List<EventBase> WORLDS_EVENT_ADD = new ArrayList<>();
 
     public static void init() {
+        //EVENTS.add(new EVENT(-2, "test", SIDE.PLAYER_INTERACT, RARITY.LEGENDARY, EVENT_Test::new, "", new TEST_PlayerKillEntity(EntityLodo.class)));
+
+
         EVENTS.add(new EVENT(1, "coth_0", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_FirstContact::new, "", new TEST_Delay(4), new TEST_EvoPhase(0, 0), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
         EVENTS.add(new EVENT(2, "coth_1", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Again::new, "", new TEST_Delay(4), new TEST_EvoPhase(1, 1), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
         EVENTS.add(new EVENT(3, "coth_2", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Another::new, "", new TEST_Delay(4), new TEST_EvoPhase(2, 2), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
@@ -492,7 +495,9 @@ public class NLibEventHandler {
         /**onEntityDeath, onEntityHurt for all players in the zone*/
         VOID_INTERACT,
         /**onPlayerKill, onPlayerHurt, onHurtPlayer, onPlayerDead for player*/
-        PLAYER_INTERACT;
+        PLAYER_INTERACT,
+        /**Custom event fired by another mod*/
+        CUSTOM;
         public boolean isPlayerUpdateEvent() {
             return this == PLAYER_TICK;
         }
@@ -502,7 +507,7 @@ public class NLibEventHandler {
         }
 
         public boolean isPlayerEvent() {
-            return this != WORLD_TICK;
+            return this != CUSTOM && this != WORLD_TICK;
         }
 
         public boolean isInteractEvent() {

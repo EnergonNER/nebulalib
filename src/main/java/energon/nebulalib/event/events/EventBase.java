@@ -5,6 +5,7 @@ import energon.nebulalib.event.NLibEventHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -39,6 +40,8 @@ public abstract class EventBase {
     public void clientEventEnd() {}
     @SideOnly(Side.CLIENT)
     public void overlayRender(RenderGameOverlayEvent.Pre event) {}
+    @SideOnly(Side.CLIENT)
+    public void worldRender(RenderWorldLastEvent event) {}
 
     public boolean disableAttack(AttackEntityEvent event) {
         return false;

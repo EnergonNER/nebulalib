@@ -2,6 +2,7 @@ package energon.nebulalib.structure;
 
 import com.google.gson.*;
 import energon.nebulalib.NebulaLib;
+import energon.nebulalib.config.NLibConfig;
 import energon.nebulalib.structure.generator.GEN_EveryXZChunk;
 import energon.nebulalib.structure.after.AFTER_SpawnEntity;
 import energon.nebulalib.structure.after.IAfterSpawnFunction;
@@ -41,8 +42,9 @@ public class NLibStructureHandler implements IWorldGenerator {
         boolean spawned = false;
         for (StructureGeneratorBase generator : LIST_GENERATORS) {
             if (!(generator.skip && spawned) && generator.canStartSearch(random, chunkX, chunkZ, world, iChunkGenerator, iChunkProvider)) {
-                generator.generate(random, chunkX, chunkZ, world, iChunkGenerator, iChunkProvider);
-                spawned = true;
+                if (generator.generate(random, chunkX, chunkZ, world, iChunkGenerator, iChunkProvider) && !spawned) {
+                    spawned = true;
+                }
             }
         }
     }
@@ -122,7 +124,7 @@ public class NLibStructureHandler implements IWorldGenerator {
 
     public static void serverStarted() {
         DEBUG = false;
-        SPAWN = NebulaLib.STRUCTURES_ON;
+        SPAWN = NLibConfig.STRUCTURES_ON;
     }
 
     public static void alert(String error) {

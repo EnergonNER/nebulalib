@@ -4,6 +4,7 @@ import energon.nebulalib.NebulaLib;
 import energon.nebulalib.event.events.EventBase;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -36,6 +37,14 @@ public class NLibEventHandlerClient {
     public static void onRenderOverlay(RenderGameOverlayEvent.Pre event) {
         if (CORRECT_EVENT != null) {
             CORRECT_EVENT.overlayRender(event);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = true)
+    public static void renderWorldL(RenderWorldLastEvent event){
+        if (CORRECT_EVENT != null) {
+            CORRECT_EVENT.worldRender(event);
         }
     }
 

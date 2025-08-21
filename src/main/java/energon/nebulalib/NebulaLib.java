@@ -1,5 +1,6 @@
 package energon.nebulalib;
 
+import energon.nebulalib.config.NLibConfig;
 import energon.nebulalib.event.NLibEventHandler;
 import energon.nebulalib.proxy.CommonProxy;
 import energon.nebulalib.structure.NLibStructureHandler;
@@ -26,8 +27,6 @@ public class NebulaLib {
     public static NebulaLib instance;
     public static Logger logger;
     public static Configuration config;
-    public static boolean EVENTS_ON = true;
-    public static boolean STRUCTURES_ON = true;
     public static boolean srparasites = false;
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -39,7 +38,7 @@ public class NebulaLib {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
-        if (STRUCTURES_ON) {
+        if (NLibConfig.STRUCTURES_ON) {
             GameRegistry.registerWorldGenerator(new NLibStructureHandler(), 5);
         }
     }
@@ -58,18 +57,18 @@ public class NebulaLib {
 
     @EventHandler
     public void serverStarted(FMLServerStartedEvent event) {
-        if (EVENTS_ON) {
+        if (NLibConfig.EVENTS_ON) {
             MinecraftForge.EVENT_BUS.register(NLibEventHandler.class);
             NLibEventHandler.serverStarted();
         }
-        if (STRUCTURES_ON) {
+        if (NLibConfig.STRUCTURES_ON) {
             NLibStructureHandler.serverStarted();
         }
     }
 
     @EventHandler
     public void serverStopping(FMLServerStoppingEvent event) {
-        if (EVENTS_ON) {
+        if (NLibConfig.EVENTS_ON) {
             NLibEventHandler.serverStopping();
             MinecraftForge.EVENT_BUS.unregister(NLibEventHandler.class);
         }
