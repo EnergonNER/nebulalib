@@ -9,11 +9,13 @@ import java.io.File;
 public class NLibConfig {
     public static boolean EVENTS_ON = true;
     public static boolean STRUCTURES_ON = false;
+    public static boolean EVENT_DEBUG = false;
 
     private static void initMainSettings(Configuration config) {
         String category = "+main";
         EVENTS_ON = config.getBoolean("event_on", category, EVENTS_ON, "");
         STRUCTURES_ON = config.getBoolean("structure_spawn", category, STRUCTURES_ON, "");
+        EVENT_DEBUG = config.getBoolean("event_debug", category, EVENT_DEBUG, "");
     }
 
     public static void registerConfig(FMLPreInitializationEvent event) {

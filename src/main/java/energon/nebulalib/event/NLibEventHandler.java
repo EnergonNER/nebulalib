@@ -1,10 +1,6 @@
 package energon.nebulalib.event;
 
-import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityPPreeminent;
-import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityPStationaryArchitect;
-import com.dhanantry.scapeandrunparasites.init.SRPBiomes;
-import com.dhanantry.scapeandrunparasites.init.SRPBlocks;
-import com.dhanantry.scapeandrunparasites.init.SRPPotions;
+import energon.nebulalib.config.NLibConfig;
 import energon.nebulalib.event.events.*;
 import energon.nebulalib.event.test.*;
 import energon.nebulalib.network.NLibNetwork;
@@ -32,52 +28,42 @@ import java.util.List;
 import java.util.function.Function;
 
 public class NLibEventHandler {
+    /**List of all registered events.*/
     public static List<EVENT> EVENTS = new ArrayList<>();
     public static int ticks = -200;
     public static boolean importData = true;
     public static EventSaveData DATA;
-    public static boolean DEBUG = false;
+    public static boolean DEBUG = NLibConfig.EVENT_DEBUG;
 
+    /**List of all active events for players.*/
     public final static List<EventBase> PLAYERS_EVENT = new ArrayList<>();
+    /**List of player events waiting to be added to PLAYERS_EVENT, used for safe insertion.*/
     public static List<EventBase> PLAYERS_EVENT_ADD = new ArrayList<>();
 
+    /**List of all active events for worlds.*/
     public final static List<EventBase> WORLDS_EVENT = new ArrayList<>();
+    /**List of world events waiting to be added to WORLDS_EVENT, used for safe insertion.*/
     public static List<EventBase> WORLDS_EVENT_ADD = new ArrayList<>();
 
-    public static void init() {
-        //EVENTS.add(new EVENT(-2, "test", SIDE.PLAYER_INTERACT, RARITY.LEGENDARY, EVENT_Test::new, "", new TEST_PlayerKillEntity(EntityLodo.class)));
-
-
-        EVENTS.add(new EVENT(1, "coth_0", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_FirstContact::new, "", new TEST_Delay(4), new TEST_EvoPhase(0, 0), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(2, "coth_1", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Again::new, "", new TEST_Delay(4), new TEST_EvoPhase(1, 1), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(3, "coth_2", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Coth_Another::new, "", new TEST_Delay(4), new TEST_EvoPhase(2, 2), new TEST_PlayerHasPotionEffect(SRPPotions.COTH_E)));
-        EVENTS.add(new EVENT(4, "saw_beckon", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Saw_Beckon::new, "", new TEST_PlayerLooksAtEntity(EntityPStationaryArchitect.class, 0.035)));
-        EVENTS.add(new EVENT(5, "biome_enter", SIDE.PLAYER_TICK, RARITY.COMMON, EVENT_Biome_Enter::new, "", new TEST_Delay(4), new TEST_PlayerInBiome(SRPBiomes.biomeInfested)));
-        EVENTS.add(new EVENT(6, "node_destroyed", SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Node_Destroyed::new, "", new TEST_PlayerBreakBlock(SRPBlocks.BiomeHeart)));
-        EVENTS.add(new EVENT(7, "city_exit", SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_City_Exit::new, "", new TEST_PlayerChangeDimension(0, 111)));
-        EVENTS.add(new EVENT(8, "kill_preem", SIDE.PLAYER_INTERACT, RARITY.RARE, EVENT_Kill_Preem::new, "", new TEST_PlayerKillEntity(EntityPPreeminent.class)));
-    }
+    public static void init() {}
 
     public static void serverStarted() {
         ticks = -200;
         importData = true;
-        if (DEBUG) {
-            for (EntityPlayer player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
-                player.sendMessage(new TextComponentString("(EventHandler) Server Started!"));
-            }
-        }
-        DEBUG = false;
+        System.out.println("(EventHandler) Server Started!");
+        DEBUG = NLibConfig.EVENT_DEBUG;
     }
 
     public static void serverStopping() {
         if (DEBUG) {
+            System.out.println("(EventHandler) Server Stopping!");
             for (EntityPlayer player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
                 player.sendMessage(new TextComponentString("(EventHandler) Server Stopping!"));
             }
         }
         ticks = -200;
         DATA = null;
-        DEBUG = false;
+        DEBUG = NLibConfig.EVENT_DEBUG;
         PLAYERS_EVENT.clear();
         PLAYERS_EVENT_ADD.clear();
         WORLDS_EVENT.clear();
@@ -102,9 +88,7 @@ public class NLibEventHandler {
             }
         }
         if (DEBUG) {
-            for (EntityPlayer player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
-                player.sendMessage(new TextComponentString("(EventHandler) Data initialized!"));
-            }
+            System.out.println("(EventHandler) Data initialized!");
         }
     }
 
@@ -300,6 +284,26 @@ public class NLibEventHandler {
         }
     }
 
+    @Nullable
+    public static EVENT getEventById(int id) {
+        for (EVENT test : EVENTS) {
+            if (test.eventID == id) {
+                return test;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static EVENT getEventByName(String name) {
+        for (EVENT test : EVENTS) {
+            if (test.name.equals(name)) {
+                return test;
+            }
+        }
+        return null;
+    }
+
     @SubscribeEvent
     public static void onRightClick(PlayerInteractEvent.RightClickBlock event) {
         if (!event.getWorld().isRemote) {
@@ -330,17 +334,24 @@ public class NLibEventHandler {
             this.tests = t;
         }
 
+        /**Returns a new instance of this event for further execution.*/
         public EventBase getEvent(EntityPlayer player) {
             EventBase base = supplier.apply(player);
             base.eventID = this.eventID;
             return base;
         }
 
-        /**START*/
+        /**Main method for safely initiate the event for a player.
+         * @param player - the player to associate with this event
+         * @param fromData - true if the event is being restored from saved data, false if it is a new event.*/
         public void startEvent(EntityPlayer player, boolean fromData) {
+            if (player == null) {
+                return;
+            }
             for (EventBase eventTEST : PLAYERS_EVENT) {
                 if (eventTEST.player != null && eventTEST.player.getName().equals(player.getName())) {
                     eventTEST.eventProgress += eventTEST.eventTime;
+                    eventTEST.serverEventEnd();
                     eventTEST.saveData();
                     eventTEST.player = null;
                 }
@@ -353,8 +364,38 @@ public class NLibEventHandler {
             PLAYERS_EVENT_ADD.add(eventBase);
 
             if (DEBUG) {
+                System.out.println("(EventHandler) Player - \"" + player.getName() + "\"  started event – \"" + this.name + "\"");
                 for (EntityPlayer FMLPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
                     FMLPlayer.sendMessage(new TextComponentString("(EventHandler) Player - \"" + player.getName() + "\"  started event – \"" + this.name + "\""));
+                }
+            }
+        }
+
+        /**Main method for safely initiate the event for a world.
+         * @param world - the world to associate with this event
+         * @param fromData - true if the event is being restored from saved data, false if it is a new event.*/
+        public void startEvent(@Nullable World world, boolean fromData) {
+            if (world == null) {
+                return;
+            }
+            for (EventBase eventBase : WORLDS_EVENT) {
+                if (eventBase.world != null && eventBase.world.provider.getDimension() == world.provider.getDimension() && eventBase.eventID == this.eventID) {
+                    eventBase.eventProgress += eventBase.eventTime;
+                    eventBase.saveData();
+                    eventBase.world = null;
+                }
+            }
+
+            DATA.addWorldEvent(world.provider.getDimension(), this.eventID, this.rarity);
+            EventBase base = this.getEvent(null);
+            base.fromData = fromData;
+            base.world = world;
+            WORLDS_EVENT_ADD.add(base);
+
+            if (DEBUG) {
+                System.out.println("(EventHandler) World - \"" + world.provider.getDimension() + "\"  started event – \"" + this.name + "\"");
+                for (EntityPlayer FMLPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+                    FMLPlayer.sendMessage(new TextComponentString("(EventHandler) World - \"" + world.provider.getDimension() + "\"  started event – \"" + this.name + "\""));
                 }
             }
         }
@@ -457,46 +498,18 @@ public class NLibEventHandler {
                 }
             }
         }
-
-        /**WORLD_TICK*/
-        public void startEvent(@Nullable World world, boolean fromData) {
-            if (world == null) {
-                return;
-            }
-
-            for (EventBase eventBase : WORLDS_EVENT) {
-                if (eventBase.world != null && eventBase.world.provider.getDimension() == world.provider.getDimension() && eventBase.eventID == this.eventID) {
-                    eventBase.eventProgress += eventBase.eventTime;
-                    eventBase.saveData();
-                    eventBase.world = null;
-                }
-            }
-
-            DATA.addWorldEvent(world.provider.getDimension(), this.eventID, this.rarity);
-            EventBase base = this.getEvent(null);
-            base.fromData = fromData;
-            base.world = world;
-            WORLDS_EVENT_ADD.add(base);
-
-            if (DEBUG) {
-                for (EntityPlayer FMLPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
-                    FMLPlayer.sendMessage(new TextComponentString("(EventHandler) World - \"" + world.provider.getDimension() + "\"  started event – \"" + this.name + "\""));
-                }
-            }
-        }
     }
 
-
     public enum SIDE {
-        /**onPlayerUpdate*/
+        /**Fired every n ticks for the player. (onPlayerUpdate)*/
         PLAYER_TICK,
-        /**onWorldUpdate*/
+        /**Fired every n ticks of world update. (onWorldUpdate)*/
         WORLD_TICK,
-        /**onEntityDeath, onEntityHurt for all players in the zone*/
+        /**Occurs without player involvement (onEntityDeath, onEntityHurt) for all players in the zone.*/
         VOID_INTERACT,
-        /**onPlayerKill, onPlayerHurt, onHurtPlayer, onPlayerDead for player*/
+        /**Triggered when a player starts the event or is a participant. (onPlayerKill, onPlayerHurt, onHurtPlayer, onPlayerDead for player)*/
         PLAYER_INTERACT,
-        /**Custom event fired by another mod*/
+        /**Disables automatic event execution, used only for custom modifications.*/
         CUSTOM;
         public boolean isPlayerUpdateEvent() {
             return this == PLAYER_TICK;

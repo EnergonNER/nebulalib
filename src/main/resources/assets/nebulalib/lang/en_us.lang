@@ -9,57 +9,6 @@
 #Tooltip
 #End
 
+
 #Event
-catalyst.event.coth_phase0.title1=§4What... is this?
-catalyst.event.coth_phase0.title2=§4Such cold... and then...
-
-catalyst.event.coth_phase1.title1=§4A sound... from above.
-catalyst.event.coth_phase1.title2=§4A feeling!
-catalyst.event.coth_phase1.title3=§4And... a light...
-
-catalyst.event.coth_phase2.title1=§4Only... one.
-catalyst.event.coth_phase2.title2=§4But yet, another...?
-catalyst.event.coth_phase2.title3=§4A presence!
-catalyst.event.coth_phase2.title4=§4Away from... The Self.
-
-catalyst.event.saw_beckon.title1=§4Oh, to stretch!
-catalyst.event.saw_beckon.title2=§4Away from...
-catalyst.event.saw_beckon.title3=§4squeezing
-catalyst.event.saw_beckon.title4=§4pressing
-catalyst.event.saw_beckon.title5=§4cold...
-catalyst.event.saw_beckon.title6=§4from The Self.
-
-catalyst.event.biome_enter.title1=§4Other...
-catalyst.event.biome_enter.title2=§4How far you have stretched...
-catalyst.event.biome_enter.title3=§4Yet even now,
-catalyst.event.biome_enter.title4=§4as The Self begins to create,
-catalyst.event.biome_enter.title5=§4a vessel encroaches myself.
-
-catalyst.event.node_destroyed.title1=§4I have felt...
-catalyst.event.node_destroyed.title2=§4and I have discovered.
-catalyst.event.node_destroyed.title3=§4Freedom. Beauty. Life!
-catalyst.event.node_destroyed.title4=§4And what you have done...
-catalyst.event.node_destroyed.title5=§4with such a gift!
-catalyst.event.node_destroyed.title6=§4A WASTE!
-catalyst.event.node_destroyed.title7=§4It is the right of The Self.
-catalyst.event.node_destroyed.title8=§4I refuse to be overlooked...
-catalyst.event.node_destroyed.title9=§4in the dark.
-
-catalyst.event.city_exit.title1=§4This vessel...
-catalyst.event.city_exit.title2=§4Where did you put it?
-catalyst.event.city_exit.title3=§4It returns with The Presence
-catalyst.event.city_exit.title4=§4"You"
-catalyst.event.city_exit.title5=§4What is it that you have done?
-
-catalyst.event.kill_preem.title1=§4Other
-catalyst.event.kill_preem.title2=§4I outpace you
-catalyst.event.kill_preem.title3=§4I will rewrite,
-catalyst.event.kill_preem.title4=§4reproduce,
-catalyst.event.kill_preem.title5=§4REINVENT!
-catalyst.event.kill_preem.title6=§4Not many vessels of...
-catalyst.event.kill_preem.title7=§4such design remain...
-catalyst.event.kill_preem.title8=§4This limb of yours...
-catalyst.event.kill_preem.title9=§4it will not last.
-catalyst.event.kill_preem.title10=§4I can see perfection
-catalyst.event.kill_preem.title11=§4It begins at The Self.
 #End

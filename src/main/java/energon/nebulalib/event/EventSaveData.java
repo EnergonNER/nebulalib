@@ -141,6 +141,7 @@ public class EventSaveData extends WorldSavedData {
                 data.setEventEnded();
                 this.setDirty(true);
                 if (NLibEventHandler.DEBUG) {
+                    System.out.println("(SaveData) Player - \"" + playerName + "\"  ended event – \"" + old + "\"");
                     for (EntityPlayer FMLPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
                         FMLPlayer.sendMessage(new TextComponentString("(SaveData) Player - \"" + playerName + "\"  ended event – \"" + old + "\""));
                     }
@@ -157,6 +158,7 @@ public class EventSaveData extends WorldSavedData {
                 data.setEventEnded();
                 this.setDirty(true);
                 if (NLibEventHandler.DEBUG) {
+                    System.out.println("(SaveData) World - \"" + worldID + "\"  ended event – \"" + old + "\"");
                     for (EntityPlayer FMLPlayer : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
                         FMLPlayer.sendMessage(new TextComponentString("(SaveData) World - \"" + worldID + "\"  ended event – \"" + old + "\""));
                     }

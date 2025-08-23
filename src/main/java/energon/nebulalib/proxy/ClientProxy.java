@@ -48,12 +48,7 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void eventHandler(int eventID) {
-		for (NLibEventHandler.EVENT event : NLibEventHandler.EVENTS) {
-			if (event.eventID == eventID) {
-				NLibEventHandlerClient.CORRECT_EVENT = event.getEvent(null);
-				return;
-			}
-		}
-		NLibEventHandlerClient.CORRECT_EVENT = null;
+		NLibEventHandler.EVENT event = NLibEventHandler.getEventById(eventID);
+		NLibEventHandlerClient.CORRECT_EVENT = event != null ? event.getEvent(null) : null;
 	}
 }

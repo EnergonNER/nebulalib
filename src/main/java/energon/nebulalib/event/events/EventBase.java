@@ -17,11 +17,17 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 
 public abstract class EventBase {
+    @Nullable
     public EntityPlayer player;
+    @Nullable
     public World world;
+    /**Event progress: if it reaches or exceeds eventTime, the event will be marked as completed.*/
     public int eventProgress = 0;
+    /**Lifetime in ticks after which the event will be marked for removal.*/
     public int eventTime;
     public int eventID = 0;
+    /**Indicates if the event was loaded from saved data.
+     * This value is set automatically before the event’s lifecycle starts and is accessible only on the server.*/
     public boolean fromData = false;
     public EventBase(@Nullable EntityPlayer p, int time) {
         this.player = p;
@@ -29,11 +35,13 @@ public abstract class EventBase {
     }
 
     public void serverEventStart(){}
+    /**The main method where all actions to occur during the event’s progression are defined (server-side)*/
     public abstract void serverTick();
     public void serverEventEnd(){}
 
     @SideOnly(Side.CLIENT)
     public void clientEventStart() {}
+    /**The main method where all actions to occur during the event’s progression are defined (client-side)*/
     @SideOnly(Side.CLIENT)
     public abstract void clientTick();
     @SideOnly(Side.CLIENT)
@@ -43,27 +51,32 @@ public abstract class EventBase {
     @SideOnly(Side.CLIENT)
     public void worldRender(RenderWorldLastEvent event) {}
 
+    /**If true, prevents the player from dealing damage to entities.*/
     public boolean disableAttack(AttackEntityEvent event) {
         return false;
     }
 
-    /**Cancels damage to a player affected by the event*/
+    /**If true, disables damage from entities to the player.*/
     public boolean disableGetDamage(AttackEntityEvent event) {
         return false;
     }
 
+    /**If true, disables the ability to travel between dimensions.*/
     public boolean disableChangeDimension(EntityTravelToDimensionEvent event) {
         return false;
     }
 
+    /**If true, prevents breaking blocks.*/
     public boolean disableBreakBlock(BlockEvent.BreakEvent event) {
         return false;
     }
 
+    /**If true, prevents placing blocks.*/
     public boolean disablePlaceBlock(BlockEvent.EntityPlaceEvent event) {
         return false;
     }
 
+    /**If true, prevents interaction with blocks using the right mouse button.*/
     public boolean disableInteractBlock(PlayerInteractEvent.RightClickBlock event) {
         return false;
     }
@@ -73,13 +86,15 @@ public abstract class EventBase {
     }
 
     public boolean playerPresent() {
-        return this.player != null && FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(this.player.getName()) != null;
+        return this.isPlayerEvent() && FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(this.player.getName()) != null;
     }
 
     public boolean isWorldEvent() {
         return this.world != null;
     }
 
+    /**Core method managing event execution and server-side progression.
+     * If it returns true, the event is marked for removal. (server-side)*/
     public boolean serverHandler() {
         if (this.eventProgress >= this.eventTime) {
             this.saveData();
@@ -109,6 +124,8 @@ public abstract class EventBase {
         }
     }
 
+    /**Marks the player or world as having completed the event.
+     * If neither is available, no action is taken.*/
     public void saveData() {
         if (this.isWorldEvent()) {
             NLibEventHandler.DATA.setWorldEventEnded(this.world.provider.getDimension());
@@ -117,7 +134,12 @@ public abstract class EventBase {
         }
     }
 
+    /**Invoked when the event is flagged as loaded from memory.
+     * Called prior to serverEventStart and used to restore saved data.*/
     public void getFromData(String data, boolean playerEvent) {}
+
+    /**Method used to store data (automatically restored by getFromData).
+     * Data is automatically cleared if the event finishes correctly.*/
     public void saveToData(String variables) {
         if (this.isWorldEvent()) {
             EventSaveData.EVENT_WORLD_DATA data = NLibEventHandler.DATA.getWorldData(this.world.provider.getDimension(), false);
@@ -132,6 +154,8 @@ public abstract class EventBase {
         }
     }
 
+    /**Core method managing event execution and client-side progression.
+     * If it returns true, the event is removed. (client-side)*/
     public boolean clientHandler() {
         if (this.eventProgress >= this.eventTime) {
             this.clientTick();
