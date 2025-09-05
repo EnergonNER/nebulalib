@@ -14,6 +14,7 @@ import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.IChunkGenerator;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
@@ -34,6 +35,7 @@ public abstract class StructureGeneratorBase {
         this.priority = object.has("priority") ? object.get("priority").getAsInt() : 5;
 
         if (object.has("generator_start_tests")) {
+            this.generatorStartTest = new ArrayList<>();
             for (JsonElement element : object.getAsJsonArray("generator_start_tests")) {
                 JsonObject ruleObj = element.getAsJsonObject();
                 if (ruleObj.has("type")) {
@@ -47,6 +49,7 @@ public abstract class StructureGeneratorBase {
         }
 
         if (object.has("after_spawn")) {
+            this.afterFunctions = new ArrayList<>();
             for (JsonElement element : object.getAsJsonArray("after_spawn")) {
                 JsonObject ruleObj = element.getAsJsonObject();
                 if (ruleObj.has("type")) {

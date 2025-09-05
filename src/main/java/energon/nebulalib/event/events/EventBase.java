@@ -7,7 +7,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -52,12 +54,24 @@ public abstract class EventBase {
     public void worldRender(RenderWorldLastEvent event) {}
 
     /**If true, prevents the player from dealing damage to entities.*/
-    public boolean disableAttack(AttackEntityEvent event) {
+    public boolean disableAttack(LivingAttackEvent event) {
         return false;
     }
 
+    public boolean disableAttack_Damage(LivingHurtEvent event) {
+        return true;
+    }
+
     /**If true, disables damage from entities to the player.*/
-    public boolean disableGetDamage(AttackEntityEvent event) {
+    public boolean disableGetDamage(LivingAttackEvent event) {
+        return false;
+    }
+
+    public boolean disableGetDamage_Damage(LivingHurtEvent event) {
+        return false;
+    }
+
+    public boolean disableDeath(LivingDeathEvent event) {
         return false;
     }
 

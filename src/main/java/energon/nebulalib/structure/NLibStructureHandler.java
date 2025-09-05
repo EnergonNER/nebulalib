@@ -324,6 +324,7 @@ public class NLibStructureHandler implements IWorldGenerator {
             }
 
             if (jsonObject.has("spawn_rules")) {
+                structure.locationTests = new ArrayList<>();
                 for (JsonElement element : jsonObject.getAsJsonArray("spawn_rules")) {
                     JsonObject ruleObj = element.getAsJsonObject();
                     if (ruleObj.has("type")) {
@@ -337,6 +338,7 @@ public class NLibStructureHandler implements IWorldGenerator {
             }
 
             if (jsonObject.has("after_spawn")) {
+                structure.afterFunctions = new ArrayList<>();
                 for (JsonElement element : jsonObject.getAsJsonArray("after_spawn")) {
                     JsonObject ruleObj = element.getAsJsonObject();
                     if (ruleObj.has("type")) {

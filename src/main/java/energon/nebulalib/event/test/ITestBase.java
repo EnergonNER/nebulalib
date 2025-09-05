@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
@@ -20,7 +21,7 @@ public interface ITestBase {
     }
 
     /**ATTACK_ENTITY*/
-    default boolean canStartEvent(Entity attacker, Entity target) {
+    default boolean canStartEvent(Entity attacker, Entity target, LivingAttackEvent event) {
         return false;
     }
 

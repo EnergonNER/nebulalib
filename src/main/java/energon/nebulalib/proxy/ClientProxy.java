@@ -1,7 +1,5 @@
 package energon.nebulalib.proxy;
 
-import energon.nebulalib.event.NLibEventHandler;
-import energon.nebulalib.event.NLibEventHandlerClient;
 import energon.nebulalib.handler.NLibRenderHandler;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -44,11 +42,5 @@ public class ClientProxy extends CommonProxy {
 	public void serverStop(FMLServerStoppedEvent event) {
 		super.serverStop(event);
 
-	}
-
-	@Override
-	public void eventHandler(int eventID) {
-		NLibEventHandler.EVENT event = NLibEventHandler.getEventById(eventID);
-		NLibEventHandlerClient.CORRECT_EVENT = event != null ? event.getEvent(null) : null;
 	}
 }

@@ -2,6 +2,7 @@ package energon.nebulalib.event.test;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 
 public class TEST_PlayerHurtEntity implements ITestBase {
     public final Class<? extends Entity> targetEntityClass;
@@ -10,7 +11,7 @@ public class TEST_PlayerHurtEntity implements ITestBase {
     }
 
     @Override
-    public boolean canStartEvent(Entity attacker, Entity target) {
+    public boolean canStartEvent(Entity attacker, Entity target, LivingAttackEvent event) {
         return attacker instanceof EntityPlayer && this.targetEntityClass.isAssignableFrom(target.getClass());
     }
 }

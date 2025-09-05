@@ -13,8 +13,9 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -160,35 +161,59 @@ public class NLibEventHandler {
     }
 
     @SubscribeEvent
-    public static void onAttackEntity(AttackEntityEvent event) {
-        Entity attacker = event.getEntity();
-        if (!attacker.world.isRemote) {
-            Entity target = event.getTarget();
+    public static void onLivingHurt(LivingHurtEvent event) {
+        EntityLivingBase target = event.getEntityLiving();
+        if (!target.world.isRemote) {
+            Entity attacker = event.getSource().getTrueSource();
             List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
             for (EventBase eventBase : local) {
-                if (eventBase.player == attacker && eventBase.disableAttack(event)) {
+                if (attacker != null && eventBase.player == attacker && eventBase.disableAttack_Damage(event)) {
+                    event.setAmount(0.0F);
                     event.setCanceled(true);
-                } else if (eventBase.player == target && eventBase.disableGetDamage(event)) {
+                    return;
+                } else if (eventBase.player == target && eventBase.disableGetDamage_Damage(event)) {
+                    event.setAmount(0.0F);
                     event.setCanceled(true);
+                    return;
                 }
             }
-            if (!event.isCanceled()) {
-                for (EVENT test : EVENTS) {
-                    if (test.side.isInteractEvent() && test.canStartEvent(attacker, target)) {
-                        if (test.side.isForAll()) {
-                            test.startEventZone(attacker);
-                        } else if (attacker instanceof EntityPlayer) {
-                            EntityPlayer player = (EntityPlayer) attacker;
-                            if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
-                                test.startEvent(player, false);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingAttack(LivingAttackEvent event) {
+        EntityLivingBase target = event.getEntityLiving();
+        if (!target.world.isRemote) {
+            Entity attacker = event.getSource().getTrueSource();
+            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+            for (EventBase eventBase : local) {
+                if (attacker != null && eventBase.player == attacker && eventBase.disableAttack(event)) {
+                    event.setCanceled(true);
+                    return;
+                } else if (eventBase.player == target && eventBase.disableGetDamage(event)) {
+                    event.setCanceled(true);
+                    return;
+                }
+            }
+            if (attacker instanceof EntityLivingBase) {
+                if (!event.isCanceled()) {
+                    for (EVENT test : EVENTS) {
+                        if (test.side.isInteractEvent() && test.canStartEvent(attacker, target, event)) {
+                            if (test.side.isForAll()) {
+                                test.startEventZone(attacker);
+                            } else if (attacker instanceof EntityPlayer) {
+                                EntityPlayer player = (EntityPlayer) attacker;
+                                if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
+                                    test.startEvent(player, false);
+                                }
+                            } else if (target instanceof EntityPlayer) {
+                                EntityPlayer player = (EntityPlayer) target;
+                                if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
+                                    test.startEvent(player, false);
+                                }
                             }
-                        } else if (target instanceof EntityPlayer) {
-                            EntityPlayer player = (EntityPlayer) target;
-                            if (DATA.getPlayerData(player.getName(), true).playerCanStartEvent(test.eventID, test.rarity)) {
-                                test.startEvent(player, false);
-                            }
+                            return;
                         }
-                        break;
                     }
                 }
             }
@@ -199,6 +224,14 @@ public class NLibEventHandler {
     public static void onDeathEvent(LivingDeathEvent event) {
         EntityLivingBase deadEntity = event.getEntityLiving();
         if (!deadEntity.world.isRemote) {
+            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+            for (EventBase eventBase : local) {
+                if (eventBase.player == deadEntity && eventBase.disableDeath(event)) {
+                    deadEntity.setHealth(3F);
+                    event.setCanceled(true);
+                    return;
+                }
+            }
             for (EVENT test : EVENTS) {
                 if (test.side.isInteractEvent() && test.canStartEvent(deadEntity, event.getSource())) {
                     if (test.side.isForAll()) {
@@ -214,7 +247,7 @@ public class NLibEventHandler {
                             test.startEvent(player, false);
                         }
                     }
-                    break;
+                    return;
                 }
             }
         }
@@ -226,6 +259,7 @@ public class NLibEventHandler {
         for (EVENT test : EVENTS) {
             if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
                 test.startEvent(event.player, false);
+                return;
             }
         }
     }
@@ -237,6 +271,7 @@ public class NLibEventHandler {
             for (EventBase eventBase : local) {
                 if (eventBase.player == event.getEntity() && eventBase.disableChangeDimension(event)) {
                     event.setCanceled(true);
+                    return;
                 }
             }
         }
@@ -250,6 +285,7 @@ public class NLibEventHandler {
             for (EventBase eventBase : local) {
                 if (eventBase.player == event.getPlayer() && eventBase.disableBreakBlock(event)) {
                     event.setCanceled(true);
+                    return;
                 }
             }
             if (!event.isCanceled()) {
@@ -257,7 +293,7 @@ public class NLibEventHandler {
                 for (EVENT test : EVENTS) {
                     if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
                         test.startEvent(event.getPlayer(), false);
-                        break;
+                        return;
                     }
                 }
             }
@@ -271,6 +307,7 @@ public class NLibEventHandler {
             for (EventBase eventBase : local) {
                 if (eventBase.player == event.getEntity() && eventBase.disablePlaceBlock(event)) {
                     event.setCanceled(true);
+                    return;
                 }
             }
             if (!event.isCanceled()) {
@@ -278,6 +315,7 @@ public class NLibEventHandler {
                 for (EVENT test : EVENTS) {
                     if (test.side.isOnlyPlayerInteract() && playerData.canStartSearch(test.rarity) && test.canStartEvent(event, playerData)) {
                         test.startEvent((EntityPlayer) event.getEntity(), false);
+                        return;
                     }
                 }
             }
@@ -454,9 +492,9 @@ public class NLibEventHandler {
         }
 
         /**Hurt_Event*/
-        public boolean canStartEvent(Entity attacker, Entity target) {
+        public boolean canStartEvent(Entity attacker, Entity target, LivingAttackEvent event) {
             for (ITestBase t : this.tests) {
-                if (!t.canStartEvent(attacker, target)) {
+                if (!t.canStartEvent(attacker, target, event)) {
                     return false;
                 }
             }

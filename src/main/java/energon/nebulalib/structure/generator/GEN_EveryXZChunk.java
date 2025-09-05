@@ -75,6 +75,7 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
         }
 
         if (structure.has("spawn_rules")) {
+            strElement.locationTests = new ArrayList<>();
             for (JsonElement element : structure.getAsJsonArray("spawn_rules")) {
                 JsonObject ruleObj = element.getAsJsonObject();
                 if (ruleObj.has("type")) {
@@ -88,6 +89,7 @@ public class GEN_EveryXZChunk extends StructureGeneratorBase {
         }
 
         if (structure.has("after_spawn")) {
+            strElement.afterFunctions = new ArrayList<>();
             for (JsonElement element : structure.getAsJsonArray("after_spawn")) {
                 JsonObject ruleObj = element.getAsJsonObject();
                 if (ruleObj.has("type")) {

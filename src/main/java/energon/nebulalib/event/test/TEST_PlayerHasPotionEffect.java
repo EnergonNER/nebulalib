@@ -6,6 +6,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 public class TEST_PlayerHasPotionEffect implements ITestBase {
@@ -31,7 +32,7 @@ public class TEST_PlayerHasPotionEffect implements ITestBase {
     }
 
     @Override
-    public boolean canStartEvent(Entity attacker, Entity target) {
+    public boolean canStartEvent(Entity attacker, Entity target, LivingAttackEvent event) {
         return (attacker instanceof EntityPlayer && ((EntityPlayer) attacker).getActivePotionEffect(this.effect) != null)
                 || (target instanceof EntityPlayer && ((EntityPlayer) target).getActivePotionEffect(this.effect) != null);
     }

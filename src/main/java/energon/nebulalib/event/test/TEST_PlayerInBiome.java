@@ -6,6 +6,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
@@ -21,7 +22,7 @@ public class TEST_PlayerInBiome implements ITestBase {
     }
 
     @Override
-    public boolean canStartEvent(Entity attacker, Entity target) {
+    public boolean canStartEvent(Entity attacker, Entity target, LivingAttackEvent event) {
         return (attacker instanceof EntityPlayer && attacker.world.getBiome(attacker.getPosition()) == this.targetBiome)
                 || (target instanceof EntityPlayer && target.world.getBiome(target.getPosition()) == this.targetBiome);
     }

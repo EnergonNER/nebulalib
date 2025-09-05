@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
@@ -18,7 +19,7 @@ public class TEST_PlayerHasAdvancement implements ITestBase {
     }
 
     @Override
-    public boolean canStartEvent(Entity attacker, Entity target) {
+    public boolean canStartEvent(Entity attacker, Entity target, LivingAttackEvent event) {
         if (attacker instanceof EntityPlayerMP) {
             EntityPlayerMP playerMP = (EntityPlayerMP) attacker;
             Advancement adv = playerMP.getServerWorld().getAdvancementManager().getAdvancement(this.advancement);

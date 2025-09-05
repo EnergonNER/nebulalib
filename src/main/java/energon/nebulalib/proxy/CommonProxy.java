@@ -52,9 +52,4 @@ public class CommonProxy {
 
 
 	}
-
-	public void eventHandler(int eventID) {
-
-
-	}
 }

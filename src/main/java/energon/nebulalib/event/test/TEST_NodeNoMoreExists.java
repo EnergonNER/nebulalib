@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
@@ -45,7 +46,7 @@ public class TEST_NodeNoMoreExists implements ITestBase {
     }
 
     @Override
-    public boolean canStartEvent(Entity attacker, Entity target) {
+    public boolean canStartEvent(Entity attacker, Entity target, LivingAttackEvent event) {
         if (attacker instanceof EntityPlayer) {
             if (!EventSaveData.get(attacker.world).getPlayerData(attacker.getName(), true).playerCanStartEvent(this.nodeExistEvent, NLibEventHandler.RARITY.COMMON)) {
                 return SRPWorldData.get(attacker.world).getNodes("a").isEmpty();
