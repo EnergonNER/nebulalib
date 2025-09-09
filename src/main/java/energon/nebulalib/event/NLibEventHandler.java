@@ -163,7 +163,7 @@ public class NLibEventHandler {
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
         EntityLivingBase target = event.getEntityLiving();
-        if (!target.world.isRemote) {
+        if (!target.world.isRemote && !PLAYERS_EVENT.isEmpty()) {
             Entity attacker = event.getSource().getTrueSource();
             List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
             for (EventBase eventBase : local) {
@@ -185,14 +185,16 @@ public class NLibEventHandler {
         EntityLivingBase target = event.getEntityLiving();
         if (!target.world.isRemote) {
             Entity attacker = event.getSource().getTrueSource();
-            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
-            for (EventBase eventBase : local) {
-                if (attacker != null && eventBase.player == attacker && eventBase.disableAttack(event)) {
-                    event.setCanceled(true);
-                    return;
-                } else if (eventBase.player == target && eventBase.disableGetDamage(event)) {
-                    event.setCanceled(true);
-                    return;
+            if (!PLAYERS_EVENT.isEmpty()) {
+                List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+                for (EventBase eventBase : local) {
+                    if (attacker != null && eventBase.player == attacker && eventBase.disableAttack(event)) {
+                        event.setCanceled(true);
+                        return;
+                    } else if (eventBase.player == target && eventBase.disableGetDamage(event)) {
+                        event.setCanceled(true);
+                        return;
+                    }
                 }
             }
             if (attacker instanceof EntityLivingBase) {
@@ -224,12 +226,14 @@ public class NLibEventHandler {
     public static void onDeathEvent(LivingDeathEvent event) {
         EntityLivingBase deadEntity = event.getEntityLiving();
         if (!deadEntity.world.isRemote) {
-            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
-            for (EventBase eventBase : local) {
-                if (eventBase.player == deadEntity && eventBase.disableDeath(event)) {
-                    deadEntity.setHealth(3F);
-                    event.setCanceled(true);
-                    return;
+            if (!PLAYERS_EVENT.isEmpty()) {
+                List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+                for (EventBase eventBase : local) {
+                    if (eventBase.player == deadEntity && eventBase.disableDeath(event)) {
+                        deadEntity.setHealth(3F);
+                        event.setCanceled(true);
+                        return;
+                    }
                 }
             }
             for (EVENT test : EVENTS) {
@@ -266,7 +270,7 @@ public class NLibEventHandler {
 
     @SubscribeEvent
     public static void onTravelToDimension(EntityTravelToDimensionEvent event) {
-        if (event.getEntity() instanceof EntityPlayer) {
+        if (event.getEntity() instanceof EntityPlayer && !PLAYERS_EVENT.isEmpty()) {
             List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
             for (EventBase eventBase : local) {
                 if (eventBase.player == event.getEntity() && eventBase.disableChangeDimension(event)) {
@@ -281,11 +285,13 @@ public class NLibEventHandler {
     public static void onPlayerBreakBlock(BlockEvent.BreakEvent event) {
         if (!event.getWorld().isRemote) {
             //MAYBE CHANGE
-            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
-            for (EventBase eventBase : local) {
-                if (eventBase.player == event.getPlayer() && eventBase.disableBreakBlock(event)) {
-                    event.setCanceled(true);
-                    return;
+            if (!PLAYERS_EVENT.isEmpty()) {
+                List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+                for (EventBase eventBase : local) {
+                    if (eventBase.player == event.getPlayer() && eventBase.disableBreakBlock(event)) {
+                        event.setCanceled(true);
+                        return;
+                    }
                 }
             }
             if (!event.isCanceled()) {
@@ -303,11 +309,13 @@ public class NLibEventHandler {
     @SubscribeEvent
     public static void onPlayerPlaceBlock(BlockEvent.EntityPlaceEvent event) {
         if (!event.getWorld().isRemote && event.getEntity() instanceof EntityPlayer) {
-            List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
-            for (EventBase eventBase : local) {
-                if (eventBase.player == event.getEntity() && eventBase.disablePlaceBlock(event)) {
-                    event.setCanceled(true);
-                    return;
+            if (!PLAYERS_EVENT.isEmpty()) {
+                List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
+                for (EventBase eventBase : local) {
+                    if (eventBase.player == event.getEntity() && eventBase.disablePlaceBlock(event)) {
+                        event.setCanceled(true);
+                        return;
+                    }
                 }
             }
             if (!event.isCanceled()) {
@@ -344,7 +352,7 @@ public class NLibEventHandler {
 
     @SubscribeEvent
     public static void onRightClick(PlayerInteractEvent.RightClickBlock event) {
-        if (!event.getWorld().isRemote) {
+        if (!event.getWorld().isRemote && !PLAYERS_EVENT.isEmpty()) {
             List<EventBase> local = new ArrayList<>(PLAYERS_EVENT);
             for (EventBase eventBase : local) {
                 if (eventBase.player == event.getEntityPlayer() && eventBase.disableInteractBlock(event)) {
