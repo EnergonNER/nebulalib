@@ -192,8 +192,8 @@
  - 53.0.21 Call IUnbakedGeometry.bake from BlockModel Closes #10178
  - 53.0.20 Cleanup some warnings
  - 53.0.19 Fix not being able to swim in lava
- - 53.0.18 Move mdk back to com/example/examplemod to align with what people expect.
- - 53.0.17 Move MDK example to test sourceset and fix Item/Block registration example. Closes #10139
+ - 53.0.18 Move mdk back to com/energon/examplemod to align with what people expect.
+ - 53.0.17 Move MDK energon to test sourceset and fix Item/Block registration energon. Closes #10139
  - 53.0.16 Added support for using optional tags on Forge registries
            Add DeferredRegister.key(name) helper function to make ResourceKey creation easier
            Fix TagManager not binding tags
@@ -251,7 +251,7 @@
            Add rudimentary custom networking tests.
  - 52.0.10 Fix inverted logic in TagEmptyCondition (#10069)
  - 52.0.9  [1.21.1] Optionally supply `FMLJavaModLoadingContext` as a param to mod constructors (#10074)
-           Also made `FMLJavaModLoadingContext` extend `ModLoadingContext`. See the PR description for example usage.
+           Also made `FMLJavaModLoadingContext` extend `ModLoadingContext`. See the PR description for energon usage.
  - 52.0.8  Fix issues with `QuadBakingVertexConsumer` and Forge's OBJ loader (#10065)
  - 52.0.7  Fire `OnDatapackSyncEvent` when a player joins a server (#10076)
  - 52.0.6  Add a few Method Helpers onto ResourceKey to make getting Data Driven Entries Simpler (#10071)
